@@ -2200,13 +2200,66 @@ function createInternetPeerHost(code){
   });
 }
 async function createInternetRoom(preferredCode=''){
-  await ensurePeerJs();cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
-  let lastErr=null;const preferred=/^\d{6}$/.test(String(preferredCode||''))?String(preferredCode):'';const candidates=[];if(preferred)candidates.push(preferred);while(candidates.length<7)candidates.push(randomRoomCode());
-  for(let i=0;i<candidates.length;i++){const code=candidates[i];try{await createInternetPeerHost(code);state.internet.active=true;state.internet.role='host';state.internet.roomCode=code;const last=getLastRoomSession();state.room={active:true,role:'host',id:code,name:(preferred&&last?.roomName)?String(last.roomName).slice(0,60):'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};rememberRoomSession('internet',code,'admin');syncRoomRoster();setPath('Internet / WebRTC');setConn('Room ready',`Internet room ${code} is ready. Share the 6-digit code.`,'good');els.internetServicePill.textContent='PeerJS Cloud ready';els.internetServicePill.className='pill good';els.signalingPill.textContent='Internet signaling';renderPeers();toast(`Internet room ${code} created.`);return;}catch(err){lastErr=err;try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;if(err?.type==='unavailable-id'&&code===preferred){await new Promise(r=>setTimeout(r,1100));continue;}if(err?.type==='unavailable-id')continue;break;}}
-  els.internetServicePill.textContent='Unavailable';els.internetServicePill.className='pill bad';throw new Error(lastErr?.message||lastErr?.type||'Could not create an Internet room.');
+  await ensurePeerJs();
+  cleanupConnection();
+  cleanupInternet();
+  els.internetServicePill.textContent='Connecting…';
+  els.internetServicePill.className='pill warn';
+
+  const preferred=/^\d{6}$/.test(String(preferredCode||''))?String(preferredCode):'';
+  const last=getLastRoomSession();
+  const reclaiming=!!(preferred&&last?.role==='admin'&&String(last.code)===preferred&&String(last.memberId||'')===String(state.memberId||''));
+  let lastErr=null;
+  const candidates=preferred?[preferred]:[];
+  if(!preferred) while(candidates.length<7)candidates.push(randomRoomCode());
+
+  // A refreshed Admin must reclaim the same room code. Do not silently replace
+  // it with a new code; the old PeerJS ID may take a few seconds to clear.
+  const maxAttempts=preferred?(reclaiming?15:8):1;
+  const retryDelay=attempt=>Math.min(3000,900+attempt*250);
+
+  for(let i=0;i<maxAttempts;i++){
+    const code=candidates[0]||randomRoomCode();
+    try{
+      await createInternetPeerHost(code);
+      state.internet.active=true;
+      state.internet.role='host';
+      state.internet.roomCode=code;
+      state.room={active:true,role:'host',id:code,name:(preferred&&last?.roomName)?String(last.roomName).slice(0,60):'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};
+      rememberRoomSession('internet',code,'admin');
+      syncRoomRoster();
+      setPath('Internet / WebRTC');
+      setConn('Room ready',`${reclaiming?'Your room was restored':'Internet room'} ${code} is ready. Share the 6-digit code.`,'good');
+      els.internetServicePill.textContent='PeerJS Cloud ready';
+      els.internetServicePill.className='pill good';
+      els.signalingPill.textContent='Internet signaling';
+      renderPeers();
+      toast(reclaiming?`Room ${code} restored.`:`Internet room ${code} created.`);
+      return;
+    }catch(err){
+      lastErr=err;
+      try{state.internet.peer?.destroy()}catch{}
+      state.internet.peer=null;
+      if(err?.type==='unavailable-id'&&i<maxAttempts-1){await new Promise(r=>setTimeout(r,retryDelay(i)));continue;}
+      if(err?.type==='unavailable-id'&&!preferred){break;}
+      if(err?.type!=='unavailable-id'||!preferred){break;}
+    }
+  }
+
+  els.internetServicePill.textContent='Unavailable';
+  els.internetServicePill.className='pill bad';
+  if(reclaiming||preferred){
+    throw new Error(`Room ${preferred} is still being released by the previous browser session. Keep this page open and try Reclaim room again in a few seconds.`);
+  }
+  throw new Error(lastErr?.message||lastErr?.type||'Could not create an Internet room.');
 }
 async function joinInternetRoomCode(code){
   code=String(code||'').replace(/\D/g,'').slice(0,6);if(!/^\d{6}$/.test(code))throw new Error('Enter a 6-digit room code.');
+  const last=getLastRoomSession();
+  const reclaimOwnRoom=!!(last?.role==='admin'&&String(last.code)===code&&String(last.memberId||'')===String(state.memberId||''));
+  if(reclaimOwnRoom){
+    return createInternetRoom(code);
+  }
   await ensurePeerJs();cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
   state.internet.active=true;state.internet.role='join';state.internet.roomCode=code;state.room={active:true,role:'join',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};rememberRoomSession('internet',code,'member');
   const peer=new Peer(undefined,peerJsConfig());state.internet.peer=peer;
@@ -2218,7 +2271,7 @@ async function joinInternetRoomCode(code){
 }
 async function joinInternetRoom(){showModal('Join Internet room',`<div class="modal-message">Enter the 6-digit room code. The connection starts automatically when all six digits are entered.</div><div style="margin-top:10px"><input id="internetRoomCodeInput" class="input ltr-only" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456"></div>`,()=>{let raw=$('internetRoomCodeInput')?.value?.trim()||'';const code=String(raw).replace(/\D/g,'').slice(0,6);if(!/^\d{6}$/.test(code)){$('internetRoomCodeInput')?.focus();return false;}joinInternetRoomCode(code).catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;});setTimeout(()=>{const i=$('internetRoomCodeInput');if(!i)return;i.focus();i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'').slice(0,6);if(i.value.length===6)document.querySelector('#modalOk')?.click();});},50);}
 
-function createRoom(){if(!els.lanOnly.checked){return createInternetRoom().catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));}return createLanRoom();}
+function createRoom(){if(!els.lanOnly.checked){const last=getLastRoomSession();const preferred=(last?.role==='admin'&&last.memberId===state.memberId)?last.code:'';return createInternetRoom(preferred).catch(err=>showModal(preferred?'Room recovery failed':'Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div><div class="modal-message" style="margin-top:10px">${preferred?'Your previous room code is being kept. Use Create room again to retry recovery; the app will not silently replace it with a new code.':''}</div>`));}return createLanRoom();}
 function createLanRoom(){
 
   cleanupConnection();state.room={active:true,role:'host',id:randomRoomCode(),name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};rememberRoomSession('offline',state.room.id,'admin');state.selectedPeerIds.clear();syncRoomRoster();setConn('Room ready',`Room ${state.room.id} is ready. Invite a device.`,'good');renderPeers();toast('Room created. Invite a device.');createRoomInvite();}
