@@ -1549,7 +1549,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.9.1';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1800,18 +1800,65 @@ function updateRoomActivity(){
   const bits=[]; if(sending)bits.push(`${sending} ${d.sendingLabel}`); if(receiving)bits.push(`${receiving} ${d.receivingLabel}`); if(idle)bits.push(`${idle} ${d.idleLabel}`);
   els.roomActivityDetail.textContent=bits.join(' · ')||d.roomActivityEmpty;
 }
+async function cleanupLegacyNotificationServiceWorker(){
+  if(!('serviceWorker' in navigator)||!window.isSecureContext)return;
+  try{
+    const regs=await navigator.serviceWorker.getRegistrations();
+    for(const reg of regs){
+      const url=reg.active?.scriptURL||reg.waiting?.scriptURL||reg.installing?.scriptURL||'';
+      if(/\/p2p-share-sw\.js(?:\?|$)/i.test(url)) await reg.unregister();
+    }
+  }catch{}
+}
 function renderNotificationButton(){
   if(!els.notifyBtn)return;
   const d=I18N[state.lang]||I18N.en;
-  if(typeof Notification==='undefined'){els.notifyBtn.disabled=true;els.notifyBtn.textContent=d.notificationsBlocked;return;}
+  if(typeof Notification==='undefined'){
+    els.notifyBtn.disabled=true;
+    els.notifyBtn.textContent=d.notificationsBlocked;
+    els.notifyBtn.title='This browser does not expose the Notifications API.';
+    return;
+  }
   state.notifications.enabled=Notification.permission==='granted';
-  els.notifyBtn.disabled=false;els.notifyBtn.title=state.notifications.enabled?'Notifications enabled':'Enable browser notifications';els.notifyBtn.textContent=state.notifications.enabled?d.notificationsOn:d.notifications;
+  els.notifyBtn.disabled=false;
+  els.notifyBtn.title=state.notifications.enabled?'Click to test notifications':'Enable browser notifications';
+  els.notifyBtn.textContent=state.notifications.enabled?`${d.notificationsOn} · Test`:d.notifications;
+}
+async function showSystemNotification(title,body=''){
+  if(typeof Notification==='undefined'||Notification.permission!=='granted')return false;
+  const options={body,tag:`p2p-share-${state.room.id||'direct'}`};
+  try{
+    const n=new Notification(title,options);
+    n.onclick=()=>{try{window.focus();n.close();}catch{}};
+    return true;
+  }catch(err){
+    toast((I18N[state.lang]||I18N.en).notificationsBlocked);
+    return false;
+  }
 }
 async function requestNotifications(){
   if(typeof Notification==='undefined'){toast((I18N[state.lang]||I18N.en).notificationsBlocked);return;}
-  try{const p=await Notification.requestPermission();state.notifications.enabled=p==='granted';renderNotificationButton();toast(p==='granted'?(I18N[state.lang]||I18N.en).notificationsOn:(I18N[state.lang]||I18N.en).notificationsBlocked);}catch{toast((I18N[state.lang]||I18N.en).notificationsBlocked);}
+  try{
+    const p=await Notification.requestPermission();
+    state.notifications.enabled=p==='granted';
+    renderNotificationButton();
+    if(p==='granted'){
+      const shown=await showSystemNotification('P2P Share','Notifications are working in this browser tab.');
+      if(shown)toast((I18N[state.lang]||I18N.en).notificationsOn);
+      else toast((I18N[state.lang]||I18N.en).notificationsBlocked);
+    }else{
+      toast((I18N[state.lang]||I18N.en).notificationsBlocked);
+    }
+  }catch{toast((I18N[state.lang]||I18N.en).notificationsBlocked);}
 }
-function maybeNotify(title,body=''){if(!state.notifications.enabled||typeof Notification==='undefined'||Notification.permission!=='granted'||!document.hidden)return;try{new Notification(title,{body,tag:`p2p-share-${state.room.id||'direct'}`});}catch{}}
+function maybeNotify(title,body=''){
+  if(!state.notifications.enabled||typeof Notification==='undefined'||Notification.permission!=='granted')return;
+  if(!document.hidden){
+    // The room is visible, so the in-app UI is already the notification surface.
+    return;
+  }
+  showSystemNotification(title,body);
+}
 
 function renderPeers(){
   const peers=[...state.peers.values()];
@@ -2603,7 +2650,7 @@ els.modalClose.onclick=()=>{stopQrScan();closeModal()};els.modalOk.onclick=()=>{
 window.addEventListener('beforeunload',()=>{stopQrScan();try{state.internet.peer?.destroy();state.dc?.close();state.pc?.close()}catch{}});
 
 defaultInit();
-function defaultInit(){applyLang();browserChecks();renderNotificationButton();renderHistory();renderSendQueue();renderPeers();renderIncoming();renderTransferCenter();if(!localStorage.getItem('p2p-network-mode-v160-defaulted')){localStorage.setItem('p2p-network-mode-v160-defaulted','1');setNetworkMode(true);}else{setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');}try{const params=new URLSearchParams(location.search);const sharedRoom=params.get('room');if(params.get('mode')==='internet'&&/^\d{6}$/.test(sharedRoom||'')){setNetworkMode(true);setTimeout(()=>showModal('Join shared room',`<div class="modal-message">Room <b>${escapeHtml(sharedRoom)}</b> is ready to join.</div>`,()=>{joinInternetRoomCode(sharedRoom).catch(err=>showModal('Join failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;}),100);}else{const last=getLastRoomSession();if(last?.mode==='internet'&&last.role==='member'){setNetworkMode(true);setTimeout(()=>joinInternetRoomCode(last.code).catch(()=>{if(state.room.active&&state.room.role==='join')scheduleInternetReconnect('The previous room is not ready yet.');}),450);}else if(last?.mode==='internet'&&last.role==='admin'){setNetworkMode(true);setTimeout(()=>createInternetRoom(last.code).catch(()=>{}),450);}}}catch{}setConn('Not connected',I18N[state.lang].defaultConnDetail,'warn');showPairCode('', '');setQuickStatus(I18N[state.lang].internetDefaultHint,'good');renderChat();}
+async function defaultInit(){applyLang();browserChecks();renderNotificationButton();cleanupLegacyNotificationServiceWorker();renderHistory();renderSendQueue();renderPeers();renderIncoming();renderTransferCenter();if(!localStorage.getItem('p2p-network-mode-v160-defaulted')){localStorage.setItem('p2p-network-mode-v160-defaulted','1');setNetworkMode(true);}else{setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');}try{const params=new URLSearchParams(location.search);const sharedRoom=params.get('room');if(params.get('mode')==='internet'&&/^\d{6}$/.test(sharedRoom||'')){setNetworkMode(true);setTimeout(()=>showModal('Join shared room',`<div class="modal-message">Room <b>${escapeHtml(sharedRoom)}</b> is ready to join.</div>`,()=>{joinInternetRoomCode(sharedRoom).catch(err=>showModal('Join failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;}),100);}else{const last=getLastRoomSession();if(last?.mode==='internet'&&last.role==='member'){setNetworkMode(true);setTimeout(()=>joinInternetRoomCode(last.code).catch(()=>{if(state.room.active&&state.room.role==='join')scheduleInternetReconnect('The previous room is not ready yet.');}),450);}else if(last?.mode==='internet'&&last.role==='admin'){setNetworkMode(true);setTimeout(()=>createInternetRoom(last.code).catch(()=>{}),450);}}}catch{}setConn('Not connected',I18N[state.lang].defaultConnDetail,'warn');showPairCode('', '');setQuickStatus(I18N[state.lang].internetDefaultHint,'good');renderChat();}
 
 })();
 </script>
