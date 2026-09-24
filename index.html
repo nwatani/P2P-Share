@@ -149,6 +149,25 @@ input[type=file]{display:none!important}
 .wb-page-label{font-size:8.5px;color:#8ea2bc}
 @media(max-width:650px){.whiteboard-canvas-wrap{margin:9px;min-height:290px}.whiteboard-toolbar{padding:9px;gap:5px}.whiteboard-tools{overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:2px}.wb-tool{flex:0 0 auto}.wb-ui{padding:0 9px 9px}.wb-help{padding:0 9px 10px}#whiteboardSvg{min-height:290px}}
 
+
+/* v2.1 media communication */
+.media-card{margin-top:14px}
+.media-stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;min-height:130px}
+.media-tile{position:relative;min-height:130px;border:1px solid var(--border);border-radius:14px;background:#09111f;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.media-tile video{width:100%;height:100%;object-fit:cover;background:#050912;display:block}
+.media-tile .media-audio-badge{padding:18px;text-align:center;color:var(--text);font-weight:700}
+.media-tile .media-name{position:absolute;left:8px;bottom:8px;padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.55);font-size:11px}
+.media-local-wrap{display:none;margin:8px 0}
+.media-local-wrap.active{display:block}
+.media-local-wrap video{width:160px;max-width:40vw;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:1px solid var(--border);background:#050912}
+.media-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:9px}
+.media-controls .select{min-width:150px}
+.media-note{font-size:11px;color:var(--muted);line-height:1.45}
+.media-hands{display:flex;flex-wrap:wrap;gap:6px}
+.media-hand-item{display:inline-flex;gap:6px;align-items:center;padding:6px 8px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);font-size:11px}
+.call-btn{min-width:40px}
+@media(max-width:760px){.media-stage{grid-template-columns:1fr}.media-local-wrap video{width:128px;max-width:48vw}}
+
 </style>
 </head>
 <body>
@@ -272,7 +291,25 @@ input[type=file]{display:none!important}
 <div class="room-code hidden" id="roomCodeCard"><div class="grow"><div class="room-code-label" data-i18n="roomCodeLabel" id="roomCodeLabel">Room code</div><div class="room-code-value" id="roomCode">------</div><div class="room-sub" data-i18n="roomReadyHint" id="roomStatus">Create or join a room to get started.</div></div><div class="room-code-actions"><button class="btn small" data-i18n="showQr" disabled="" id="showRoomInviteBtn" type="button">Show QR</button></div></div>
 <div class="room-activity" id="roomActivity"><span class="room-activity-main" id="roomActivityMain">Waiting for activity.</span><span class="room-activity-detail" id="roomActivityDetail"></span></div>
 <div class="peer-grid" id="peerGrid"></div>
-</section><nav class="mobile-nav" id="mobileNav" aria-label="Room navigation"><button type="button" data-jump="#roomCard" class="mobile-nav-btn active" data-i18n="roomTitle">Room</button><button type="button" data-jump="#chatCard" class="mobile-nav-btn" data-i18n="chatTitle">Chat</button><button type="button" data-jump="#whiteboardCard" class="mobile-nav-btn" data-i18n="whiteboardTitle">Whiteboard</button><button type="button" data-jump="#transferCard" class="mobile-nav-btn" data-i18n="transfersLabel">Transfers</button><button type="button" data-jump="#historyCard" class="mobile-nav-btn" data-i18n="history">History</button></nav>
+</section>
+<section class="card media-card" id="mediaCard">
+  <div class="card-head">
+    <div>
+      <div class="card-title" data-i18n="callsTitle">Calls & room communication</div>
+      <div class="subtle" style="margin-top:3px" data-i18n="callsSub">Private voice/video calls and room speaking controls.</div>
+    </div>
+    <span class="pill" id="mediaStatusPill">No active call</span>
+  </div>
+  <div class="media-controls" id="mediaControls"></div>
+  <div class="media-local-wrap" id="mediaLocalWrap">
+    <div class="subtle" style="margin-bottom:6px">You</div>
+    <video id="mediaLocalVideo" autoplay muted playsinline></video>
+  </div>
+  <div class="media-stage" id="mediaRemoteGrid">
+    <div class="subtle" id="mediaEmptyState">No active voice or video calls.</div>
+  </div>
+</section>
+<nav class="mobile-nav" id="mobileNav" aria-label="Room navigation"><button type="button" data-jump="#roomCard" class="mobile-nav-btn active" data-i18n="roomTitle">Room</button><button type="button" data-jump="#mediaCard" class="mobile-nav-btn" data-i18n="callsTitle">Calls</button><button type="button" data-jump="#chatCard" class="mobile-nav-btn" data-i18n="chatTitle">Chat</button><button type="button" data-jump="#whiteboardCard" class="mobile-nav-btn" data-i18n="whiteboardTitle">Whiteboard</button><button type="button" data-jump="#transferCard" class="mobile-nav-btn" data-i18n="transfersLabel">Transfers</button><button type="button" data-jump="#historyCard" class="mobile-nav-btn" data-i18n="history">History</button></nav>
 <section class="card chat-card" id="chatCard"><div class="card-head"><div class="card-title" data-i18n="chatTitle">Room chat</div><div class="row"><button class="btn small ghost" id="notifyBtn" type="button">Notifications</button><span class="pill" id="chatCount">0</span><button class="btn small ghost" data-i18n="clearChat" id="chatClearBtn" type="button">Clear</button></div></div><div class="chat-log" id="chatLog"><div class="chat-empty" data-i18n="chatEmpty" id="chatEmpty">No messages yet. Room chat is available to everyone connected.</div></div><div class="chat-recipient-bar"><label for="chatRecipientSelect">Send to</label><select class="select" id="chatRecipientSelect"><option value="all">Everyone in room</option></select></div><div class="chat-composer"><div class="chat-dropzone" id="dropZone"><div class="chat-dropzone-main"><strong>Drop files here to share in this room</strong><span>Files follow the selected recipient above. Nothing is uploaded to cloud storage.</span></div><div class="chat-drop-actions"><button class="btn primary small" id="pickFilesBtn" type="button">Choose files</button><button class="btn small" id="pickFolderBtn" type="button">Folder</button><button class="btn small" id="sendTextBtn" type="button">Text</button><span class="pill" id="sendQueueCount">0 files</span></div></div><textarea class="textarea chat-input" data-i18n-placeholder="chatPlaceholder" id="chatInput" maxlength="2000" placeholder="Write a message…" rows="2"></textarea><div class="chat-tools"><button class="btn small ghost reaction-btn" data-reaction="👍" id="chatReact1" type="button">👍</button><button class="btn small ghost reaction-btn" data-reaction="✅" id="chatReact2" type="button">✅</button><button class="btn small ghost reaction-btn" data-reaction="👀" id="chatReact3" type="button">👀</button><button class="btn small warn hidden" data-i18n="announce" id="announceChatBtn" type="button">Announce</button><button class="btn primary small" data-i18n="send" id="chatSendBtn" type="button">Send</button></div><div class="queue" id="sendQueue"></div><div class="target-bar" id="targetBar"><div class="target-head"><div class="target-title">Send files to</div><div class="target-actions"><button class="btn small ghost" id="selectAllPeersBtn" type="button">All</button><button class="btn small ghost" id="clearPeersBtn" type="button">None</button></div></div><div class="target-list" id="targetList"><span class="subtle">Connect to a peer first.</span></div></div></div>
 </section><section class="card whiteboard-card" id="whiteboardCard">
   <div class="card-head">
@@ -1634,7 +1671,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1690,7 +1727,7 @@ const els = {
   prepareAnswerBtn:$('prepareAnswerBtn'), copyAnswerBtn:$('copyAnswerBtn'), showAnswerQrBtn:$('showAnswerQrBtn'), saveAnswerBtn:$('saveAnswerBtn'), offerIn:$('offerIn'), answerOut:$('answerOut'), loadOfferFileBtn:$('loadOfferFileBtn'),
   scanOfferQrBtn:$('scanOfferQrBtn'), scanAnswerQrBtn:$('scanAnswerQrBtn'), dropZone:$('dropZone'), pickFilesBtn:$('pickFilesBtn'), pickFolderBtn:$('pickFolderBtn'), sendTextBtn:$('sendTextBtn'), fileInput:$('fileInput'), folderInput:$('folderInput'), sendQueue:$('sendQueue'), sendQueueCount:$('sendQueueCount'), incomingList:$('incomingList'), incomingCount:$('incomingCount'), historyList:$('historyList'), clearHistoryBtn:$('clearHistoryBtn'),
   signalFileInput:$('signalFileInput'), modal:$('modal'), modalTitle:$('modalTitle'), modalBody:$('modalBody'), modalFoot:$('modalFoot'), modalClose:$('modalClose'), modalOk:$('modalOk'),
-  createRoomBtn:$('createRoomBtn'), joinRoomBtn:$('joinRoomBtn'), copyRoomBtn:$('copyRoomBtn'), shareRoomBtn:$('shareRoomBtn'), renameRoomBtn:$('renameRoomBtn'), inviteRoomBtn:$('inviteRoomBtn'), scanRoomAnswerBtn:$('scanRoomAnswerBtn'), leaveRoomBtn:$('leaveRoomBtn'), roomRolePill:$('roomRolePill'), roomCodeCard:$('roomCodeCard'), roomCodeLabel:$('roomCodeLabel'), roomCode:$('roomCode'), roomStatus:$('roomStatus'), roomTitleText:$('roomTitleText'), showRoomInviteBtn:$('showRoomInviteBtn'), roomLimitPill:$('roomLimitPill'), peerGrid:$('peerGrid'), roomAnswerIn:$('roomAnswerIn'), selectAllPeersBtn:$('selectAllPeersBtn'), clearPeersBtn:$('clearPeersBtn'), targetBar:$('targetBar'), targetList:$('targetList'), chatRecipientSelect:$('chatRecipientSelect'), chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatInput:$('chatInput'), chatSendBtn:$('chatSendBtn'), chatClearBtn:$('chatClearBtn'), chatReact1:$('chatReact1'), chatReact2:$('chatReact2'), chatReact3:$('chatReact3'), announceChatBtn:$('announceChatBtn'), chatCount:$('chatCount'), transferCenterList:$('transferCenterList'), transferActiveCount:$('transferActiveCount'), transferQueuedCount:$('transferQueuedCount'), transferVerifiedCount:$('transferVerifiedCount'), roomActivity:$('roomActivity'), roomActivityMain:$('roomActivityMain'), roomActivityDetail:$('roomActivityDetail'), notifyBtn:$('notifyBtn'), mobileNav:$('mobileNav'), whiteboardCard:$('whiteboardCard'), whiteboardTools:$('whiteboardTools'), whiteboardSvg:$('whiteboardSvg'), whiteboardLayer:$('whiteboardLayer'), whiteboardCanvasWrap:$('whiteboardCanvasWrap'), whiteboardRolePill:$('whiteboardRolePill'), whiteboardExportBtn:$('whiteboardExportBtn'), whiteboardColor:$('whiteboardColor'), whiteboardWidth:$('whiteboardWidth'), whiteboardUndoBtn:$('whiteboardUndoBtn'), whiteboardRedoBtn:$('whiteboardRedoBtn'), whiteboardClearBtn:$('whiteboardClearBtn'), whiteboardPageSelect:$('whiteboardPageSelect'), whiteboardNewPageBtn:$('whiteboardNewPageBtn'), whiteboardRenamePageBtn:$('whiteboardRenamePageBtn'), whiteboardDeletePageBtn:$('whiteboardDeletePageBtn'), whiteboardZoomOutBtn:$('whiteboardZoomOutBtn'), whiteboardZoomInBtn:$('whiteboardZoomInBtn'), whiteboardZoomLabel:$('whiteboardZoomLabel'), whiteboardResetViewBtn:$('whiteboardResetViewBtn'), whiteboardFullscreenBtn:$('whiteboardFullscreenBtn'), whiteboardPolicySelect:$('whiteboardPolicySelect'), whiteboardStatus:$('whiteboardStatus')
+  createRoomBtn:$('createRoomBtn'), joinRoomBtn:$('joinRoomBtn'), copyRoomBtn:$('copyRoomBtn'), shareRoomBtn:$('shareRoomBtn'), renameRoomBtn:$('renameRoomBtn'), inviteRoomBtn:$('inviteRoomBtn'), scanRoomAnswerBtn:$('scanRoomAnswerBtn'), leaveRoomBtn:$('leaveRoomBtn'), roomRolePill:$('roomRolePill'), roomCodeCard:$('roomCodeCard'), roomCodeLabel:$('roomCodeLabel'), roomCode:$('roomCode'), roomStatus:$('roomStatus'), roomTitleText:$('roomTitleText'), showRoomInviteBtn:$('showRoomInviteBtn'), roomLimitPill:$('roomLimitPill'), peerGrid:$('peerGrid'), roomAnswerIn:$('roomAnswerIn'), selectAllPeersBtn:$('selectAllPeersBtn'), clearPeersBtn:$('clearPeersBtn'), targetBar:$('targetBar'), targetList:$('targetList'), chatRecipientSelect:$('chatRecipientSelect'), chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatInput:$('chatInput'), chatSendBtn:$('chatSendBtn'), chatClearBtn:$('chatClearBtn'), chatReact1:$('chatReact1'), chatReact2:$('chatReact2'), chatReact3:$('chatReact3'), announceChatBtn:$('announceChatBtn'), chatCount:$('chatCount'), transferCenterList:$('transferCenterList'), transferActiveCount:$('transferActiveCount'), transferQueuedCount:$('transferQueuedCount'), transferVerifiedCount:$('transferVerifiedCount'), roomActivity:$('roomActivity'), roomActivityMain:$('roomActivityMain'), roomActivityDetail:$('roomActivityDetail'), notifyBtn:$('notifyBtn'), mobileNav:$('mobileNav'), whiteboardCard:$('whiteboardCard'), whiteboardTools:$('whiteboardTools'), whiteboardSvg:$('whiteboardSvg'), whiteboardLayer:$('whiteboardLayer'), whiteboardCanvasWrap:$('whiteboardCanvasWrap'), whiteboardRolePill:$('whiteboardRolePill'), whiteboardExportBtn:$('whiteboardExportBtn'), whiteboardColor:$('whiteboardColor'), whiteboardWidth:$('whiteboardWidth'), whiteboardUndoBtn:$('whiteboardUndoBtn'), whiteboardRedoBtn:$('whiteboardRedoBtn'), whiteboardClearBtn:$('whiteboardClearBtn'), whiteboardPageSelect:$('whiteboardPageSelect'), whiteboardNewPageBtn:$('whiteboardNewPageBtn'), whiteboardRenamePageBtn:$('whiteboardRenamePageBtn'), whiteboardDeletePageBtn:$('whiteboardDeletePageBtn'), whiteboardZoomOutBtn:$('whiteboardZoomOutBtn'), whiteboardZoomInBtn:$('whiteboardZoomInBtn'), whiteboardZoomLabel:$('whiteboardZoomLabel'), whiteboardResetViewBtn:$('whiteboardResetViewBtn'), whiteboardFullscreenBtn:$('whiteboardFullscreenBtn'), whiteboardPolicySelect:$('whiteboardPolicySelect'), whiteboardStatus:$('whiteboardStatus'), mediaCard:$('mediaCard'), mediaControls:$('mediaControls'), mediaStatusPill:$('mediaStatusPill'), mediaLocalWrap:$('mediaLocalWrap'), mediaLocalVideo:$('mediaLocalVideo'), mediaRemoteGrid:$('mediaRemoteGrid'), mediaEmptyState:$('mediaEmptyState')
 };
 
 const persistedMemberId = localStorage.getItem('p2p-member-id') || sessionStorage.getItem('p2p-member-id') || uid();
@@ -1714,7 +1751,7 @@ const state = {
   diagSamples:new Map(), diagLast:null,
   peers:new Map(), primaryPeerId:null, selectedPeerIds:new Set(), chat:{messages:[],seen:new Set(),target:'all'},
   room:{active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()}, roomMaxPeers:30, roomAnswerBuffer:'', relayTransfers:new Map(), transferJobs:new Map(), pausedTransfers:new Set(), cancelledTransfers:new Set(), transferQueue:[], activeTransferPeers:new Set(), maxConcurrentTransfers:3, reconnectTimer:null, reconnectAttempts:0, internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false}, notifications:{enabled:false},
-  whiteboard:{sessionId:'',active:false,currentPageId:'page-1',pages:[{id:'page-1',name:'Page 1',objects:[]}],policy:'admin',tool:'select',color:'#2d6cdf',width:4,zoom:1,undo:[],redo:[],seenOps:new Set(),drawing:null,remoteApplying:false}
+  whiteboard:{sessionId:'',active:false,currentPageId:'page-1',pages:[{id:'page-1',name:'Page 1',objects:[]}],policy:'admin',tool:'select',color:'#2d6cdf',width:4,zoom:1,undo:[],redo:[],seenOps:new Set(),drawing:null,remoteApplying:false}, media:{calls:new Map(),pendingInvites:new Map(),roomVoiceMode:'admin',roomVoiceActive:false,roomVideoActive:false,roomVideoPresenterId:'',speakingAllowed:false,hands:new Map(),videoRequests:new Map(),speakerIds:new Set(),localAudio:null,localAV:null}
 };
 
 try{localStorage.setItem('p2p-member-id',state.memberId)}catch{}
@@ -1722,10 +1759,10 @@ try{sessionStorage.setItem('p2p-member-id',state.memberId)}catch{}
 
 const I18N = {
   en:{
-    appTitle:'P2P Share', appSub:'Browser-based rooms · chat · direct WebRTC sharing', diagnostics:'Connection diagnostics', refresh:'Refresh', candidatePair:'Candidate pair', transport:'Transport', signaling:'Signaling', iceServer:'ICE server', bytesSent:'Bytes sent', bytesReceived:'Bytes received', connection:'Connection', device:'Display name', deviceHint:'Shown to people in your room and stored only in this browser.', checks:'Browser checks', network:'Network mode', offlineMode:'Offline / LAN', offlineHint:'No STUN/TURN servers are used. Best for devices on the same Wi-Fi/LAN.', stunLabel:'Optional STUN server', stunHint:'Turn LAN-only off only when you intentionally want Internet/NAT traversal.', security:'Transfer security', passwordProtect:'Extra password protection', passwordHint:'Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.', about:'About this build', workspace:'P2P workspace', pairing:'Serverless pairing', stepCreate:'Internet / Hybrid: Create room', stepCreate2:'Admin: click Create room, then share the 6-digit code or Share room link.', stepExchange:'Internet / Hybrid: Join room', stepExchange2:'Member: click Join room and enter the 6-digit code. No QR, Start pairing, or copy/paste is needed.', stepConnect:'Offline / LAN: QR fallback', stepConnect2:'Only when Offline / LAN is selected: Host clicks Start Offline pairing; the other device clicks Join Offline / Scan; then the host scans the return QR.', stepTransfer:'Offline / LAN: no-camera fallback', stepTransfer2:'In Advanced pairing: Host clicks Create session → Create offer; joiner pastes it → Prepare answer; host pastes the answer → Apply answer.', sendFiles:'Send files', dropTitle:'Drop files here', dropSub:'or use the buttons below. Nothing is uploaded to a server.', incoming:'Incoming', incomingEmpty:'No incoming transfers yet.', history:'Transfer history', historyEmpty:'Your history is stored locally in this browser.', workSubNew:'Create a room, invite people, chat, and share directly.', aboutText:'P2P Share is a browser-based WebRTC collaboration tool with Internet rooms, chat, multi-device sharing, a synchronized whiteboard, and a fully serverless LAN fallback. It does not embed PairDrop code.', hostHint:'Send this offer to the other device. After it creates an answer, paste the answer below.', joinHint:'Send the answer back to the device that created the offer.', roomTitle:'Room', roomSub:'Create a room to share files, chat, and collaborate with several connected devices.', createRoom:'Create room', joinRoom:'Join room', copyRoom:'Copy code', shareRoom:'Share room', inviteDevice:'Invite device', scanAnswer:'Scan answer', leaveRoom:'Leave room', roomCodeLabel:'Room code', roomReadyHint:'Create or join a room to get started.', showQr:'Show QR', chatTitle:'Room chat', chatEmpty:'No messages yet. Room chat is available to everyone connected.', chatPlaceholder:'Write a message…', send:'Send', clearChat:'Clear', announce:'Announce', advanced:'Advanced', advancedNetwork:'Advanced network settings', modeRecommended:'Recommended', modeFallback:'Fallback', networkModeHeading:'Network mode', internetMode:'Internet / Hybrid', internetModeSub:'6-digit rooms · works across networks', offlineModeSub:'Fully serverless · same Wi‑Fi/LAN', modeNoteLabel:'How it works', internetDefaultHint:'Internet / Hybrid is recommended for normal use. Files remain on WebRTC; Offline / LAN remains available as the fully serverless fallback.', easyPairing:'Pairing Offline / LAN fallback', easyPairingNote:'Use this only when you need a fully serverless LAN connection. For normal use, create or join an Internet / Hybrid room instead.', offlinePairingTitle:'Pairing Offline / LAN fallback', offlinePairingSub:'No signaling service, STUN, or TURN. QR carries only the WebRTC handshake between the two browsers.', defaultConnDetail:'Create or join a room to start sharing.', internetSettingsTitle:'Internet settings',admin:'Admin',member:'Member',everyone:'Everyone in room',endRoom:'End room',leaveRoom:'Leave room',verified:'Verified',resume:'Resume',pause:'Pause',cancel:'Cancel',retry:'Resume / retry',completed:'Completed',sending:'Sending',receiving:'Receiving',paused:'Paused',interrupted:'Interrupted',failed:'Failed',noActiveTransfers:'No active transfers. Choose files to start sharing.',roomEnded:'The Admin ended this room.',endRoomConfirm:'End this room for everyone?',renameRoom:'Rename room',removeMember:'Remove member',roomName:'Room name',memberRemoved:'You were removed from this room.',rejoining:'Rejoining room…',sourceRequired:'Source file required',reconnectAndResume:'Reconnect & resume',transfersLabel:'Transfers',roomActivityEmpty:'Waiting for activity.',membersLabel:'members',sendingLabel:'sending',receivingLabel:'receiving',idleLabel:'idle',notifications:'Notifications',notificationsOn:'Notifications enabled',notificationsBlocked:'Notifications unavailable',pathDirectHost:'Direct host',pathDirectInternet:'Direct Internet',pathTurnRelay:'TURN relay',pathUnknown:'Connection path unknown',roomAdminActivity:'Admin activity',whiteboardTitle:'Whiteboard',whiteboardSub:'Draw diagrams and explain ideas together in the room.',whiteboardExport:'Export PNG',wbSelect:'Select',wbPen:'Pen',wbHighlighter:'Highlight',wbLine:'Line',wbArrow:'Arrow',wbRectangle:'Rectangle',wbEllipse:'Circle',wbText:'Text',wbNote:'Note',wbEraser:'Erase',wbUndo:'Undo',wbRedo:'Redo',wbClear:'Clear',wbPage:'Page',wbNewPage:'New page',wbRenamePage:'Rename',wbDeletePage:'Delete',wbResetView:'Reset view',wbFullscreen:'Full screen',wbRoomMode:'Room mode',wbAdminOnly:'Admin drawing',wbCollaborative:'Everyone can annotate',whiteboardHelp:'The board stays in the room. The Admin controls the current page and drawing permission. Members can view by default; collaborative mode lets everyone annotate.',wbNoRoom:'Create or join a room to use the whiteboard.',wbViewOnly:'View only',wbEditing:'You can annotate',wbSaved:'Whiteboard saved',wbPageExists:'That page name already exists.',wbLastPage:'At least one page must remain.',wbClearConfirm:'Clear this page for everyone?',wbExportFailed:'Unable to export the whiteboard.'
+    appTitle:'P2P Share', appSub:'Browser-based rooms · chat · direct WebRTC sharing', callsTitle:'Calls & room communication', callsSub:'Private voice/video calls and room speaking controls.', voiceCall:'Voice call', videoCall:'Video call', mute:'Mute / unmute', camera:'Camera on / off', endCall:'End call', roomVoice:'Room voice', roomVideo:'Room video', adminOnly:'Admin only', moderated:'Moderated', openDiscussion:'Open discussion', startVoice:'Start voice', stopVoice:'Stop voice', raiseHand:'Raise hand', lowerHand:'Lower hand', speakToRoom:'Speak to room', stopSpeaking:'Stop speaking', requestToPresent:'Request to present', presenter:'Presenter', noActiveCall:'No active call', incomingVoice:'Incoming voice call', incomingVideo:'Incoming video call', accept:'Accept', decline:'Decline', callsNeedHttps:'Voice/video calls require HTTPS and microphone/camera permission.', roomVoiceNote:'Open discussion uses direct peer media from each active speaker and is best for small rooms.', diagnostics:'Connection diagnostics', refresh:'Refresh', candidatePair:'Candidate pair', transport:'Transport', signaling:'Signaling', iceServer:'ICE server', bytesSent:'Bytes sent', bytesReceived:'Bytes received', connection:'Connection', device:'Display name', deviceHint:'Shown to people in your room and stored only in this browser.', checks:'Browser checks', network:'Network mode', offlineMode:'Offline / LAN', offlineHint:'No STUN/TURN servers are used. Best for devices on the same Wi-Fi/LAN.', stunLabel:'Optional STUN server', stunHint:'Turn LAN-only off only when you intentionally want Internet/NAT traversal.', security:'Transfer security', passwordProtect:'Extra password protection', passwordHint:'Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.', about:'About this build', workspace:'P2P workspace', pairing:'Serverless pairing', stepCreate:'Internet / Hybrid: Create room', stepCreate2:'Admin: click Create room, then share the 6-digit code or Share room link.', stepExchange:'Internet / Hybrid: Join room', stepExchange2:'Member: click Join room and enter the 6-digit code. No QR, Start pairing, or copy/paste is needed.', stepConnect:'Offline / LAN: QR fallback', stepConnect2:'Only when Offline / LAN is selected: Host clicks Start Offline pairing; the other device clicks Join Offline / Scan; then the host scans the return QR.', stepTransfer:'Offline / LAN: no-camera fallback', stepTransfer2:'In Advanced pairing: Host clicks Create session → Create offer; joiner pastes it → Prepare answer; host pastes the answer → Apply answer.', sendFiles:'Send files', dropTitle:'Drop files here', dropSub:'or use the buttons below. Nothing is uploaded to a server.', incoming:'Incoming', incomingEmpty:'No incoming transfers yet.', history:'Transfer history', historyEmpty:'Your history is stored locally in this browser.', workSubNew:'Create a room, invite people, chat, and share directly.', aboutText:'P2P Share is a browser-based WebRTC collaboration tool with Internet rooms, chat, multi-device sharing, voice and video communication, a synchronized whiteboard, and a fully serverless LAN fallback. It does not embed PairDrop code.', hostHint:'Send this offer to the other device. After it creates an answer, paste the answer below.', joinHint:'Send the answer back to the device that created the offer.', roomTitle:'Room', roomSub:'Create a room to share files, chat, and collaborate with several connected devices.', createRoom:'Create room', joinRoom:'Join room', copyRoom:'Copy code', shareRoom:'Share room', inviteDevice:'Invite device', scanAnswer:'Scan answer', leaveRoom:'Leave room', roomCodeLabel:'Room code', roomReadyHint:'Create or join a room to get started.', showQr:'Show QR', chatTitle:'Room chat', chatEmpty:'No messages yet. Room chat is available to everyone connected.', chatPlaceholder:'Write a message…', send:'Send', clearChat:'Clear', announce:'Announce', advanced:'Advanced', advancedNetwork:'Advanced network settings', modeRecommended:'Recommended', modeFallback:'Fallback', networkModeHeading:'Network mode', internetMode:'Internet / Hybrid', internetModeSub:'6-digit rooms · works across networks', offlineModeSub:'Fully serverless · same Wi‑Fi/LAN', modeNoteLabel:'How it works', internetDefaultHint:'Internet / Hybrid is recommended for normal use. Files remain on WebRTC; Offline / LAN remains available as the fully serverless fallback.', easyPairing:'Pairing Offline / LAN fallback', easyPairingNote:'Use this only when you need a fully serverless LAN connection. For normal use, create or join an Internet / Hybrid room instead.', offlinePairingTitle:'Pairing Offline / LAN fallback', offlinePairingSub:'No signaling service, STUN, or TURN. QR carries only the WebRTC handshake between the two browsers.', defaultConnDetail:'Create or join a room to start sharing.', internetSettingsTitle:'Internet settings',admin:'Admin',member:'Member',everyone:'Everyone in room',endRoom:'End room',leaveRoom:'Leave room',verified:'Verified',resume:'Resume',pause:'Pause',cancel:'Cancel',retry:'Resume / retry',completed:'Completed',sending:'Sending',receiving:'Receiving',paused:'Paused',interrupted:'Interrupted',failed:'Failed',noActiveTransfers:'No active transfers. Choose files to start sharing.',roomEnded:'The Admin ended this room.',endRoomConfirm:'End this room for everyone?',renameRoom:'Rename room',removeMember:'Remove member',roomName:'Room name',memberRemoved:'You were removed from this room.',rejoining:'Rejoining room…',sourceRequired:'Source file required',reconnectAndResume:'Reconnect & resume',transfersLabel:'Transfers',roomActivityEmpty:'Waiting for activity.',membersLabel:'members',sendingLabel:'sending',receivingLabel:'receiving',idleLabel:'idle',notifications:'Notifications',notificationsOn:'Notifications enabled',notificationsBlocked:'Notifications unavailable',pathDirectHost:'Direct host',pathDirectInternet:'Direct Internet',pathTurnRelay:'TURN relay',pathUnknown:'Connection path unknown',roomAdminActivity:'Admin activity',whiteboardTitle:'Whiteboard',whiteboardSub:'Draw diagrams and explain ideas together in the room.',whiteboardExport:'Export PNG',wbSelect:'Select',wbPen:'Pen',wbHighlighter:'Highlight',wbLine:'Line',wbArrow:'Arrow',wbRectangle:'Rectangle',wbEllipse:'Circle',wbText:'Text',wbNote:'Note',wbEraser:'Erase',wbUndo:'Undo',wbRedo:'Redo',wbClear:'Clear',wbPage:'Page',wbNewPage:'New page',wbRenamePage:'Rename',wbDeletePage:'Delete',wbResetView:'Reset view',wbFullscreen:'Full screen',wbRoomMode:'Room mode',wbAdminOnly:'Admin drawing',wbCollaborative:'Everyone can annotate',whiteboardHelp:'The board stays in the room. The Admin controls the current page and drawing permission. Members can view by default; collaborative mode lets everyone annotate.',wbNoRoom:'Create or join a room to use the whiteboard.',wbViewOnly:'View only',wbEditing:'You can annotate',wbSaved:'Whiteboard saved',wbPageExists:'That page name already exists.',wbLastPage:'At least one page must remain.',wbClearConfirm:'Clear this page for everyone?',wbExportFailed:'Unable to export the whiteboard.'
   },
   ar:{
-    appTitle:'مشاركة P2P', appSub:'ملف HTML واحد · وضع محلي بدون إنترنت + غرف عبر الإنترنت · نقل WebRTC مباشر', diagnostics:'تشخيص الاتصال', refresh:'تحديث', candidatePair:'زوج المرشحين', transport:'النقل', signaling:'الإشارة', iceServer:'خادم ICE', bytesSent:'البيانات المرسلة', bytesReceived:'البيانات المستلمة', connection:'الاتصال', device:'الجهاز', deviceHint:'يتم حفظ اسمك في هذا المتصفح فقط.', checks:'فحوصات المتصفح', network:'وضع الشبكة', offlineMode:'Offline / LAN', offlineHint:'لا يتم استخدام STUN/TURN. مناسب للأجهزة على نفس شبكة Wi‑Fi/LAN.', stunLabel:'خادم STUN اختياري', stunHint:'أوقف وضع الشبكة المحلية فقط عندما تريد اتصال الإنترنت/اجتياز NAT.', security:'أمان النقل', passwordProtect:'حماية إضافية بكلمة مرور', passwordHint:'يضيف PBKDF2 + AES-GCM على مستوى التطبيق فوق تشفير WebRTC.', about:'حول هذا الإصدار', workspace:'مساحة P2P', pairing:'اقتران بدون خادم', stepCreate:'الإنترنت / الهجين: إنشاء غرفة', stepCreate2:'المسؤول: اضغط إنشاء غرفة ثم شارك الرمز المكون من 6 أرقام أو رابط مشاركة الغرفة.', stepExchange:'الإنترنت / الهجين: الانضمام إلى الغرفة', stepExchange2:'العضو: اضغط الانضمام إلى غرفة وأدخل الرمز من 6 أرقام. لا حاجة إلى QR أو بدء الاقتران أو النسخ واللصق.', stepConnect:'Offline / LAN: بديل عبر QR', stepConnect2:'فقط عند اختيار Offline / LAN: يضغط المضيف بدء الاقتران بدون إنترنت؛ ويضغط الجهاز الآخر الانضمام / المسح؛ ثم يمسح المضيف QR العائد.', stepTransfer:'Offline / LAN: بديل بدون كاميرا', stepTransfer2:'داخل الاقتران المتقدم: المضيف يضغط إنشاء جلسة ← إنشاء عرض؛ ويلصق العضو العرض ← تجهيز الإجابة؛ ثم يلصق المضيف الإجابة ← تطبيق الإجابة.', sendFiles:'إرسال الملفات', dropTitle:'أسقط الملفات هنا', dropSub:'أو استخدم الأزرار أدناه. لا يتم رفع أي ملف إلى خادم.', incoming:'الوارد', incomingEmpty:'لا توجد عمليات نقل واردة.', history:'سجل النقل', historyEmpty:'يتم حفظ السجل محليًا في هذا المتصفح.', workSubNew:'أنشئ غرفة وادعُ الآخرين وتحدث وشارك الملفات مباشرة.', aboutText:'P2P Share هو أداة تعاون ومشاركة WebRTC تعمل من المتصفح وتدعم غرف الإنترنت والدردشة والمشاركة مع عدة أجهزة والسبورة البيضاء المتزامنة، مع وضع احتياطي محلي بدون خادم. لا يضم كود PairDrop.', hostHint:'أرسل العرض إلى الجهاز الآخر. بعد إنشاء الإجابة، الصقها هنا.', joinHint:'أرسل الإجابة مرة أخرى إلى الجهاز الذي أنشأ العرض.', roomTitle:'الغرفة', roomSub:'أنشئ غرفة لمشاركة الملفات والدردشة والتعاون مع عدة أجهزة.', createRoom:'إنشاء غرفة', joinRoom:'الانضمام إلى غرفة', copyRoom:'نسخ الرمز', shareRoom:'مشاركة الغرفة', inviteDevice:'دعوة جهاز', scanAnswer:'مسح الإجابة', leaveRoom:'مغادرة الغرفة', roomCodeLabel:'رمز الغرفة', roomReadyHint:'أنشئ غرفة أو انضم إلى غرفة للبدء.', showQr:'إظهار QR', chatTitle:'دردشة الغرفة', chatEmpty:'لا توجد رسائل بعد. الدردشة متاحة لجميع الأجهزة المتصلة.', chatPlaceholder:'اكتب رسالة…', send:'إرسال', clearChat:'مسح', announce:'إعلان', advanced:'متقدم', advancedNetwork:'إعدادات الشبكة المتقدمة', modeRecommended:'موصى به', modeFallback:'بديل', networkModeHeading:'وضع الشبكة', internetMode:'الإنترنت / هجين', internetModeSub:'موصى به · غرف برمز من 6 أرقام · يعمل عبر الشبكات', offlineModeSub:'بدون خادم · نفس شبكة Wi‑Fi/LAN', modeNoteLabel:'كيف يعمل', internetDefaultHint:'يوصى بوضع الإنترنت / الهجين للاستخدام العادي. تنتقل الملفات عبر WebRTC؛ ويبقى وضع الشبكة المحلية خيارًا احتياطيًا بدون خادم.', easyPairing:'اقتران Offline / LAN الاحتياطي', easyPairingNote:'استخدم هذه الطريقة بدون خادم عندما تكون الأجهزة على نفس Wi‑Fi/LAN أو عندما تتعذر خدمة الإشارة عبر الإنترنت.', offlinePairingTitle:'اقتران Offline / LAN', offlinePairingSub:'لا توجد خدمة إشارة أو STUN أو TURN. يستخدم QR فقط لتبادل معلومات مصافحة WebRTC.', defaultConnDetail:'أنشئ غرفة أو انضم إلى غرفة لبدء المشاركة.', internetSettingsTitle:'إعدادات الإنترنت',admin:'Admin',member:'Member',everyone:'الجميع في الغرفة',endRoom:'إنهاء الغرفة',leaveRoom:'مغادرة الغرفة',verified:'تم التحقق',resume:'استئناف',pause:'إيقاف مؤقت',cancel:'إلغاء',retry:'استئناف / إعادة المحاولة',completed:'مكتمل',sending:'جارٍ الإرسال',receiving:'جارٍ الاستقبال',paused:'متوقف مؤقتًا',interrupted:'متقطع',failed:'فشل',noActiveTransfers:'لا توجد عمليات نقل نشطة. اختر ملفات للبدء.',roomEnded:'أنهى المشرف هذه الغرفة.',endRoomConfirm:'هل تريد إنهاء هذه الغرفة للجميع؟',renameRoom:'إعادة تسمية الغرفة',removeMember:'إزالة العضو',roomName:'اسم الغرفة',memberRemoved:'تمت إزالتك من هذه الغرفة.',rejoining:'جارٍ إعادة الانضمام إلى الغرفة…',sourceRequired:'الملف المصدر مطلوب',reconnectAndResume:'إعادة الاتصال والاستئناف',transfersLabel:'النقل',roomActivityEmpty:'بانتظار النشاط.',membersLabel:'أعضاء',sendingLabel:'إرسال',receivingLabel:'استقبال',idleLabel:'خامل',notifications:'الإشعارات',notificationsOn:'تم تفعيل الإشعارات',notificationsBlocked:'الإشعارات غير متاحة',pathDirectHost:'مباشر',pathDirectInternet:'مباشر عبر الإنترنت',pathTurnRelay:'ترحيل TURN',pathUnknown:'مسار الاتصال غير معروف',roomAdminActivity:'نشاط المشرف',whiteboardTitle:'السبورة البيضاء',whiteboardSub:'ارسم المخططات واشرح الأفكار مع أفراد الغرفة.',whiteboardExport:'تصدير PNG',wbSelect:'تحديد',wbPen:'قلم',wbHighlighter:'تمييز',wbLine:'خط',wbArrow:'سهم',wbRectangle:'مستطيل',wbEllipse:'دائرة',wbText:'نص',wbNote:'ملاحظة',wbEraser:'ممحاة',wbUndo:'تراجع',wbRedo:'إعادة',wbClear:'مسح',wbPage:'صفحة',wbNewPage:'صفحة جديدة',wbRenamePage:'إعادة تسمية',wbDeletePage:'حذف',wbResetView:'إعادة العرض',wbFullscreen:'ملء الشاشة',wbRoomMode:'وضع الغرفة',wbAdminOnly:'رسم المشرف',wbCollaborative:'السماح للجميع بالشرح',whiteboardHelp:'تبقى السبورة داخل الغرفة. يتحكم المشرف بالصفحة الحالية وصلاحية الرسم. يمكن للأعضاء المشاهدة افتراضيًا، ويسمح الوضع التعاوني للجميع بالتعليق.',wbNoRoom:'أنشئ غرفة أو انضم إلى غرفة لاستخدام السبورة.',wbViewOnly:'للمشاهدة فقط',wbEditing:'يمكنك التعليق',wbSaved:'تم حفظ السبورة',wbPageExists:'اسم الصفحة مستخدم بالفعل.',wbLastPage:'يجب أن تبقى صفحة واحدة على الأقل.',wbClearConfirm:'هل تريد مسح هذه الصفحة للجميع؟',wbExportFailed:'تعذر تصدير السبورة.'
+    appTitle:'مشاركة P2P', appSub:'ملف HTML واحد · وضع محلي بدون إنترنت + غرف عبر الإنترنت · نقل WebRTC مباشر', callsTitle:'المكالمات واتصال الغرفة', callsSub:'مكالمات صوتية ومرئية خاصة وعناصر التحكم في التحدث داخل الغرفة.', voiceCall:'مكالمة صوتية', videoCall:'مكالمة مرئية', mute:'كتم/تشغيل الميكروفون', camera:'تشغيل/إيقاف الكاميرا', endCall:'إنهاء المكالمة', roomVoice:'صوت الغرفة', roomVideo:'فيديو الغرفة', adminOnly:'المسؤول فقط', moderated:'بإشراف', openDiscussion:'نقاش مفتوح', startVoice:'بدء الصوت', stopVoice:'إيقاف الصوت', raiseHand:'رفع اليد', lowerHand:'خفض اليد', speakToRoom:'التحدث للغرفة', stopSpeaking:'إيقاف التحدث', requestToPresent:'طلب التقديم', presenter:'المقدم', noActiveCall:'لا توجد مكالمة نشطة', incomingVoice:'مكالمة صوتية واردة', incomingVideo:'مكالمة مرئية واردة', accept:'قبول', decline:'رفض', callsNeedHttps:'تتطلب المكالمات الصوتية والمرئية HTTPS وإذن الميكروفون/الكاميرا.', roomVoiceNote:'النقاش المفتوح يستخدم اتصالاً مباشراً من كل متحدث نشط، وهو مناسب أكثر للغرف الصغيرة.', diagnostics:'تشخيص الاتصال', refresh:'تحديث', candidatePair:'زوج المرشحين', transport:'النقل', signaling:'الإشارة', iceServer:'خادم ICE', bytesSent:'البيانات المرسلة', bytesReceived:'البيانات المستلمة', connection:'الاتصال', device:'الجهاز', deviceHint:'يتم حفظ اسمك في هذا المتصفح فقط.', checks:'فحوصات المتصفح', network:'وضع الشبكة', offlineMode:'Offline / LAN', offlineHint:'لا يتم استخدام STUN/TURN. مناسب للأجهزة على نفس شبكة Wi‑Fi/LAN.', stunLabel:'خادم STUN اختياري', stunHint:'أوقف وضع الشبكة المحلية فقط عندما تريد اتصال الإنترنت/اجتياز NAT.', security:'أمان النقل', passwordProtect:'حماية إضافية بكلمة مرور', passwordHint:'يضيف PBKDF2 + AES-GCM على مستوى التطبيق فوق تشفير WebRTC.', about:'حول هذا الإصدار', workspace:'مساحة P2P', pairing:'اقتران بدون خادم', stepCreate:'الإنترنت / الهجين: إنشاء غرفة', stepCreate2:'المسؤول: اضغط إنشاء غرفة ثم شارك الرمز المكون من 6 أرقام أو رابط مشاركة الغرفة.', stepExchange:'الإنترنت / الهجين: الانضمام إلى الغرفة', stepExchange2:'العضو: اضغط الانضمام إلى غرفة وأدخل الرمز من 6 أرقام. لا حاجة إلى QR أو بدء الاقتران أو النسخ واللصق.', stepConnect:'Offline / LAN: بديل عبر QR', stepConnect2:'فقط عند اختيار Offline / LAN: يضغط المضيف بدء الاقتران بدون إنترنت؛ ويضغط الجهاز الآخر الانضمام / المسح؛ ثم يمسح المضيف QR العائد.', stepTransfer:'Offline / LAN: بديل بدون كاميرا', stepTransfer2:'داخل الاقتران المتقدم: المضيف يضغط إنشاء جلسة ← إنشاء عرض؛ ويلصق العضو العرض ← تجهيز الإجابة؛ ثم يلصق المضيف الإجابة ← تطبيق الإجابة.', sendFiles:'إرسال الملفات', dropTitle:'أسقط الملفات هنا', dropSub:'أو استخدم الأزرار أدناه. لا يتم رفع أي ملف إلى خادم.', incoming:'الوارد', incomingEmpty:'لا توجد عمليات نقل واردة.', history:'سجل النقل', historyEmpty:'يتم حفظ السجل محليًا في هذا المتصفح.', workSubNew:'أنشئ غرفة وادعُ الآخرين وتحدث وشارك الملفات مباشرة.', aboutText:'P2P Share هو أداة تعاون ومشاركة WebRTC تعمل من المتصفح وتدعم غرف الإنترنت والدردشة والمشاركة مع عدة أجهزة والمكالمات الصوتية والمرئية والسبورة البيضاء المتزامنة، مع وضع احتياطي محلي بدون خادم. لا يضم كود PairDrop.', hostHint:'أرسل العرض إلى الجهاز الآخر. بعد إنشاء الإجابة، الصقها هنا.', joinHint:'أرسل الإجابة مرة أخرى إلى الجهاز الذي أنشأ العرض.', roomTitle:'الغرفة', roomSub:'أنشئ غرفة لمشاركة الملفات والدردشة والتعاون مع عدة أجهزة.', createRoom:'إنشاء غرفة', joinRoom:'الانضمام إلى غرفة', copyRoom:'نسخ الرمز', shareRoom:'مشاركة الغرفة', inviteDevice:'دعوة جهاز', scanAnswer:'مسح الإجابة', leaveRoom:'مغادرة الغرفة', roomCodeLabel:'رمز الغرفة', roomReadyHint:'أنشئ غرفة أو انضم إلى غرفة للبدء.', showQr:'إظهار QR', chatTitle:'دردشة الغرفة', chatEmpty:'لا توجد رسائل بعد. الدردشة متاحة لجميع الأجهزة المتصلة.', chatPlaceholder:'اكتب رسالة…', send:'إرسال', clearChat:'مسح', announce:'إعلان', advanced:'متقدم', advancedNetwork:'إعدادات الشبكة المتقدمة', modeRecommended:'موصى به', modeFallback:'بديل', networkModeHeading:'وضع الشبكة', internetMode:'الإنترنت / هجين', internetModeSub:'موصى به · غرف برمز من 6 أرقام · يعمل عبر الشبكات', offlineModeSub:'بدون خادم · نفس شبكة Wi‑Fi/LAN', modeNoteLabel:'كيف يعمل', internetDefaultHint:'يوصى بوضع الإنترنت / الهجين للاستخدام العادي. تنتقل الملفات عبر WebRTC؛ ويبقى وضع الشبكة المحلية خيارًا احتياطيًا بدون خادم.', easyPairing:'اقتران Offline / LAN الاحتياطي', easyPairingNote:'استخدم هذه الطريقة بدون خادم عندما تكون الأجهزة على نفس Wi‑Fi/LAN أو عندما تتعذر خدمة الإشارة عبر الإنترنت.', offlinePairingTitle:'اقتران Offline / LAN', offlinePairingSub:'لا توجد خدمة إشارة أو STUN أو TURN. يستخدم QR فقط لتبادل معلومات مصافحة WebRTC.', defaultConnDetail:'أنشئ غرفة أو انضم إلى غرفة لبدء المشاركة.', internetSettingsTitle:'إعدادات الإنترنت',admin:'Admin',member:'Member',everyone:'الجميع في الغرفة',endRoom:'إنهاء الغرفة',leaveRoom:'مغادرة الغرفة',verified:'تم التحقق',resume:'استئناف',pause:'إيقاف مؤقت',cancel:'إلغاء',retry:'استئناف / إعادة المحاولة',completed:'مكتمل',sending:'جارٍ الإرسال',receiving:'جارٍ الاستقبال',paused:'متوقف مؤقتًا',interrupted:'متقطع',failed:'فشل',noActiveTransfers:'لا توجد عمليات نقل نشطة. اختر ملفات للبدء.',roomEnded:'أنهى المشرف هذه الغرفة.',endRoomConfirm:'هل تريد إنهاء هذه الغرفة للجميع؟',renameRoom:'إعادة تسمية الغرفة',removeMember:'إزالة العضو',roomName:'اسم الغرفة',memberRemoved:'تمت إزالتك من هذه الغرفة.',rejoining:'جارٍ إعادة الانضمام إلى الغرفة…',sourceRequired:'الملف المصدر مطلوب',reconnectAndResume:'إعادة الاتصال والاستئناف',transfersLabel:'النقل',roomActivityEmpty:'بانتظار النشاط.',membersLabel:'أعضاء',sendingLabel:'إرسال',receivingLabel:'استقبال',idleLabel:'خامل',notifications:'الإشعارات',notificationsOn:'تم تفعيل الإشعارات',notificationsBlocked:'الإشعارات غير متاحة',pathDirectHost:'مباشر',pathDirectInternet:'مباشر عبر الإنترنت',pathTurnRelay:'ترحيل TURN',pathUnknown:'مسار الاتصال غير معروف',roomAdminActivity:'نشاط المشرف',whiteboardTitle:'السبورة البيضاء',whiteboardSub:'ارسم المخططات واشرح الأفكار مع أفراد الغرفة.',whiteboardExport:'تصدير PNG',wbSelect:'تحديد',wbPen:'قلم',wbHighlighter:'تمييز',wbLine:'خط',wbArrow:'سهم',wbRectangle:'مستطيل',wbEllipse:'دائرة',wbText:'نص',wbNote:'ملاحظة',wbEraser:'ممحاة',wbUndo:'تراجع',wbRedo:'إعادة',wbClear:'مسح',wbPage:'صفحة',wbNewPage:'صفحة جديدة',wbRenamePage:'إعادة تسمية',wbDeletePage:'حذف',wbResetView:'إعادة العرض',wbFullscreen:'ملء الشاشة',wbRoomMode:'وضع الغرفة',wbAdminOnly:'رسم المشرف',wbCollaborative:'السماح للجميع بالشرح',whiteboardHelp:'تبقى السبورة داخل الغرفة. يتحكم المشرف بالصفحة الحالية وصلاحية الرسم. يمكن للأعضاء المشاهدة افتراضيًا، ويسمح الوضع التعاوني للجميع بالتعليق.',wbNoRoom:'أنشئ غرفة أو انضم إلى غرفة لاستخدام السبورة.',wbViewOnly:'للمشاهدة فقط',wbEditing:'يمكنك التعليق',wbSaved:'تم حفظ السبورة',wbPageExists:'اسم الصفحة مستخدم بالفعل.',wbLastPage:'يجب أن تبقى صفحة واحدة على الأقل.',wbClearConfirm:'هل تريد مسح هذه الصفحة للجميع؟',wbExportFailed:'تعذر تصدير السبورة.'
   }
 };
 
@@ -2022,14 +2059,14 @@ function renderPeers(){
   for(const p of peers){
     const checked=state.selectedPeerIds.has(p.id);const roleLabel=p.roomRole||'Member';const canPrivate=p.connected&&p.authenticated&&((state.room.active&&p.room)||!state.room.active);
     const div=document.createElement('div');div.className='peer-card';
-    div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(p.name))}</div><div class="grow"><div class="peer-name" title="${escapeHtml(peerLabel(p))}">${escapeHtml(peerLabel(p))}</div><div class="peer-meta"><span class="role-pill ${roleLabel==='Admin'?'admin':''}">${escapeHtml(roleLabel)}</span> · ${p.connected?'Connected':'Waiting for answer'}${p.room?' · Room':' · Direct'}</div></div></div><div class="peer-controls"><label class="peer-target"><input type="checkbox" data-peer-select="${escapeHtml(p.id)}" ${checked?'checked':''} ${p.connected&&p.authenticated?'':'disabled'}> Include in send</label><span class="peer-status"><span class="dot ${p.connected?'good':'warn'}"></span>${p.connected?'Connected':'Pending'}</span></div>${canPrivate?`<div class="peer-private-actions"><button class="btn small ghost" data-private-chat="${escapeHtml(p.memberId||p.id)}">Message</button><button class="btn small ghost" data-private-file="${escapeHtml(p.memberId||p.id)}">Send file</button>${state.room.role==='host'&&p.room&&p.memberId?`<button class="btn small danger" data-remove-member="${escapeHtml(p.memberId)}">Remove</button>`:''}</div>`:''}`;
+    div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(p.name))}</div><div class="grow"><div class="peer-name" title="${escapeHtml(peerLabel(p))}">${escapeHtml(peerLabel(p))}</div><div class="peer-meta"><span class="role-pill ${roleLabel==='Admin'?'admin':''}">${escapeHtml(roleLabel)}</span> · ${p.connected?'Connected':'Waiting for answer'}${p.room?' · Room':' · Direct'}</div></div></div><div class="peer-controls"><label class="peer-target"><input type="checkbox" data-peer-select="${escapeHtml(p.id)}" ${checked?'checked':''} ${p.connected&&p.authenticated?'':'disabled'}> Include in send</label><span class="peer-status"><span class="dot ${p.connected?'good':'warn'}"></span>${p.connected?'Connected':'Pending'}</span></div>${canPrivate?`<div class="peer-private-actions"><button class="btn small ghost" data-private-chat="${escapeHtml(p.memberId||p.id)}">Message</button><button class="btn small ghost" data-private-file="${escapeHtml(p.memberId||p.id)}">Send file</button><button class="btn small ghost call-btn" data-call-voice="${escapeHtml(p.memberId||p.id)}" title="Voice call">🎙</button><button class="btn small ghost call-btn" data-call-video="${escapeHtml(p.memberId||p.id)}" title="Video call">📹</button>${state.room.role==='host'&&p.room&&p.memberId?`<button class="btn small danger" data-remove-member="${escapeHtml(p.memberId)}">Remove</button>`:''}</div>`:''}`;
     els.peerGrid.appendChild(div);
   }
   if(state.room.active&&state.room.role!=='host'){
     for(const m of state.room.members.values()){
       if(m.self||peers.some(p=>p.memberId===m.memberId))continue;
       const div=document.createElement('div');div.className='peer-card';
-      div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(m.name))}</div><div class="grow"><div class="peer-name">${escapeHtml(m.name)}</div><div class="peer-meta"><span class="role-pill ${m.role==='Admin'?'admin':''}">${escapeHtml(m.role||'Member')}</span> · ${m.connected?'Connected':'Offline'}</div></div></div><div class="peer-controls"><span class="peer-status"><span class="dot ${m.connected?'good':'warn'}"></span>${m.connected?'Available':'Offline'}</span></div>${m.connected?`<div class="peer-private-actions"><button class="btn small ghost" data-private-chat="${escapeHtml(m.memberId)}">Message</button><button class="btn small ghost" data-private-file="${escapeHtml(m.memberId)}">Send file</button></div>`:''}`;
+      div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(m.name))}</div><div class="grow"><div class="peer-name">${escapeHtml(m.name)}</div><div class="peer-meta"><span class="role-pill ${m.role==='Admin'?'admin':''}">${escapeHtml(m.role||'Member')}</span> · ${m.connected?'Connected':'Offline'}</div></div></div><div class="peer-controls"><span class="peer-status"><span class="dot ${m.connected?'good':'warn'}"></span>${m.connected?'Available':'Offline'}</span></div>${m.connected?`<div class="peer-private-actions"><button class="btn small ghost" data-private-chat="${escapeHtml(m.memberId)}">Message</button><button class="btn small ghost" data-private-file="${escapeHtml(m.memberId)}">Send file</button><button class="btn small ghost call-btn" data-call-voice="${escapeHtml(m.memberId)}" title="Voice call">🎙</button><button class="btn small ghost call-btn" data-call-video="${escapeHtml(m.memberId)}" title="Video call">📹</button></div>`:''}`;
       els.peerGrid.appendChild(div);
     }
   }
@@ -2038,13 +2075,13 @@ function renderPeers(){
       if(m.self||peers.some(p=>p.memberId===m.memberId))continue;
       const div=document.createElement('div');div.className='peer-card';
       const canAct=m.memberId!==state.memberId;
-      div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(m.name))}</div><div class="grow"><div class="peer-name">${escapeHtml(m.name)}</div><div class="peer-meta"><span class="role-pill ${m.role==='Admin'?'admin':''}">${escapeHtml(m.role||'Member')}</span> · ${m.connected?'Connected':'Reconnecting / offline'}</div></div></div><div class="peer-controls"><span class="peer-status"><span class="dot ${m.connected?'good':'warn'}"></span>${m.connected?'Available':'Offline'}</span></div>${canAct?`<div class="peer-private-actions">${m.connected?`<button class="btn small ghost" data-private-chat="${escapeHtml(m.memberId)}">Message</button><button class="btn small ghost" data-private-file="${escapeHtml(m.memberId)}">Send file</button>`:''}${state.room.role==='host'?`<button class="btn small danger" data-remove-member="${escapeHtml(m.memberId)}">Remove</button>`:''}</div>`:''}`;
+      div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(m.name))}</div><div class="grow"><div class="peer-name">${escapeHtml(m.name)}</div><div class="peer-meta"><span class="role-pill ${m.role==='Admin'?'admin':''}">${escapeHtml(m.role||'Member')}</span> · ${m.connected?'Connected':'Reconnecting / offline'}</div></div></div><div class="peer-controls"><span class="peer-status"><span class="dot ${m.connected?'good':'warn'}"></span>${m.connected?'Available':'Offline'}</span></div>${canAct?`<div class="peer-private-actions">${m.connected?`<button class="btn small ghost" data-private-chat="${escapeHtml(m.memberId)}">Message</button><button class="btn small ghost" data-private-file="${escapeHtml(m.memberId)}">Send file</button><button class="btn small ghost call-btn" data-call-voice="${escapeHtml(m.memberId)}" title="Voice call">🎙</button><button class="btn small ghost call-btn" data-call-video="${escapeHtml(m.memberId)}" title="Video call">📹</button>`:''}${state.room.role==='host'?`<button class="btn small danger" data-remove-member="${escapeHtml(m.memberId)}">Remove</button>`:''}</div>`:''}`;
       els.peerGrid.appendChild(div);
     }
   }
   els.peerGrid.querySelectorAll('[data-peer-select]').forEach(ch=>ch.addEventListener('change',()=>{const id=ch.dataset.peerSelect;if(ch.checked)state.selectedPeerIds.add(id);else state.selectedPeerIds.delete(id);renderPeers();}));
   els.peerGrid.querySelectorAll('[data-private-chat]').forEach(btn=>btn.addEventListener('click',()=>{setChatTarget(btn.dataset.privateChat);els.chatInput?.focus();}));
-  els.peerGrid.querySelectorAll('[data-private-file]').forEach(btn=>btn.addEventListener('click',()=>startPrivateFileSend(btn.dataset.privateFile)));
+  els.peerGrid.querySelectorAll('[data-private-file]').forEach(btn=>btn.addEventListener('click',()=>startPrivateFileSend(btn.dataset.privateFile)));els.peerGrid.querySelectorAll('[data-call-voice]').forEach(btn=>btn.addEventListener('click',()=>mediaStartDirectCall(btn.dataset.callVoice,'audio')));els.peerGrid.querySelectorAll('[data-call-video]').forEach(btn=>btn.addEventListener('click',()=>mediaStartDirectCall(btn.dataset.callVideo,'video')));
   els.peerGrid.querySelectorAll('[data-remove-member]').forEach(btn=>btn.addEventListener('click',()=>removeRoomMember(btn.dataset.removeMember)));
   renderTargets();renderChatRecipients();
   const active=state.room.active;
@@ -2082,7 +2119,8 @@ function createPeerConnection(peerId,role,{room=false,name='Peer'}={}){
 }
 function setPrimaryIfNeeded(peerId){if(!state.primaryPeerId||!state.peers.get(state.primaryPeerId)?.connected){state.primaryPeerId=peerId;syncPrimary(peerId);}}
 function cleanupPeer(peerId){const p=state.peers.get(peerId);if(!p)return;try{p.dc?.close()}catch{}try{p.pc?.close()}catch{}state.peers.delete(peerId);state.selectedPeerIds.delete(peerId);if(state.primaryPeerId===peerId)state.primaryPeerId=null;syncPrimary();renderPeers();renderChat();}
-function cleanupConnection(){if(state.reconnectTimer){clearTimeout(state.reconnectTimer);state.reconnectTimer=null;}if(state.internet?.peer){try{state.internet.peer.destroy()}catch{ }state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';}if(state.statsTimer){clearInterval(state.statsTimer);state.statsTimer=null;}for(const id of [...state.peers.keys()])cleanupPeer(id);state.pc=null;state.dc=null;state.connected=false;state.authenticated=false;state.sessionKeys=null;state.currentSend=null;state.sending=false;state.diagSamples.clear();state.diagLast=null;state.room.active=false;state.room.role=null;state.room.id='';state.room.name='P2P Room';state.room.sessionId='';state.room.pendingPeerId=null;state.room.currentInviteText='';state.room.currentInviteCode='';state.room.adminId='';state.room.members=new Map();updateSendUi();renderPeers();renderDiagnostics([]);}
+function mediaCleanupAll(){for(const c of [...state.media.calls.values()]){try{c.pc?.close()}catch{}}state.media.calls.clear();for(const k of ['localAudio','localAV']){const st=state.media[k];if(st)for(const t of st.getTracks())try{t.stop()}catch{}state.media[k]=null;}state.media.pendingInvites.clear();state.media.hands.clear();state.media.videoRequests.clear();state.media.speakerIds.clear();state.media.roomVoiceActive=false;state.media.roomVideoActive=false;state.media.roomVideoPresenterId='';state.media.speakingAllowed=false;renderMedia();}
+function cleanupConnection(){mediaCleanupAll();if(state.reconnectTimer){clearTimeout(state.reconnectTimer);state.reconnectTimer=null;}if(state.internet?.peer){try{state.internet.peer.destroy()}catch{ }state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';}if(state.statsTimer){clearInterval(state.statsTimer);state.statsTimer=null;}for(const id of [...state.peers.keys()])cleanupPeer(id);state.pc=null;state.dc=null;state.connected=false;state.authenticated=false;state.sessionKeys=null;state.currentSend=null;state.sending=false;state.diagSamples.clear();state.diagLast=null;state.room.active=false;state.room.role=null;state.room.id='';state.room.name='P2P Room';state.room.sessionId='';state.room.pendingPeerId=null;state.room.currentInviteText='';state.room.currentInviteCode='';state.room.adminId='';state.room.members=new Map();updateSendUi();renderPeers();renderDiagnostics([]);}
 function setupPeerConnection(role){cleanupConnection();const pc=createPeerConnection('primary',role,{room:false,name:'Peer'});setPrimaryIfNeeded('primary');return pc;}
 function attachDataChannel(peerId,dc){
   const peer=state.peers.get(peerId);if(!peer)return;peer.dc=dc;dc.binaryType='arraybuffer';dc.bufferedAmountLowThreshold=LOW_WATER;
@@ -2110,6 +2148,299 @@ async function sendHello(peerId=null){
   }
 }
 
+/* ---------- Voice / video communication (v2.1) ---------- */
+function mediaPeerForMember(memberId){
+  const mid=String(memberId||'');
+  for(const p of state.peers.values()) if(String(p.memberId||'')===mid && p.connected && p.authenticated && dcIsOpen(p.dc)) return p;
+  return null;
+}
+function mediaConnectedMemberIds(){
+  if(!state.room.active)return connectedPeers().filter(p=>p.authenticated).map(p=>p.memberId||p.id);
+  return [...state.room.members.values()].filter(m=>!m.self&&m.connected).map(m=>String(m.memberId));
+}
+function mediaKindLabel(kind){return kind==='video'?'Video':'Voice';}
+function mediaCallList(){return [...state.media.calls.values()];}
+function mediaHasActiveLocalTrack(kind){
+  return mediaCallList().some(c=>c.active && c.localStream && [...c.localStream.getTracks()].some(t=>t.kind===(kind==='video'?'video':'audio')));
+}
+function mediaGetLocalStream(kind){
+  const wantsVideo=kind==='video';
+  if(wantsVideo && state.media.localAV && state.media.localAV.getTracks().some(t=>t.readyState==='live'))return Promise.resolve(state.media.localAV);
+  if(!wantsVideo && state.media.localAV && state.media.localAV.getAudioTracks().some(t=>t.readyState==='live'))return Promise.resolve(state.media.localAV);
+  if(!wantsVideo && state.media.localAudio && state.media.localAudio.getTracks().some(t=>t.readyState==='live'))return Promise.resolve(state.media.localAudio);
+  if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera and microphone access is unavailable in this browser.');
+  const constraints=wantsVideo?{audio:true,video:{facingMode:'user'}}:{audio:true,video:false};
+  return navigator.mediaDevices.getUserMedia(constraints).then(stream=>{if(wantsVideo)state.media.localAV=stream;else state.media.localAudio=stream;return stream;});
+}
+function mediaSendSignal(targetMemberId,msg){
+  const targetId=String(targetMemberId||'');
+  if(!targetId)return Promise.reject(new Error('No call target was specified.'));
+  const base={...msg,fromMemberId:state.memberId,toMemberId:targetId};
+  if(!state.room.active){
+    const p=mediaPeerForMember(targetId)||getPeer();
+    if(!p)return Promise.reject(new Error('The peer is not connected.'));
+    return sendJson(base,p.id);
+  }
+  if(targetId===String(state.memberId))return Promise.resolve();
+  if(state.room.role==='host'){
+    const m=state.room.members.get(targetId),p=m?.peerId?getPeer(m.peerId):mediaPeerForMember(targetId);
+    if(!p)return Promise.reject(new Error('The selected member is not connected.'));
+    return sendJson(base,p.id);
+  }
+  const adminPeer=mediaPeerForMember(state.room.adminId)||connectedPeers().find(p=>String(p.memberId||'')===String(state.room.adminId));
+  if(!adminPeer)return Promise.reject(new Error('The room Admin is not connected.'));
+  if(targetId===String(state.room.adminId))return sendJson(base,adminPeer.id);
+  return sendJson({...base,routeToMemberId:targetId,mediaRelay:true},adminPeer.id);
+}
+async function mediaCreatePeer(call,localStream){
+  const pc=new RTCPeerConnection(rtcConfig());
+  call.pc=pc;
+  pc.onicecandidate=e=>{if(e.candidate)mediaSendSignal(call.peerMemberId,{t:'media-ice',callId:call.id,candidate:e.candidate.toJSON?e.candidate.toJSON():e.candidate}).catch(()=>{});};
+  pc.ontrack=e=>{const st=e.streams?.[0]||null;if(st){call.remoteStream=st;renderMedia();}};
+  pc.onconnectionstatechange=()=>{
+    const st=pc.connectionState;
+    if(st==='connected'){call.active=true;call.status='connected';renderMedia();}
+    if(['failed','closed'].includes(st)){mediaEndCall(call.id,false);}
+    if(st==='disconnected'){call.status='reconnecting';renderMedia();setTimeout(()=>{if(state.media.calls.has(call.id)&&call.pc?.connectionState==='disconnected')mediaEndCall(call.id,false);},6000);}
+  };
+  if(localStream){for(const track of localStream.getTracks()){if(call.kind==='audio' && track.kind!=='audio')continue;pc.addTrack(track,localStream);}}
+  return pc;
+}
+function mediaCallId(){return `m-${uid()}-${Date.now().toString(36)}`;}
+async function mediaStartDirectCall(memberId,kind){
+  if(!memberId)return;
+  if(state.media.calls.size>=12){toast('Too many active calls. End an existing call first.');return;}
+  try{
+    const stream=await mediaGetLocalStream(kind);
+    const call={id:mediaCallId(),peerMemberId:String(memberId),kind,scope:'direct',broadcast:false,initiator:true,active:false,status:'calling',localStream:stream,remoteStream:null,pc:null,pendingIce:[],label:'Direct peer'};
+    state.media.calls.set(call.id,call);renderMedia();
+    const pc=await mediaCreatePeer(call,stream);
+    const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+    await mediaSendSignal(memberId,{t:'media-invite',callId:call.id,kind,scope:'direct',broadcast:false,offer:pc.localDescription?.toJSON?pc.localDescription.toJSON():pc.localDescription,fromName:state.device});
+    setConn('Calling',`${mediaKindLabel(kind)} call to ${peerDisplayNameByMember(memberId)}…`,'good');
+  }catch(err){toast(err.message||String(err));renderMedia();}
+}
+function peerDisplayNameByMember(memberId){
+  const p=[...state.peers.values()].find(x=>String(x.memberId||'')===String(memberId));
+  if(p)return peerLabel(p);
+  const m=state.room.members.get(String(memberId));return m?.name||'Member';
+}
+function mediaShowIncoming(m){
+  state.media.pendingInvites.set(String(m.callId),m);
+  const kind=mediaKindLabel(m.kind), name=m.fromName||peerDisplayNameByMember(m.fromMemberId);
+  showModal(m.kind==='video'?I18N[state.lang].incomingVideo:I18N[state.lang].incomingVoice,`<div class="modal-message"><b>${escapeHtml(name)}</b> is calling you with a ${escapeHtml(kind.toLowerCase())} call.</div>`,async()=>{await mediaAcceptInvite(m);return true;},()=>{state.media.pendingInvites.delete(String(m.callId));mediaSendSignal(m.fromMemberId,{t:'media-reject',callId:m.callId}).catch(()=>{});});
+}
+async function mediaAcceptInvite(m,auto=false){
+  const id=String(m.callId);if(state.media.calls.has(id))return;
+  state.media.pendingInvites.delete(id);
+  try{
+    const broadcast=!!m.broadcast;
+    const stream=broadcast?null:await mediaGetLocalStream(m.kind);
+    const call={id,peerMemberId:String(m.fromMemberId),kind:m.kind==='video'?'video':'audio',scope:m.scope||'direct',broadcast,initiator:false,active:false,status:'connecting',localStream:stream,remoteStream:null,pc:null,pendingIce:[],label:m.scope==='room'?'Room':'Direct peer'};
+    state.media.calls.set(id,call);renderMedia();
+    const pc=await mediaCreatePeer(call,stream);
+    await pc.setRemoteDescription(new RTCSessionDescription(m.offer));
+    await mediaFlushPendingIce(call);
+    const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
+    await mediaSendSignal(call.peerMemberId,{t:'media-answer',callId:id,answer:pc.localDescription?.toJSON?pc.localDescription.toJSON():pc.localDescription});
+    renderMedia();
+  }catch(err){mediaSendSignal(m.fromMemberId,{t:'media-reject',callId:id}).catch(()=>{});mediaEndCall(id,false);toast(err.message||String(err));}
+}
+function mediaAcceptOfferAnswer(m){
+  const call=state.media.calls.get(String(m.callId));if(!call?.pc)return;
+  call.pc.setRemoteDescription(new RTCSessionDescription(m.answer)).then(()=>mediaFlushPendingIce(call)).catch(err=>{setConn('Call error',err.message||String(err),'bad');mediaEndCall(call.id,false);});
+}
+function mediaHandleIce(m){
+  const call=state.media.calls.get(String(m.callId));if(!call?.pc||!m.candidate)return;
+  if(!call.pc.remoteDescription){call.pendingIce=(call.pendingIce||[]);call.pendingIce.push(m.candidate);return;}
+  call.pc.addIceCandidate(m.candidate).catch(()=>{});
+}
+async function mediaFlushPendingIce(call){
+  if(!call?.pc?.remoteDescription||!Array.isArray(call.pendingIce)||!call.pendingIce.length)return;
+  const queued=call.pendingIce.splice(0);
+  for(const c of queued){try{await call.pc.addIceCandidate(c);}catch{}}
+}
+function mediaEndCall(callId,notify=true){
+  const call=state.media.calls.get(String(callId));if(!call)return;
+  if(notify)mediaSendSignal(call.peerMemberId,{t:'media-end',callId:call.id}).catch(()=>{});
+  try{call.pc?.close()}catch{}
+  state.media.calls.delete(call.id);
+  renderMedia();
+  if(!state.media.calls.size)mediaStopLocalIfIdle();
+}
+function mediaStopScope(scope,kind=null){
+  for(const c of [...state.media.calls.values()])if(c.scope===scope&&(!kind||c.kind===kind))mediaEndCall(c.id,true);
+}
+function mediaStopLocalIfIdle(){
+  if(state.media.calls.size)return;
+  for(const key of ['localAudio','localAV']){const st=state.media[key];if(st)for(const t of st.getTracks())try{t.stop()}catch{}state.media[key]=null;}
+}
+async function mediaBroadcast(kind,targets,scope='room',broadcast=true){
+  let stream;
+  try{stream=await mediaGetLocalStream(kind);}catch(err){toast(err.message||String(err));return;}
+  const targetList=targets.map(String).filter(id=>id!==String(state.memberId));
+  for(const memberId of targetList){
+    try{
+      const call={id:mediaCallId(),peerMemberId:memberId,kind,scope,broadcast:true,initiator:true,active:false,status:'calling',localStream:stream,remoteStream:null,pc:null,pendingIce:[],label:scope==='room'?'Room':'Direct peer'};
+      state.media.calls.set(call.id,call);const pc=await mediaCreatePeer(call,stream);const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+      await mediaSendSignal(memberId,{t:'media-invite',callId:call.id,kind,scope,broadcast,offer:pc.localDescription?.toJSON?pc.localDescription.toJSON():pc.localDescription,fromName:state.device});
+    }catch{}
+  }
+  renderMedia();
+}
+function mediaRoomTargets(){return mediaConnectedMemberIds().filter(id=>id!==String(state.memberId));}
+async function startRoomVoiceAs(memberId){
+  if(!state.room.active)return;
+  if(state.media.roomVoiceMode==='admin'&&state.room.role!=='host')return;
+  if(state.media.roomVoiceMode==='moderated'&&state.room.role!=='host'&&!state.media.speakingAllowed){toast('The Admin must allow you to speak.');return;}
+  if(state.media.roomVoiceMode==='open'&&state.media.speakerIds.size>=4&&!state.media.speakerIds.has(String(memberId||state.memberId))){toast('The open room is at its 4-speaker limit.');return;}
+  const speaker=String(memberId||state.memberId);state.media.speakerIds.add(speaker);renderMedia();
+  await mediaBroadcast('audio',mediaRoomTargets(),'room',true);
+}
+function stopRoomVoiceAs(memberId){
+  const speaker=String(memberId||state.memberId);state.media.speakerIds.delete(speaker);
+  for(const c of [...state.media.calls.values()])if(c.scope==='room'&&c.kind==='audio'&&c.peerMemberId!==speaker)mediaEndCall(c.id,true);
+  if(speaker===String(state.memberId))mediaStopScope('room','audio');
+  renderMedia();
+}
+function endAllRoomVoice(){
+  state.media.speakerIds.clear();state.media.roomVoiceActive=false;state.media.speakingAllowed=false;
+  mediaStopScope('room','audio');
+  if(state.room.role==='host')for(const id of mediaConnectedMemberIds())mediaSendSignal(id,{t:'media-room-voice-stop',fromMemberId:state.memberId,toMemberId:id}).catch(()=>{});
+  renderMedia();
+}
+async function adminStartRoomVoice(){
+  if(state.room.role!=='host')return;
+  if(state.media.roomVoiceActive){endAllRoomVoice();return;}
+  state.media.roomVoiceActive=true;state.media.speakerIds.clear();
+  if(state.media.roomVoiceMode==='admin'){state.media.speakerIds.add(String(state.memberId));await mediaBroadcast('audio',mediaRoomTargets(),'room',true);}
+  if(state.media.roomVoiceMode==='moderated')toast('Room voice started. Members can raise their hand.');
+  if(state.media.roomVoiceMode==='open')toast('Open room voice started. Up to 4 speakers can talk at once.');
+  renderMedia();
+}
+async function mediaSetRoomPresenter(memberId){
+  if(state.room.role!=='host')return;
+  const newId=String(memberId||'');
+  // End prior room video media first.
+  for(const c of [...state.media.calls.values()])if(c.scope==='room'&&c.kind==='video')mediaEndCall(c.id,true);
+  if(state.media.roomVideoPresenterId&&state.media.roomVideoPresenterId!==newId){mediaSendSignal(state.media.roomVideoPresenterId,{t:'media-presenter-stop',fromMemberId:state.memberId,toMemberId:state.media.roomVideoPresenterId}).catch(()=>{});}
+  state.media.roomVideoPresenterId=newId;state.media.roomVideoActive=!!newId;if(newId)state.media.videoRequests.delete(newId);
+  if(newId===String(state.memberId)){await mediaBroadcast('video',mediaRoomTargets(),'room',true);}
+  else if(newId){await mediaSendSignal(newId,{t:'media-presenter-start',fromMemberId:state.memberId,toMemberId:newId});}
+  for(const id of mediaConnectedMemberIds())if(id!==newId)mediaSendSignal(id,{t:'media-room-presenter',fromMemberId:state.memberId,toMemberId:id,presenterId:newId}).catch(()=>{});
+  renderMedia();
+}
+function mediaRaiseHand(){
+  if(!state.room.active||state.room.role==='host')return;
+  mediaSendSignal(state.room.adminId,{t:'media-hand',fromMemberId:state.memberId,toMemberId:state.room.adminId,kind:'voice'}).catch(()=>{});toast('Hand raised.');
+}
+function mediaRequestPresenter(){
+  if(!state.room.active||state.room.role==='host')return;
+  mediaSendSignal(state.room.adminId,{t:'media-presenter-request',fromMemberId:state.memberId,toMemberId:state.room.adminId}).catch(()=>{});toast('Presenter request sent.');
+}
+function mediaAllowSpeaker(memberId){
+  if(state.room.role!=='host')return;
+  state.media.hands.delete(String(memberId));
+  mediaSendSignal(memberId,{t:'media-permission',fromMemberId:state.memberId,toMemberId:memberId,allow:true}).catch(()=>{});
+  renderMedia();
+}
+function mediaDenySpeaker(memberId){state.media.hands.delete(String(memberId));renderMedia();}
+function mediaRenderTile(call){
+  const tile=document.createElement('div');tile.className='media-tile';tile.dataset.callId=call.id;
+  if(call.kind==='video'){
+    const v=document.createElement('video');v.autoplay=true;v.playsInline=true;v.muted=false;v.srcObject=call.remoteStream||null;tile.appendChild(v);
+  }else{
+    const b=document.createElement('div');b.className='media-audio-badge';b.textContent='🎙 '+peerDisplayNameByMember(call.peerMemberId);tile.appendChild(b);
+    const a=document.createElement('audio');a.autoplay=true;a.srcObject=call.remoteStream||null;a.controls=false;tile.appendChild(a);
+  }
+  const label=document.createElement('div');label.className='media-name';label.textContent=peerDisplayNameByMember(call.peerMemberId);tile.appendChild(label);
+  const end=document.createElement('button');end.className='btn small danger';end.type='button';end.textContent=I18N[state.lang].endCall;Object.assign(end.style,{position:'absolute',right:'8px',top:'8px'});end.onclick=()=>mediaEndCall(call.id,true);tile.appendChild(end);
+  return tile;
+}
+
+function mediaToggleMute(){
+  const targets=[];for(const c of state.media.calls.values())if(c.localStream)for(const t of c.localStream.getAudioTracks())targets.push(t);
+  if(!targets.length)return;const muted=targets.every(t=>!t.enabled);targets.forEach(t=>t.enabled=muted);renderMedia();
+}
+function mediaToggleCamera(){
+  const targets=[];for(const c of state.media.calls.values())if(c.localStream)for(const t of c.localStream.getVideoTracks())targets.push(t);
+  if(!targets.length)return;const off=targets.every(t=>!t.enabled);targets.forEach(t=>t.enabled=off);renderMedia();
+}
+function mediaEndAllCalls(){for(const c of [...state.media.calls.values()])mediaEndCall(c.id,true);}
+
+function renderMedia(){
+  if(!els.mediaStatusPill||!els.mediaControls||!els.mediaRemoteGrid)return;
+  const calls=mediaCallList();
+  els.mediaStatusPill.textContent=calls.length?`${calls.length} active call${calls.length===1?'':'s'}`:(I18N[state.lang].noActiveCall||'No active call');
+  els.mediaRemoteGrid.innerHTML='';
+  if(!calls.length)els.mediaRemoteGrid.innerHTML=`<div class="subtle">${escapeHtml(I18N[state.lang].noActiveCall||'No active voice or video calls.')}</div>`;
+  else calls.forEach(c=>{if(c.remoteStream)els.mediaRemoteGrid.appendChild(mediaRenderTile(c));else{const d=document.createElement('div');d.className='media-tile';d.innerHTML=`<div class="media-audio-badge">${c.kind==='video'?'📹':'🎙'} ${escapeHtml(c.status||'Connecting…')}<br><small>${escapeHtml(peerDisplayNameByMember(c.peerMemberId))}</small></div>`;els.mediaRemoteGrid.appendChild(d);}});
+  const hasVideo=!!(state.media.localAV&&state.media.localAV.getVideoTracks().some(t=>t.readyState==='live')&&state.media.calls.size);
+  els.mediaLocalWrap?.classList.toggle('active',!!hasVideo);
+  if(hasVideo&&els.mediaLocalVideo){els.mediaLocalVideo.srcObject=state.media.localAV;els.mediaLocalVideo.play?.().catch(()=>{});}
+  const c=[];
+  if(calls.length){
+    c.push(`<button class="btn small" id="mediaMuteBtn">🎙 ${escapeHtml(I18N[state.lang].mute||'Mute / unmute')}</button>`);
+    if(calls.some(x=>x.kind==='video'))c.push(`<button class="btn small" id="mediaCameraBtn">📹 ${escapeHtml(I18N[state.lang].camera||'Camera on / off')}</button>`);
+    c.push(`<button class="btn small danger" id="mediaEndAllBtn">${escapeHtml(I18N[state.lang].endCall||'End call')}</button>`);
+  }
+  if(state.room.active){
+    if(state.room.role==='host'){
+      c.push(`<label><span>${escapeHtml(I18N[state.lang].roomVoice)}</span><select class="select" id="mediaRoomVoiceMode"><option value="admin">${escapeHtml(I18N[state.lang].adminOnly)}</option><option value="moderated">${escapeHtml(I18N[state.lang].moderated)}</option><option value="open">${escapeHtml(I18N[state.lang].openDiscussion)}</option></select></label>`);
+      c.push(`<button class="btn primary" id="mediaStartVoiceBtn">${state.media.roomVoiceActive?escapeHtml(I18N[state.lang].stopVoice):escapeHtml(I18N[state.lang].startVoice)}</button>`);
+      c.push(`<label><span>${escapeHtml(I18N[state.lang].presenter)}</span><select class="select" id="mediaPresenterSelect"><option value="">Off</option><option value="${escapeHtml(state.memberId)}">${escapeHtml(state.device)} (Admin)</option>${[...state.room.members.values()].filter(m=>!m.self&&m.connected).map(m=>`<option value="${escapeHtml(m.memberId)}">${escapeHtml(m.name)}</option>`).join('')}</select></label>`);
+      c.push(`<div class="media-note">${escapeHtml(I18N[state.lang].roomVoiceNote)}</div>`);
+      if(state.media.hands.size){c.push(`<div class="media-hands">${[...state.media.hands.entries()].map(([id,info])=>`<span class="media-hand-item">🙋 ${escapeHtml(info.name||peerDisplayNameByMember(id))}<button class="btn small" data-media-allow="${escapeHtml(id)}">Allow</button><button class="btn small ghost" data-media-deny="${escapeHtml(id)}">Ignore</button></span>`).join('')}</div>`);}
+      if(state.media.videoRequests.size){c.push(`<div class="media-hands">${[...state.media.videoRequests.entries()].map(([id,info])=>`<span class="media-hand-item">📹 ${escapeHtml(info.name||peerDisplayNameByMember(id))}<button class="btn small" data-media-presenter="${escapeHtml(id)}">Allow presenter</button></span>`).join('')}</div>`);}
+    }else{
+      c.push(`<div class="media-note">${escapeHtml(state.media.roomVoiceActive?`Room voice: ${state.media.roomVoiceMode==='admin'?I18N[state.lang].adminOnly:state.media.roomVoiceMode==='moderated'?I18N[state.lang].moderated:I18N[state.lang].openDiscussion}`:'Room voice is off.')}</div>`);
+      if(state.media.roomVoiceActive&&state.media.roomVoiceMode==='moderated'&&!state.media.speakingAllowed)c.push(`<button class="btn" id="mediaRaiseHandBtn">🙋 ${escapeHtml(I18N[state.lang].raiseHand)}</button>`);
+      if(state.media.roomVoiceActive&&(state.media.roomVoiceMode==='open'||state.media.speakingAllowed))c.push(`<button class="btn ${state.media.speakerIds.has(String(state.memberId))?'danger':'primary'}" id="mediaSpeakRoomBtn">${state.media.speakerIds.has(String(state.memberId))?'🎙 '+escapeHtml(I18N[state.lang].stopSpeaking):'🎙 '+escapeHtml(I18N[state.lang].speakToRoom)}</button>`);
+      c.push(`<div class="media-note">${state.media.roomVideoPresenterId?`Video presenter: ${escapeHtml(peerDisplayNameByMember(state.media.roomVideoPresenterId))}`:'Room video is off.'}</div>`);
+      if(state.media.roomVoiceActive&&state.room.role!=='host')c.push(`<button class="btn" id="mediaRequestPresenterBtn">📹 ${escapeHtml(I18N[state.lang].requestToPresent)}</button>`);
+    }
+  }
+  els.mediaControls.innerHTML=c.join('');
+  $('mediaMuteBtn')?.addEventListener('click',mediaToggleMute);$('mediaCameraBtn')?.addEventListener('click',mediaToggleCamera);$('mediaEndAllBtn')?.addEventListener('click',mediaEndAllCalls);
+  const voiceSel=$('mediaRoomVoiceMode');if(voiceSel){voiceSel.value=state.media.roomVoiceMode;voiceSel.onchange=()=>{state.media.roomVoiceMode=voiceSel.value;for(const id of mediaConnectedMemberIds())mediaSendSignal(id,{t:'media-room-mode',fromMemberId:state.memberId,toMemberId:id,mode:state.media.roomVoiceMode,active:state.media.roomVoiceActive}).catch(()=>{});renderMedia();};}
+  const voiceBtn=$('mediaStartVoiceBtn');if(voiceBtn)voiceBtn.onclick=()=>adminStartRoomVoice();
+  const pres=$('mediaPresenterSelect');if(pres){pres.value=state.media.roomVideoPresenterId;pres.onchange=()=>mediaSetRoomPresenter(pres.value);}
+  $('mediaRaiseHandBtn')?.addEventListener('click',mediaRaiseHand);
+  $('mediaRequestPresenterBtn')?.addEventListener('click',mediaRequestPresenter);
+  $('mediaSpeakRoomBtn')?.addEventListener('click',()=>{const active=state.media.speakerIds.has(String(state.memberId));if(active)stopRoomVoiceAs(state.memberId);else startRoomVoiceAs(state.memberId);});
+  els.mediaControls.querySelectorAll('[data-media-allow]').forEach(b=>b.addEventListener('click',()=>mediaAllowSpeaker(b.dataset.mediaAllow)));
+  els.mediaControls.querySelectorAll('[data-media-deny]').forEach(b=>b.addEventListener('click',()=>mediaDenySpeaker(b.dataset.mediaDeny)));
+  els.mediaControls.querySelectorAll('[data-media-presenter]').forEach(b=>b.addEventListener('click',()=>mediaSetRoomPresenter(b.dataset.mediaPresenter)));
+}
+
+async function handleMediaSignal(m,peerId){
+  const target=String(m.toMemberId||'');
+  if(state.room.active&&state.room.role==='host'&&m.routeToMemberId&&String(m.routeToMemberId)!==String(state.memberId)){
+    const tm=state.room.members.get(String(m.routeToMemberId));
+    const tp=tm?.peerId?getPeer(tm.peerId):mediaPeerForMember(m.routeToMemberId);
+    if(tp)await sendJson({...m,routeToMemberId:'',routeFromMemberId:m.fromMemberId},tp.id);
+    return;
+  }
+  if(target&&target!==String(state.memberId))return;
+  if(m.t==='media-invite'){
+    const isRoom=String(m.scope||'')==='room';
+    if(isRoom){await mediaAcceptInvite(m,true);return;}
+    mediaShowIncoming(m);return;
+  }
+  if(m.t==='media-answer')return mediaAcceptOfferAnswer(m);
+  if(m.t==='media-ice')return mediaHandleIce(m);
+  if(m.t==='media-reject'){const c=state.media.calls.get(String(m.callId));if(c){toast(`${mediaKindLabel(c.kind)} call declined.`);mediaEndCall(c.id,false);}return;}
+  if(m.t==='media-end'){mediaEndCall(String(m.callId),false);return;}
+  if(m.t==='media-room-mode'){state.media.roomVoiceMode=m.mode||'admin';state.media.roomVoiceActive=!!m.active;renderMedia();return;}
+  if(m.t==='media-room-voice-stop'){state.media.roomVoiceActive=false;state.media.speakingAllowed=false;for(const c of [...state.media.calls.values()])if(c.scope==='room'&&c.kind==='audio')mediaEndCall(c.id,false);renderMedia();return;}
+  if(m.t==='media-hand'){if(state.room.role==='host'){state.media.hands.set(String(m.fromMemberId),{name:m.fromName||peerDisplayNameByMember(m.fromMemberId),at:Date.now()});renderMedia();maybeNotify('Raise hand',`${m.fromName||'A member'} wants to speak.`);}return;}
+  if(m.t==='media-permission'){if(String(m.toMemberId)===String(state.memberId)){state.media.speakingAllowed=!!m.allow;renderMedia();if(!m.allow&&state.media.speakerIds.has(String(state.memberId)))stopRoomVoiceAs(state.memberId);}return;}
+  if(m.t==='media-presenter-request'){if(state.room.role==='host'){state.media.videoRequests.set(String(m.fromMemberId),{name:m.fromName||peerDisplayNameByMember(m.fromMemberId),at:Date.now()});renderMedia();maybeNotify('Presenter request',`${m.fromName||'A member'} wants to present video.`);}return;}
+  if(m.t==='media-presenter-start'){if(String(m.toMemberId)===String(state.memberId)) {try{await mediaBroadcast('video',mediaRoomTargets(),'room',true);}catch{}renderMedia();}return;}
+  if(m.t==='media-presenter-stop'){if(String(m.toMemberId)===String(state.memberId)){mediaStopScope('room','video');state.media.roomVideoPresenterId='';renderMedia();}return;}
+  if(m.t==='media-room-presenter'){state.media.roomVideoPresenterId=String(m.presenterId||'');state.media.roomVideoActive=!!state.media.roomVideoPresenterId;renderMedia();return;}
+}
+
 async function handleMessage(data,peerId){
   const p=getPeer(peerId);if(!p)return;
   if(typeof data==='string'){
@@ -2130,7 +2461,8 @@ async function handleMessage(data,peerId){
     if(m.t==='file-start')return handleFileStart(m,peerId);
     if(m.t==='file-accept'||m.t==='file-reject'||m.t==='file-done'||m.t==='file-cancel'||m.t==='file-resume'||m.t==='file-pause'){if(state.room.role==='host'&&m.routeToMemberId){const target=state.room.members.get(m.routeToMemberId);if(target?.peerId){await sendJson({...m,routeToMemberId:'',routeFromMemberId:m.fromMemberId||roomMemberIdForPeer(peerId)},target.peerId);}return;}return dispatchFileControl(m,peerId);}
     if(m.t==='file-end'){if(state.room.role==='host'&&m.routeToMemberId){const target=state.room.members.get(m.routeToMemberId);if(target?.peerId){state.relayTransfers.delete(peerId);await sendJson({...m,routeToMemberId:'',fromMemberId:m.fromMemberId||roomMemberIdForPeer(peerId)},target.peerId);}return;}return handleFileEnd(m,peerId);}
-    if(m.t==='text')return receiveText(m,peerId); if(m.t==='chat')return receiveChatMessage(m,peerId);
+    if(m.t==='text')return receiveText(m,peerId); if(m.t&&String(m.t).startsWith('media-'))return handleMediaSignal(m,peerId);
+    if(m.t==='chat')return receiveChatMessage(m,peerId);
     if(m.t==='ping'){await sendJson({t:'pong',at:m.at},peerId);return;}
     return;
   }
@@ -2247,7 +2579,7 @@ function handleRoomRoster(m,peerId){
   renderPeers();
 }
 
-function handleRoomEnd(m){showModal('Room ended',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].roomEnded)}</div>`);for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended',m.reason||I18N[state.lang].roomEnded,'warn');}
+function handleRoomEnd(m){mediaCleanupAll();showModal('Room ended',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].roomEnded)}</div>`);for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended',m.reason||I18N[state.lang].roomEnded,'warn');}
 function handleRoomLeave(m,peerId){if(state.room.role!=='host')return;const memberId=m.memberId||roomMemberIdForPeer(peerId);const name=m.name||state.room.members.get(memberId)?.name||'Member';if(memberId)state.room.members.delete(memberId);cleanupPeer(peerId);syncRoomRoster();sendRoomRoster();maybeNotify('Member left',`${name} left the room.`,{quietWhenVisible:true});}
 function handleRoomKick(m){for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Removed from room','The Admin removed you from this room.','warn');showModal('Removed from room',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].memberRemoved)}</div>`);}
 function handleRoomUpdate(m){if(!state.room.active)return;if(m.roomName)state.room.name=String(m.roomName);renderPeers();renderChat();}
@@ -2455,7 +2787,7 @@ function wbBroadcastOp(op,exceptPeerId=''){
 function wbApplyRaw(op){
   const pageId=String(op.pageId||state.whiteboard.currentPageId);
   if(op.action==='page-create'&&op.page){if(state.whiteboard.pages.some(p=>p.id===op.page.id))return false;state.whiteboard.pages.push({id:op.page.id,name:op.page.name||`Page ${state.whiteboard.pages.length+1}`,objects:[]});return true;}
-  if(op.action==='page-delete'){if(state.whiteboard.pages.length<=1)return false;state.whiteboard.pages=state.whiteboard.pages.filter(p=>p.id!==op.pageId);if(state.whiteboard.currentPageId===op.pageId)state.whiteboard.currentPageId=state.whiteboard.pages[0].id;return true;}
+  if(op.action==='page-delete'){if(state.whiteboard.pages.length<=1)return false;const oldIndex=state.whiteboard.pages.findIndex(p=>p.id===op.pageId);state.whiteboard.pages=state.whiteboard.pages.filter(p=>p.id!==op.pageId);if(state.whiteboard.currentPageId===op.pageId){const nextIndex=Math.min(Math.max(oldIndex,0),state.whiteboard.pages.length-1);state.whiteboard.currentPageId=state.whiteboard.pages[nextIndex]?.id||state.whiteboard.pages[state.whiteboard.pages.length-1]?.id||'page-1';}return true;}
   const page=state.whiteboard.pages.find(p=>p.id===pageId);if(!page)return false;
   if(op.action==='add'&&op.object){if(page.objects.some(x=>x.id===op.object.id))return false;page.objects.push(op.object);return true;}
   if(op.action==='update'&&op.object){const idx=page.objects.findIndex(x=>x.id===op.object.id);if(idx<0)return false;page.objects[idx]=op.object;return true;}
@@ -2489,9 +2821,9 @@ function wbRenderObject(obj){
   }else if(obj.type==='ellipse'){
     g.appendChild(wbSvgEl('ellipse',{cx:obj.cx,cy:obj.cy,rx:Math.abs(obj.rx),ry:Math.abs(obj.ry),fill:obj.fill||'none',stroke:color,'stroke-width':width,opacity:obj.opacity??1}));
   }else if(obj.type==='text'){
-    const text=wbSvgEl('text',{x:obj.x,y:obj.y,fill:color,'font-size':obj.size||24,'font-family':'Arial, sans-serif','font-weight':obj.weight||500,'direction':obj.dir||'ltr','unicode-bidi':'plaintext'});wbTextLines(obj.text).forEach((line,i)=>{const t=wbSvgEl('tspan',{x:obj.x,dy:i?obj.size||24:0});t.textContent=line;text.appendChild(t)});g.appendChild(text);
+    const rtl=obj.dir==='rtl';const anchorX=rtl?(obj.x+(obj.w||320)):obj.x;const text=wbSvgEl('text',{x:anchorX,y:obj.y,fill:color,'font-size':obj.size||24,'font-family':'Arial, sans-serif','font-weight':obj.weight||500,'direction':rtl?'rtl':'ltr','unicode-bidi':'plaintext','text-anchor':rtl?'end':'start'});wbTextLines(obj.text).forEach((line,i)=>{const t=wbSvgEl('tspan',{x:anchorX,dy:i?obj.size||24:0});t.textContent=line;text.appendChild(t)});g.appendChild(text);
   }else if(obj.type==='note'){
-    const w=obj.w||220,h=obj.h||120;g.appendChild(wbSvgEl('rect',{x:obj.x,y:obj.y,width:w,height:h,rx:10,fill:obj.noteFill||'#fff5a8',stroke:obj.color||'#c59e2e','stroke-width':2}));const text=wbSvgEl('text',{x:obj.x+14,y:obj.y+28,fill:obj.textColor||'#3b3520','font-size':obj.size||22,'font-family':'Arial, sans-serif','direction':obj.dir||'ltr','unicode-bidi':'plaintext'});wbTextLines(obj.text,24).forEach((line,i)=>{const t=wbSvgEl('tspan',{x:obj.x+14,dy:i?obj.size||22:0});t.textContent=line;text.appendChild(t)});g.appendChild(text);
+    const w=obj.w||220,h=obj.h||120;g.appendChild(wbSvgEl('rect',{x:obj.x,y:obj.y,width:w,height:h,rx:10,fill:obj.noteFill||'#fff5a8',stroke:obj.color||'#c59e2e','stroke-width':2}));const rtl=obj.dir==='rtl';const anchorX=rtl?(obj.x+w-14):(obj.x+14);const text=wbSvgEl('text',{x:anchorX,y:obj.y+28,fill:obj.textColor||'#3b3520','font-size':obj.size||22,'font-family':'Arial, sans-serif','direction':rtl?'rtl':'ltr','unicode-bidi':'plaintext','text-anchor':rtl?'end':'start'});wbTextLines(obj.text,24).forEach((line,i)=>{const t=wbSvgEl('tspan',{x:anchorX,dy:i?obj.size||22:0});t.textContent=line;text.appendChild(t)});g.appendChild(text);
   }
   return g;
 }
@@ -2502,14 +2834,14 @@ function renderWhiteboard(){
   const page=wbCurrentPage();els.whiteboardPageSelect.innerHTML=state.whiteboard.pages.map(p=>`<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');els.whiteboardPageSelect.value=page?.id||'';els.whiteboardPageSelect.disabled=!canAdmin;els.whiteboardTools.querySelectorAll('.wb-tool').forEach(b=>{b.classList.toggle('active',b.dataset.wbTool===state.whiteboard.tool);b.disabled=!canEdit;});
   const layer=els.whiteboardLayer;while(layer.firstChild)layer.removeChild(layer.firstChild);for(const obj of (page?.objects||[]))layer.appendChild(wbRenderObject(obj));els.whiteboardZoomLabel.textContent=`${Math.round(state.whiteboard.zoom*100)}%`;els.whiteboardSvg.style.cursor=canEdit?(state.whiteboard.tool==='select'?'default':state.whiteboard.tool==='eraser'?'not-allowed':'crosshair'):'default';
 }
-function wbCommitDrawing(start,end){const t=state.whiteboard.tool;const page=wbCurrentPage();if(!page)return;let obj=null;if(t==='pen'||t==='highlighter'){const pts=state.whiteboard.drawing?.points||[];if(pts.length<2)return;obj={id:uid(),type:'path',points:pts,color:state.whiteboard.color,width:t==='highlighter'?Math.max(10,state.whiteboard.width*3):state.whiteboard.width,opacity:t==='highlighter'?.28:1};}
+function wbCommitDrawing(start,end,pointsOverride=null){const t=state.whiteboard.tool;const page=wbCurrentPage();if(!page)return;let obj=null;if(t==='pen'||t==='highlighter'){const pts=Array.isArray(pointsOverride)?pointsOverride:(state.whiteboard.drawing?.points||[]);if(pts.length<2)return;obj={id:uid(),type:'path',points:pts.map(p=>({x:Number(p.x),y:Number(p.y)})),color:state.whiteboard.color,width:t==='highlighter'?Math.max(10,state.whiteboard.width*3):state.whiteboard.width,opacity:t==='highlighter'?.28:1};}
   else if(t==='line'||t==='arrow'){obj={id:uid(),type:t,x1:start.x,y1:start.y,x2:end.x,y2:end.y,color:state.whiteboard.color,width:state.whiteboard.width};}
   else if(t==='rect'){obj={id:uid(),type:'rect',x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),w:Math.abs(end.x-start.x),h:Math.abs(end.y-start.y),color:state.whiteboard.color,width:state.whiteboard.width,fill:'none'};}
   else if(t==='ellipse'){obj={id:uid(),type:'ellipse',cx:(start.x+end.x)/2,cy:(start.y+end.y)/2,rx:Math.abs(end.x-start.x)/2,ry:Math.abs(end.y-start.y)/2,color:state.whiteboard.color,width:state.whiteboard.width,fill:'none'};}
   if(obj)wbLocalEdit({action:'add',pageId:page.id,object:obj,opId:uid(),fromMemberId:state.memberId});
 }
-function wbAskText(title,placeholder='Text'){return new Promise(resolve=>{showModal(title,`<textarea id="wbModalText" class="textarea" maxlength="1000" placeholder="${escapeHtml(placeholder)}"></textarea>`,()=>{const v=$('wbModalText')?.value||'';if(!v.trim()){$('wbModalText')?.focus();return false;}resolve(v.trim());return true;},()=>resolve(null));});}
-async function wbHandleClick(e){if(!wbCanEdit())return;const point=wbPointFromEvent(e);const tool=state.whiteboard.tool;if(tool==='eraser'){const id=wbHitObject(e);if(id){wbLocalEdit({action:'delete',pageId:wbCurrentPage().id,objectId:id,opId:uid(),fromMemberId:state.memberId});}return;}if(tool==='text'||tool==='note'){const text=await wbAskText(tool==='text'?I18N[state.lang].wbText:I18N[state.lang].wbNote,tool==='text'?'Enter text…':'Write a note…');if(!text)return;const obj=tool==='text'?{id:uid(),type:'text',x:point.x,y:point.y,text,dir:/[\u0590-\u08FF]/.test(text)?'rtl':'ltr',color:state.whiteboard.color,width:state.whiteboard.width,size:26}:{id:uid(),type:'note',x:point.x,y:point.y,text,dir:/[\u0590-\u08FF]/.test(text)?'rtl':'ltr',color:'#c59e2e',noteFill:'#fff5a8',textColor:'#3b3520',size:20,w:240,h:130};wbLocalEdit({action:'add',pageId:wbCurrentPage().id,object:obj,opId:uid(),fromMemberId:state.memberId});}}
+function wbAskText(title,placeholder='Text'){return new Promise(resolve=>{showModal(title,`<textarea id="wbModalText" class="textarea" dir="auto" maxlength="1000" placeholder="${escapeHtml(placeholder)}"></textarea>`,()=>{const v=$('wbModalText')?.value||'';if(!v.trim()){$('wbModalText')?.focus();return false;}resolve(v.trim());return true;},()=>resolve(null));});}
+async function wbHandleClick(e){if(!wbCanEdit())return;const point=wbPointFromEvent(e);const tool=state.whiteboard.tool;if(tool==='eraser'){const id=wbHitObject(e);if(id){wbLocalEdit({action:'delete',pageId:wbCurrentPage().id,objectId:id,opId:uid(),fromMemberId:state.memberId});}return;}if(tool==='text'||tool==='note'){const text=await wbAskText(tool==='text'?I18N[state.lang].wbText:I18N[state.lang].wbNote,tool==='text'?'Enter text…':'Write a note…');if(!text)return;const obj=tool==='text'?{id:uid(),type:'text',x:point.x,y:point.y,text,dir:/[\u0590-\u08FF]/.test(text)?'rtl':'ltr',color:state.whiteboard.color,width:state.whiteboard.width,size:26,w:320}:{id:uid(),type:'note',x:point.x,y:point.y,text,dir:/[\u0590-\u08FF]/.test(text)?'rtl':'ltr',color:'#c59e2e',noteFill:'#fff5a8',textColor:'#3b3520',size:20,w:240,h:130};wbLocalEdit({action:'add',pageId:wbCurrentPage().id,object:obj,opId:uid(),fromMemberId:state.memberId});}}
 function wbHandlePointerDown(e){
   if(!wbCanEdit())return;
   const p=wbPointFromEvent(e);const tool=state.whiteboard.tool;
@@ -2527,11 +2859,11 @@ function wbMoveObject(obj,dx,dy){
   else if(obj.type==='text'){obj.x+=dx;obj.y+=dy;}
 }
 function wbHandlePointerMove(e){const d=state.whiteboard.drawing;if(!d||!wbCanEdit())return;const p=wbPointFromEvent(e);if(d.mode==='move'){const page=wbCurrentPage();const obj=page?.objects.find(x=>x.id===d.objectId);if(!obj)return;wbMoveObject(obj,p.x-d.start.x,p.y-d.start.y);d.start=p;renderWhiteboard();return;}d.points.push(p);if(state.whiteboard.tool==='pen'||state.whiteboard.tool==='highlighter'){renderWhiteboard();const obj={id:'__preview',type:'path',points:d.points,color:state.whiteboard.color,width:state.whiteboard.tool==='highlighter'?Math.max(10,state.whiteboard.width*3):state.whiteboard.width,opacity:state.whiteboard.tool==='highlighter'?.28:1};els.whiteboardLayer.appendChild(wbRenderObject(obj));}}
-function wbHandlePointerUp(e){const d=state.whiteboard.drawing;if(!d)return;const p=wbPointFromEvent(e);state.whiteboard.drawing=null;if(d.mode==='move'){const page=wbCurrentPage();const obj=page?.objects.find(x=>x.id===d.objectId);if(obj){const changed=JSON.stringify(obj)!==JSON.stringify(d.before);if(changed){wbRecordLocalChange(d.beforeBoard);const op={opId:uid(),action:'update',pageId:page.id,object:JSON.parse(JSON.stringify(obj)),fromMemberId:state.memberId};state.whiteboard.seenOps.add(op.opId);wbPersist();renderWhiteboard();wbBroadcastOp(op);}}return;}wbCommitDrawing(d.start,p);renderWhiteboard();}
+function wbHandlePointerUp(e){const d=state.whiteboard.drawing;if(!d)return;const p=wbPointFromEvent(e);if(d.mode==='move'){state.whiteboard.drawing=null;const page=wbCurrentPage();const obj=page?.objects.find(x=>x.id===d.objectId);if(obj){const changed=JSON.stringify(obj)!==JSON.stringify(d.before);if(changed){wbRecordLocalChange(d.beforeBoard);const op={opId:uid(),action:'update',pageId:page.id,object:JSON.parse(JSON.stringify(obj)),fromMemberId:state.memberId};state.whiteboard.seenOps.add(op.opId);wbPersist();renderWhiteboard();wbBroadcastOp(op);}}return;}const points=Array.isArray(d.points)?d.points.slice():[d.start,p];state.whiteboard.drawing=null;wbCommitDrawing(d.start,p,points);renderWhiteboard();}
 function wbSetTool(tool){state.whiteboard.tool=tool;renderWhiteboard();}
 function wbNewPage(){if(!wbCanAdmin())return;const idx=state.whiteboard.pages.length+1;let name=`Page ${idx}`;let n=idx;while(!wbPageNameUnique(name)){n++;name=`Page ${n}`;}const page={id:uid(),name,objects:[]};const op={opId:uid(),action:'page-create',page,fromMemberId:state.memberId};wbLocalEdit(op);state.whiteboard.currentPageId=page.id;renderWhiteboard();for(const p of connectedPeers().filter(x=>x.authenticated&&x.room))sendJson({t:'wb-page',pageId:page.id},p.id).catch(()=>{});}
 async function wbRenamePage(){if(!wbCanAdmin())return;const page=wbCurrentPage();if(!page)return;const raw=await wbAskText(I18N[state.lang].wbRenamePage,'Page name');if(!raw)return;const name=String(raw).trim().slice(0,40);if(!name)return;if(!wbPageNameUnique(name,page.id)){toast(I18N[state.lang].wbPageExists);return;}const op={opId:uid(),action:'page-rename',pageId:page.id,name,fromMemberId:state.memberId};wbLocalEdit(op);}
-function wbDeletePage(){if(!wbCanAdmin()||state.whiteboard.pages.length<=1){toast(I18N[state.lang].wbLastPage);return;}const page=wbCurrentPage();if(!confirm(`Delete ${page.name}?`))return;const op={opId:uid(),action:'page-delete',pageId:page.id,fromMemberId:state.memberId};wbLocalEdit(op);state.whiteboard.currentPageId=state.whiteboard.pages[0]?.id||'page-1';renderWhiteboard();wbBroadcastPage();}
+function wbDeletePage(){if(!wbCanAdmin()||state.whiteboard.pages.length<=1){toast(I18N[state.lang].wbLastPage);return;}const page=wbCurrentPage();if(!confirm(`Delete ${page.name}?`))return;const op={opId:uid(),action:'page-delete',pageId:page.id,fromMemberId:state.memberId};wbLocalEdit(op);renderWhiteboard();wbBroadcastPage();}
 function wbClear(){if(!wbCanAdmin())return;if(!confirm(I18N[state.lang].wbClearConfirm))return;const op={opId:uid(),action:'clear',pageId:wbCurrentPage().id,fromMemberId:state.memberId};wbLocalEdit(op);}
 function wbPolicyChanged(){if(!wbCanAdmin())return;state.whiteboard.policy=els.whiteboardPolicySelect.value==='collab'?'collab':'admin';wbPersist();renderWhiteboard();wbBroadcastPolicy();}
 function wbPageChanged(){if(!wbCanAdmin())return;const id=els.whiteboardPageSelect.value;if(!state.whiteboard.pages.some(p=>p.id===id))return;state.whiteboard.currentPageId=id;wbPersist();renderWhiteboard();wbBroadcastPage();}
@@ -2945,7 +3277,7 @@ els.helpBtn.onclick=()=>{
         <li>استخدم <b>مركز النقل</b> لمتابعة الإرسال والاستقبال والإيقاف المؤقت والاستئناف وإعادة المحاولة والإلغاء والتحقق.</li>
         <li>تظهر حالة الأعضاء مثل متصل، يرسل، يستقبل أو يعيد الاتصال. يمكن للمشرف تغيير اسم الغرفة وإزالة عضو أو إنهاء الغرفة للجميع.</li>
         <li>تُحفظ هوية العضو والغرفة وسجل الدردشة محليًا للمساعدة على الاستعادة بعد تحديث الصفحة، وتُتحقق الملفات المكتملة باستخدام SHA-256 عند نجاح التحقق.</li>
-        <li>على الهاتف، استخدم شريط التنقل للوصول بسرعة إلى الغرفة والدردشة والسبورة والنقل والسجل.</li><li>استخدم <b>السبورة البيضاء</b> داخل الغرفة للرسم وشرح المخططات. يتحكم المشرف بالصفحة ويمكنه السماح للجميع بالتعليق.</li>
+        <li>على الهاتف، استخدم شريط التنقل للوصول بسرعة إلى الغرفة والدردشة والسبورة والنقل والسجل.</li><li>استخدم <b>السبورة البيضاء</b> داخل الغرفة للرسم وشرح المخططات. يتحكم المشرف بالصفحة ويمكنه السماح للجميع بالتعليق.</li><li>استخدم <b>الصوت</b> أو <b>الفيديو</b> من بطاقة العضو لإجراء مكالمة خاصة. داخل الغرفة يمكن للمشرف تشغيل <b>صوت الغرفة</b> بوضع المسؤول فقط أو الإشراف أو النقاش المفتوح، ويمكنه اختيار مقدم فيديو.</li>
       </ol>
       <div style="font-weight:800;font-size:13px;margin:14px 0 7px">الوضع الاحتياطي</div>
       <p style="line-height:1.7;margin:0 0 10px">استخدم <b>Offline / LAN</b> عندما تريد مشاركة محلية بدون خوادم الإشارة الخارجية. هذا الوضع مناسب للأجهزة على نفس Wi‑Fi/LAN، وتتوفر أدوات الاقتران اليدوي والـQR ضمن قسم <b>Advanced pairing · copy/paste / .p2p files</b>.</p>
@@ -2962,7 +3294,7 @@ els.helpBtn.onclick=()=>{
         <li>Use the <b>Transfer Center</b> to track sending and receiving, pause/resume, retry, cancel, and verification.</li>
         <li>Members show states such as connected, sending, receiving, or reconnecting. The Admin can rename the room, remove a member, or end the room for everyone.</li>
         <li>Member identity, room recovery, and chat history are stored locally to help restore the session after refresh. Completed transfers can be SHA-256 verified.</li>
-        <li>On mobile, use the navigation bar to jump quickly to Room, Chat, Whiteboard, Transfers, and History.</li><li>Use the <b>Whiteboard</b> inside the room for diagrams and explanations. The Admin controls the page and can enable collaborative annotation; members can view by default.</li>
+        <li>On mobile, use the navigation bar to jump quickly to Room, Chat, Whiteboard, Transfers, and History.</li><li>Use the <b>Whiteboard</b> inside the room for diagrams and explanations. The Admin controls the page and can enable collaborative annotation; members can view by default.</li><li>Use <b>Voice</b> or <b>Video</b> from a member card for a private call. In a room, the Admin can run <b>Room Voice</b> in Admin-only, Moderated, or Open Discussion mode, and can choose a video presenter.</li>
       </ol>
       <div style="font-weight:800;font-size:13px;margin:14px 0 7px">Offline fallback</div>
       <p style="line-height:1.7;margin:0 0 10px">Use <b>Offline / LAN</b> when you want a completely local, serverless fallback. It is intended for devices on the same Wi‑Fi/LAN. Manual pairing and QR tools are available under <b>Advanced pairing · copy/paste / .p2p files</b>.</p>
@@ -2974,11 +3306,11 @@ els.helpBtn.onclick=()=>{
 els.resetBtn.onclick=()=>{if(confirm('Reset this app? This clears local history and settings.')){localStorage.removeItem('p2p-history');localStorage.removeItem('p2p-device');localStorage.removeItem('p2p-lang');localStorage.removeItem('p2p-network-mode');localStorage.removeItem('p2p-network-mode-v160-defaulted');localStorage.removeItem('p2p-member-id');sessionStorage.removeItem('p2p-member-id');localStorage.removeItem('p2p-last-room');location.reload();}};
 els.modalClose.onclick=()=>{stopQrScan();closeModal()};els.modalOk.onclick=()=>{stopQrScan();closeModal()};els.modal.addEventListener('click',e=>{if(e.target===els.modal){stopQrScan();closeModal();}});
 
-window.addEventListener('beforeunload',()=>{stopQrScan();try{state.internet.peer?.destroy();state.dc?.close();state.pc?.close()}catch{}});
+window.addEventListener('beforeunload',()=>{try{mediaCleanupAll()}catch{}stopQrScan();try{state.internet.peer?.destroy();state.dc?.close();state.pc?.close()}catch{}});
 
 wbInit();
 defaultInit();
-async function defaultInit(){applyLang();browserChecks();renderNotificationButton();cleanupLegacyNotificationServiceWorker();registerNotificationServiceWorker();renderHistory();renderSendQueue();renderPeers();renderIncoming();renderTransferCenter();if(!localStorage.getItem('p2p-network-mode-v160-defaulted')){localStorage.setItem('p2p-network-mode-v160-defaulted','1');setNetworkMode(true);}else{setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');}try{const params=new URLSearchParams(location.search);const sharedRoom=params.get('room');if(params.get('mode')==='internet'&&/^\d{6}$/.test(sharedRoom||'')){setNetworkMode(true);setTimeout(()=>showModal('Join shared room',`<div class="modal-message">Room <b>${escapeHtml(sharedRoom)}</b> is ready to join.</div>`,()=>{joinInternetRoomCode(sharedRoom).catch(err=>showModal('Join failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;}),100);}else{const last=getLastRoomSession();if(last?.mode==='internet'&&last.role==='member'){setNetworkMode(true);setTimeout(()=>joinInternetRoomCode(last.code).catch(()=>{if(state.room.active&&state.room.role==='join')scheduleInternetReconnect('The previous room is not ready yet.');}),450);}else if(last?.mode==='internet'&&last.role==='admin'){setNetworkMode(true);setTimeout(()=>createInternetRoom(last.code).catch(()=>{}),450);}}}catch{}setConn('Not connected',I18N[state.lang].defaultConnDetail,'warn');showPairCode('', '');setQuickStatus(I18N[state.lang].internetDefaultHint,'good');renderChat();}
+async function defaultInit(){applyLang();browserChecks();renderNotificationButton();cleanupLegacyNotificationServiceWorker();registerNotificationServiceWorker();renderHistory();renderSendQueue();renderPeers();renderMedia();renderIncoming();renderTransferCenter();if(!localStorage.getItem('p2p-network-mode-v160-defaulted')){localStorage.setItem('p2p-network-mode-v160-defaulted','1');setNetworkMode(true);}else{setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');}try{const params=new URLSearchParams(location.search);const sharedRoom=params.get('room');if(params.get('mode')==='internet'&&/^\d{6}$/.test(sharedRoom||'')){setNetworkMode(true);setTimeout(()=>showModal('Join shared room',`<div class="modal-message">Room <b>${escapeHtml(sharedRoom)}</b> is ready to join.</div>`,()=>{joinInternetRoomCode(sharedRoom).catch(err=>showModal('Join failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;}),100);}else{const last=getLastRoomSession();if(last?.mode==='internet'&&last.role==='member'){setNetworkMode(true);setTimeout(()=>joinInternetRoomCode(last.code).catch(()=>{if(state.room.active&&state.room.role==='join')scheduleInternetReconnect('The previous room is not ready yet.');}),450);}else if(last?.mode==='internet'&&last.role==='admin'){setNetworkMode(true);setTimeout(()=>createInternetRoom(last.code).catch(()=>{}),450);}}}catch{}setConn('Not connected',I18N[state.lang].defaultConnDetail,'warn');showPairCode('', '');setQuickStatus(I18N[state.lang].internetDefaultHint,'good');renderChat();}
 
 })();
 </script>
