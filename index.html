@@ -1800,13 +1800,26 @@ function updateRoomActivity(){
   const bits=[]; if(sending)bits.push(`${sending} ${d.sendingLabel}`); if(receiving)bits.push(`${receiving} ${d.receivingLabel}`); if(idle)bits.push(`${idle} ${d.idleLabel}`);
   els.roomActivityDetail.textContent=bits.join(' · ')||d.roomActivityEmpty;
 }
+let notificationSwRegistration=null;
+async function registerNotificationServiceWorker(){
+  if(!('serviceWorker' in navigator)||!window.isSecureContext)return null;
+  try{
+    notificationSwRegistration=await navigator.serviceWorker.register('./p2p-share-sw.js',{scope:'./',updateViaCache:'none'});
+    await navigator.serviceWorker.ready;
+    return notificationSwRegistration;
+  }catch(err){
+    notificationSwRegistration=null;
+    return null;
+  }
+}
 async function cleanupLegacyNotificationServiceWorker(){
   if(!('serviceWorker' in navigator)||!window.isSecureContext)return;
   try{
     const regs=await navigator.serviceWorker.getRegistrations();
     for(const reg of regs){
       const url=reg.active?.scriptURL||reg.waiting?.scriptURL||reg.installing?.scriptURL||'';
-      if(/\/p2p-share-sw\.js(?:\?|$)/i.test(url)) await reg.unregister();
+      if(/\/p2p-share-sw\.js(?:\?|$)/i.test(url)){}
+      else if(/\/p2p-share-worker\.js(?:\?|$)/i.test(url)) await reg.unregister();
     }
   }catch{}
 }
@@ -1826,21 +1839,18 @@ function renderNotificationButton(){
 }
 async function showSystemNotification(title,body='',opts={}){
   if(typeof Notification==='undefined'||Notification.permission!=='granted')return false;
-  const options={body,tag:opts.tag||`p2p-share-${state.room.id||'direct'}-${Date.now()}`,renotify:true};
+  const options={body,tag:opts.tag||`p2p-share-${state.room.id||'direct'}-${Date.now()}`,renotify:true,data:{roomId:state.room.id||'',section:opts.section||'chat'}};
   try{
+    let reg=notificationSwRegistration;
+    if(!reg && 'serviceWorker' in navigator && window.isSecureContext){
+      reg=await navigator.serviceWorker.ready.catch(()=>null);
+    }
+    if(reg?.showNotification){
+      await reg.showNotification(title,options);
+      return true;
+    }
     const n=new Notification(title,options);
-    let shown=false, settled=false;
-    const finish=(ok)=>{if(settled)return;settled=true;shown=ok;};
-    n.onshow=()=>finish(true);
-    n.onerror=()=>finish(false);
     n.onclick=()=>{try{window.focus();n.close();}catch{}};
-    // Some browsers do not fire onshow reliably. Treat successful construction as usable,
-    // but provide a visible diagnostic if neither show nor error arrives promptly.
-    setTimeout(()=>{
-      if(!settled && document.visibilityState!=='hidden'){
-        toast('Notification was accepted by the browser but was not displayed. Check browser/Windows notification settings.');
-      }
-    },1800);
     return true;
   }catch(err){
     toast(`${(I18N[state.lang]||I18N.en).notificationsBlocked}${err?.message?` · ${err.message}`:''}`);
@@ -1854,11 +1864,12 @@ async function requestNotifications(){
       toast('Notifications require HTTPS. Open P2P Share from your GitHub Pages HTTPS address.');
       return;
     }
+    await registerNotificationServiceWorker();
     const p=Notification.permission==='granted'?'granted':await Notification.requestPermission();
     state.notifications.enabled=p==='granted';
     renderNotificationButton();
     if(p==='granted'){
-      const shown=await showSystemNotification('P2P Share','Notifications are working. This is a test notification.',{tag:'p2p-share-test'});
+      const shown=await showSystemNotification('P2P Share','Notifications are working. This is a test notification.',{tag:'p2p-share-test',section:'chat'});
       if(shown)toast((I18N[state.lang]||I18N.en).notificationsOn);
     }else if(p==='denied'){
       toast('Notifications are blocked for this site. Enable them in your browser site permissions.');
@@ -2238,6 +2249,7 @@ async function receiveChatMessage(m,peerId){
       return;
     }
     addChatMessage({...m,fromMemberId,self:false});
+    maybeNotify(`Message from ${m.from||'Member'}`,m.text||'',{important:true});
     for(const p of connectedPeers().filter(x=>x.authenticated&&x.room&&x.id!==peerId)){
       try{await sendJson({...m,fromMemberId,relay:true},p.id);}catch{}
     }
@@ -2667,7 +2679,7 @@ els.modalClose.onclick=()=>{stopQrScan();closeModal()};els.modalOk.onclick=()=>{
 window.addEventListener('beforeunload',()=>{stopQrScan();try{state.internet.peer?.destroy();state.dc?.close();state.pc?.close()}catch{}});
 
 defaultInit();
-async function defaultInit(){applyLang();browserChecks();renderNotificationButton();cleanupLegacyNotificationServiceWorker();renderHistory();renderSendQueue();renderPeers();renderIncoming();renderTransferCenter();if(!localStorage.getItem('p2p-network-mode-v160-defaulted')){localStorage.setItem('p2p-network-mode-v160-defaulted','1');setNetworkMode(true);}else{setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');}try{const params=new URLSearchParams(location.search);const sharedRoom=params.get('room');if(params.get('mode')==='internet'&&/^\d{6}$/.test(sharedRoom||'')){setNetworkMode(true);setTimeout(()=>showModal('Join shared room',`<div class="modal-message">Room <b>${escapeHtml(sharedRoom)}</b> is ready to join.</div>`,()=>{joinInternetRoomCode(sharedRoom).catch(err=>showModal('Join failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;}),100);}else{const last=getLastRoomSession();if(last?.mode==='internet'&&last.role==='member'){setNetworkMode(true);setTimeout(()=>joinInternetRoomCode(last.code).catch(()=>{if(state.room.active&&state.room.role==='join')scheduleInternetReconnect('The previous room is not ready yet.');}),450);}else if(last?.mode==='internet'&&last.role==='admin'){setNetworkMode(true);setTimeout(()=>createInternetRoom(last.code).catch(()=>{}),450);}}}catch{}setConn('Not connected',I18N[state.lang].defaultConnDetail,'warn');showPairCode('', '');setQuickStatus(I18N[state.lang].internetDefaultHint,'good');renderChat();}
+async function defaultInit(){applyLang();browserChecks();renderNotificationButton();cleanupLegacyNotificationServiceWorker();registerNotificationServiceWorker();renderHistory();renderSendQueue();renderPeers();renderIncoming();renderTransferCenter();if(!localStorage.getItem('p2p-network-mode-v160-defaulted')){localStorage.setItem('p2p-network-mode-v160-defaulted','1');setNetworkMode(true);}else{setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');}try{const params=new URLSearchParams(location.search);const sharedRoom=params.get('room');if(params.get('mode')==='internet'&&/^\d{6}$/.test(sharedRoom||'')){setNetworkMode(true);setTimeout(()=>showModal('Join shared room',`<div class="modal-message">Room <b>${escapeHtml(sharedRoom)}</b> is ready to join.</div>`,()=>{joinInternetRoomCode(sharedRoom).catch(err=>showModal('Join failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;}),100);}else{const last=getLastRoomSession();if(last?.mode==='internet'&&last.role==='member'){setNetworkMode(true);setTimeout(()=>joinInternetRoomCode(last.code).catch(()=>{if(state.room.active&&state.room.role==='join')scheduleInternetReconnect('The previous room is not ready yet.');}),450);}else if(last?.mode==='internet'&&last.role==='admin'){setNetworkMode(true);setTimeout(()=>createInternetRoom(last.code).catch(()=>{}),450);}}}catch{}setConn('Not connected',I18N[state.lang].defaultConnDetail,'warn');showPairCode('', '');setQuickStatus(I18N[state.lang].internetDefaultHint,'good');renderChat();}
 
 })();
 </script>
