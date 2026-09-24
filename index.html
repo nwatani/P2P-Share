@@ -274,8 +274,13 @@ input[type=file]{display:none!important}
 <label style="display:block;margin-top:9px"><span>TURN username</span></label>
 <input autocomplete="off" class="input" id="turnUsername" style="margin-top:7px"/>
 <label style="display:block;margin-top:9px"><span>TURN credential</span></label>
-<input autocomplete="off" class="input" id="turnCredential" style="margin-top:7px" type="password"/>
-<small>Use short-lived TURN credentials from your provider. Do not put permanent account API keys into the HTML.</small>
+<form onsubmit="return false"><input autocomplete="off" class="input" id="turnCredential" style="margin-top:7px" type="password"/></form>
+<label style="display:block;margin-top:9px"><span>TURN credential endpoint (optional)</span></label>
+<input class="input" id="turnCredentialEndpoint" placeholder="https://…/turn/credentials" style="margin-top:7px"/>
+<label style="display:block;margin-top:9px"><span>Credential API key (optional)</span></label>
+<form onsubmit="return false"><input autocomplete="off" class="input" id="turnCredentialApiKey" style="margin-top:7px" type="password"/></form>
+<div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn small" id="turnRefreshBtn">Refresh TURN credentials</button><button type="button" class="btn small ghost" id="turnTestBtn">Test TURN</button><span class="pill" id="turnStatus">Not configured</span></div>
+<small>Use an endpoint that returns <code>{"iceServers":[…]}</code>. For Metered, use the credential-scoped API key only; never put a provider secret/API secret in this field. Short-lived credentials stay in memory.</small>
 </details>
 </div></section>
 </div></details>
@@ -1625,7 +1630,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '2.1.4';
+const APP_VERSION = '2.1.6';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1675,7 +1680,7 @@ const els = {
   signalingPill:$('signalingPill'),
   diagPathTitle:$('diagPathTitle'), diagRefreshBtn:$('diagRefreshBtn'), diagDot:$('diagDot'), diagPath:$('diagPath'), diagHint:$('diagHint'), diagCandidates:$('diagCandidates'), diagTransport:$('diagTransport'), diagSignaling:$('diagSignaling'), diagIceServer:$('diagIceServer'), diagSent:$('diagSent'), diagReceived:$('diagReceived'), diagPeers:$('diagPeers'),
   dWebrtc:$('dWebrtc'), tWebrtc:$('tWebrtc'), dDc:$('dDc'), tDc:$('tDc'), dCrypto:$('dCrypto'), tCrypto:$('tCrypto'), dIdb:$('dIdb'), tIdb:$('tIdb'), dFs:$('dFs'), tFs:$('tFs'), dSecure:$('dSecure'), tSecure:$('tSecure'), dCamera:$('dCamera'), tCamera:$('tCamera'),
-  lanOnly:$('lanOnly'), offlineModeBtn:$('offlineModeBtn'), internetModeBtn:$('internetModeBtn'), internetSettings:$('internetSettings'), internetServicePill:$('internetServicePill'), networkModeHint:$('networkModeHint'), stunServer:$('stunServer'), turnUrls:$('turnUrls'), turnUsername:$('turnUsername'), turnCredential:$('turnCredential'), passwordEnabled:$('passwordEnabled'), passwordBox:$('passwordBox'), sessionPassword:$('sessionPassword'),
+  lanOnly:$('lanOnly'), offlineModeBtn:$('offlineModeBtn'), internetModeBtn:$('internetModeBtn'), internetSettings:$('internetSettings'), internetServicePill:$('internetServicePill'), networkModeHint:$('networkModeHint'), stunServer:$('stunServer'), turnUrls:$('turnUrls'), turnUsername:$('turnUsername'), turnCredential:$('turnCredential'), turnCredentialEndpoint:$('turnCredentialEndpoint'), turnCredentialApiKey:$('turnCredentialApiKey'), turnRefreshBtn:$('turnRefreshBtn'), turnTestBtn:$('turnTestBtn'), turnStatus:$('turnStatus'), passwordEnabled:$('passwordEnabled'), passwordBox:$('passwordBox'), sessionPassword:$('sessionPassword'),
   workSub:$('workSub'), chatCard:$('chatCard'), selfTestBtn:$('selfTestBtn'), disconnectBtn:$('disconnectBtn'),
   roleHost:$('roleHost'), roleJoin:$('roleJoin'), easyCreateBtn:$('easyCreateBtn'), easyJoinBtn:$('easyJoinBtn'), pairCodeCard:$('pairCodeCard'), pairCode:$('pairCode'), pairCodeNote:$('pairCodeNote'), pairQrBtn:$('pairQrBtn'), quickStatus:$('quickStatus'), hostPanel:$('hostPanel'), joinPanel:$('joinPanel'), createOfferBtn:$('createOfferBtn'), copyOfferBtn:$('copyOfferBtn'), showOfferQrBtn:$('showOfferQrBtn'), saveOfferBtn:$('saveOfferBtn'), offerOut:$('offerOut'), answerIn:$('answerIn'), applyAnswerBtn:$('applyAnswerBtn'), loadSignalBtn:$('loadSignalBtn'),
   prepareAnswerBtn:$('prepareAnswerBtn'), copyAnswerBtn:$('copyAnswerBtn'), showAnswerQrBtn:$('showAnswerQrBtn'), saveAnswerBtn:$('saveAnswerBtn'), offerIn:$('offerIn'), answerOut:$('answerOut'), loadOfferFileBtn:$('loadOfferFileBtn'),
@@ -1704,7 +1709,7 @@ const state = {
   icePath:'Unknown', statsTimer:null, qrStream:null, qrTimer:null, pairCode:'', quickMode:false,
   diagSamples:new Map(), diagLast:null,
   peers:new Map(), primaryPeerId:null, selectedPeerIds:new Set(), chat:{messages:[],seen:new Set(),target:'all'},
-  room:{active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()}, roomMaxPeers:30, roomAnswerBuffer:'', relayTransfers:new Map(), transferJobs:new Map(), pausedTransfers:new Set(), cancelledTransfers:new Set(), transferQueue:[], activeTransferPeers:new Set(), maxConcurrentTransfers:3, reconnectTimer:null, reconnectAttempts:0, internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false}, notifications:{enabled:false},
+  room:{active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()}, roomMaxPeers:30, roomAnswerBuffer:'', relayTransfers:new Map(), transferJobs:new Map(), pausedTransfers:new Set(), cancelledTransfers:new Set(), transferQueue:[], activeTransferPeers:new Set(), maxConcurrentTransfers:3, reconnectTimer:null, reconnectAttempts:0, internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false,turnIceServers:[],turnLoadedAt:0,turnExpiresAt:0,turnError:''}, notifications:{enabled:false},
   whiteboard:{sessionId:'',active:false,userClosed:false,currentPageId:'page-1',pages:[{id:'page-1',name:'Page 1',objects:[]}],policy:'admin',tool:'select',color:'#2d6cdf',width:4,zoom:1,viewX:0,viewY:0,viewW:1200,viewH:750,undo:[],redo:[],seenOps:new Set(),drawing:null,remoteApplying:false,selectedObjectId:''}, media:{calls:new Map(),pendingInvites:new Map(),roomVoiceMode:'admin',roomVoiceActive:false,roomVideoActive:false,roomVideoPresenterId:'',speakingAllowed:false,hands:new Map(),videoRequests:new Map(),speakerIds:new Set(),localAudio:null,localAV:null,audioCtx:null,audioUnlocked:false}
 };
 
@@ -1858,6 +1863,20 @@ function equalBytes(a,b){if(a.length!==b.length)return false;let x=0;for(let i=0
 async function encryptChunk(keys,plain){const iv=bytesRandom(12);const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},keys.aes,plain));const out=new Uint8Array(12+cipher.length);out.set(iv,0);out.set(cipher,12);return out;}
 async function decryptChunk(keys,cipher){const u=new Uint8Array(cipher);if(u.length<13)throw new Error('Encrypted chunk is too small');return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:u.slice(0,12)},keys.aes,u.slice(12)));}
 
+function normalizeIceServersPayload(payload){
+  const list=Array.isArray(payload)?payload:(Array.isArray(payload?.iceServers)?payload.iceServers:null);
+  if(!list)return [];
+  return list.map(x=>{
+    if(!x||!x.urls)return null;
+    const urls=Array.isArray(x.urls)?x.urls.filter(Boolean):[x.urls].filter(Boolean);
+    if(!urls.length)return null;
+    const out={urls};
+    if(x.username)out.username=String(x.username);
+    if(x.credential)out.credential=String(x.credential);
+    if(x.credentialType)out.credentialType=x.credentialType;
+    return out;
+  }).filter(Boolean);
+}
 function buildIceServers(){
   const servers=[];
   if(els.lanOnly.checked)return servers;
@@ -1865,15 +1884,76 @@ function buildIceServers(){
   servers.push({urls:'stun:stun.cloudflare.com:3478'});
   servers.push({urls:'stun:global.stun.twilio.com:3478'});
   const custom=els.stunServer?.value?.trim();if(custom)servers.push({urls:custom});
+  const dynamic=Array.isArray(state.internet?.turnIceServers)?state.internet.turnIceServers:[];
+  for(const item of dynamic)servers.push(item);
   const turnUrls=(els.turnUrls?.value||'').split(',').map(x=>x.trim()).filter(Boolean);
   const username=els.turnUsername?.value?.trim()||'';const credential=els.turnCredential?.value||'';
   if(turnUrls.length&&username&&credential)servers.push({urls:turnUrls,username,credential});
   return servers;
 }
-function rtcConfig(){
-  const cfg={iceServers:buildIceServers(),sdpSemantics:'unified-plan'};
-  return cfg;
+function turnCredentialRequestUrl(){
+  let url=els.turnCredentialEndpoint?.value?.trim()||'';
+  const key=els.turnCredentialApiKey?.value?.trim()||'';
+  if(!url)return '';
+  if(key){
+    if(/\{(?:api[_-]?key|key)\}/i.test(url))return url.replace(/\{(?:api[_-]?key|key)\}/ig,encodeURIComponent(key));
+    try{const u=new URL(url,location.href);u.searchParams.set('apiKey',key);return u.href;}catch{return url+(url.includes('?')?'&':'?')+'apiKey='+encodeURIComponent(key);}
+  }
+  return url;
 }
+async function refreshTurnCredentials(force=false){
+  if(els.lanOnly?.checked)return [];
+  const now=Date.now();
+  if(!force && Array.isArray(state.internet.turnIceServers)&&state.internet.turnIceServers.length&&state.internet.turnExpiresAt>now+60000)return state.internet.turnIceServers;
+  const endpoint=turnCredentialRequestUrl();
+  if(!endpoint){if(els.turnStatus){els.turnStatus.textContent='Not configured';els.turnStatus.className='pill';}return []}
+  if(els.turnRefreshBtn)els.turnRefreshBtn.disabled=true;
+  if(els.turnStatus){els.turnStatus.textContent='Loading…';els.turnStatus.className='pill warn';}
+  try{
+    const res=await fetch(endpoint,{cache:'no-store',headers:{'Accept':'application/json'}});
+    if(!res.ok)throw new Error(`TURN credential service returned HTTP ${res.status}`);
+    const payload=await res.json();
+    const servers=normalizeIceServersPayload(payload);
+    const relay=servers.filter(s=>s.urls.some(u=>/^turns?:/i.test(u)));
+    if(!servers.length||!relay.length)throw new Error('The TURN credential response did not contain a TURN relay.');
+    state.internet.turnIceServers=servers;
+    state.internet.turnLoadedAt=now;
+    const ttl=Number(payload.ttl||payload.ttlSeconds||payload.expiresIn||3600);
+    state.internet.turnExpiresAt=now+Math.max(300,Math.min(48*3600,Number.isFinite(ttl)?ttl:3600))*1000;
+    state.internet.turnError='';
+    if(els.turnStatus){els.turnStatus.textContent=`TURN ready · ${relay.length} relay set${relay.length===1?'':'s'}`;els.turnStatus.className='pill good';}
+    return servers;
+  }catch(err){
+    state.internet.turnError=err?.message||String(err);state.internet.turnIceServers=[];state.internet.turnExpiresAt=0;
+    if(els.turnStatus){els.turnStatus.textContent='TURN unavailable';els.turnStatus.className='pill warn';}
+    return [];
+  }finally{if(els.turnRefreshBtn)els.turnRefreshBtn.disabled=false;}
+}
+async function prepareInternetIce(force=false){
+  if(els.lanOnly?.checked)return [];
+  const dynamic=await refreshTurnCredentials(force);
+  if(!dynamic.length&&els.turnUrls?.value&&els.turnUsername?.value&&els.turnCredential?.value)state.internet.turnError='Using manually configured TURN credentials.';
+  return buildIceServers();
+}
+async function testTurnConnectivity(){
+  if(els.lanOnly?.checked){toast('Switch to Internet / Hybrid to test TURN.');return;}
+  await refreshTurnCredentials(true);
+  const servers=buildIceServers().filter(s=>s.urls.some(u=>/^turns?:/i.test(u)));
+  if(!servers.length){if(els.turnStatus){els.turnStatus.textContent='TURN not configured';els.turnStatus.className='pill warn';}toast('No TURN relay is configured. Add a credential endpoint or manual TURN credentials.');return;}
+  if(els.turnTestBtn)els.turnTestBtn.disabled=true;
+  if(els.turnStatus){els.turnStatus.textContent='Testing…';els.turnStatus.className='pill warn';}
+  let pc=null,finished=false,timer=null;
+  const finish=(ok,message)=>{if(finished)return;finished=true;if(timer)clearTimeout(timer);try{pc?.close()}catch{};if(els.turnTestBtn)els.turnTestBtn.disabled=false;if(els.turnStatus){els.turnStatus.textContent=ok?'TURN reachable':'TURN unreachable';els.turnStatus.className=`pill ${ok?'good':'bad'}`;}toast(message);};
+  try{
+    pc=new RTCPeerConnection({iceServers:servers,sdpSemantics:'unified-plan'});pc.createDataChannel('turn-test');
+    pc.onicecandidate=e=>{if(!e.candidate)return;const c=e.candidate;const text=String(c.candidate||'');if(c.type==='relay'||/ typ relay\b/i.test(text))finish(true,'TURN relay candidate gathered successfully.');};
+    pc.onicecandidateerror=()=>{};
+    timer=setTimeout(()=>finish(false,'No TURN relay candidate was gathered. Check the credential endpoint/provider.'),9000);
+    const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+  }catch(err){finish(false,`TURN test failed: ${err?.message||err}`);}
+}
+function rtcConfig(){return {iceServers:buildIceServers(),sdpSemantics:'unified-plan'};}
+
 function waitIceComplete(pc){
   return new Promise(resolve=>{if(pc.iceGatheringState==='complete')return resolve();const timer=setTimeout(resolve,12000);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve();}})});
 }
@@ -2118,7 +2198,7 @@ function mediaHasActiveLocalTrack(kind){
   return mediaCallList().some(c=>c.active && c.localStream && [...c.localStream.getTracks()].some(t=>t.kind===(kind==='video'?'video':'audio')));
 }
 async function mediaUnlockAudio(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;if(!state.media.audioCtx)state.media.audioCtx=new C();if(state.media.audioCtx.state==='suspended')await state.media.audioCtx.resume();state.media.audioUnlocked=state.media.audioCtx.state==='running';return state.media.audioUnlocked;}catch{return false;}}
-function mediaAttachRemoteAudio(call,stream){if(call?.kind!=='audio'||!stream)return false;try{if(!state.media.audioCtx||!state.media.audioUnlocked)return false;if(call.audioSource&&call.audioStream===stream)return true;try{call.audioSource?.disconnect()}catch{}try{call.audioGain?.disconnect()}catch{}const source=state.media.audioCtx.createMediaStreamSource(stream);const gain=state.media.audioCtx.createGain();gain.gain.value=1;source.connect(gain);gain.connect(state.media.audioCtx.destination);call.audioSource=source;call.audioGain=gain;call.audioStream=stream;call.audioUnlocked=true;return true;}catch{return false;}}
+function mediaAttachRemoteAudio(call,stream){if(!call||!stream||!(call.kind==='audio'||call.kind==='video'))return false;try{if(!state.media.audioCtx||!state.media.audioUnlocked)return false;if(call.audioSource&&call.audioStream===stream)return true;try{call.audioSource?.disconnect()}catch{}try{call.audioGain?.disconnect()}catch{}const source=state.media.audioCtx.createMediaStreamSource(stream);const gain=state.media.audioCtx.createGain();gain.gain.value=1;source.connect(gain);gain.connect(state.media.audioCtx.destination);call.audioSource=source;call.audioGain=gain;call.audioStream=stream;call.audioUnlocked=true;return true;}catch{return false;}}
 function mediaGetLocalStream(kind){
   const wantsVideo=kind==='video';
   if(wantsVideo && state.media.localAV && state.media.localAV.getTracks().some(t=>t.readyState==='live'))return Promise.resolve(state.media.localAV);
@@ -2148,13 +2228,27 @@ function mediaSendSignal(targetMemberId,msg){
   if(targetId===String(state.room.adminId))return sendJson(base,adminPeer.id);
   return sendJson({...base,routeToMemberId:targetId,mediaRelay:true},adminPeer.id);
 }
+async function mediaRestartIce(call){
+  if(!call?.pc||call.iceRestartTried||!call.initiator)return false;
+  call.iceRestartTried=true;call.status='reconnecting';renderMedia();
+  try{
+    if(state.internet?.active&&!els.lanOnly?.checked)await prepareInternetIce(true);
+    call.pc.setConfiguration?.(rtcConfig());call.pc.restartIce?.();
+    const offer=await call.pc.createOffer({iceRestart:true});await call.pc.setLocalDescription(offer);
+    await mediaSendSignal(call.peerMemberId,{t:'media-reoffer',callId:call.id,offer:call.pc.localDescription?.toJSON?call.pc.localDescription.toJSON():call.pc.localDescription});
+    return true;
+  }catch(err){call.iceError=err?.message||String(err);renderMedia();return false;}
+}
 async function mediaCreatePeer(call,localStream){
+  if(state.internet?.active&&!els.lanOnly?.checked)await prepareInternetIce(false);
   const pc=new RTCPeerConnection(rtcConfig());
   call.pc=pc;
   pc.onicecandidate=e=>{if(e.candidate)mediaSendSignal(call.peerMemberId,{t:'media-ice',callId:call.id,candidate:e.candidate.toJSON?e.candidate.toJSON():e.candidate}).catch(()=>{});};
-  pc.ontrack=e=>{const st=e.streams?.[0]||null;if(st){call.remoteStream=st;if(call.kind==='audio')mediaAttachRemoteAudio(call,st);renderMedia();}};
+  pc.ontrack=e=>{const st=e.streams?.[0]||null;if(st){call.remoteStream=st;if(st.getAudioTracks?.().length)mediaAttachRemoteAudio(call,st);renderMedia();}};
+  pc.onicecandidateerror=e=>{call.iceError=`${e.errorCode||''}${e.errorText?` · ${e.errorText}`:''}`.trim();renderMedia();};
+  pc.oniceconnectionstatechange=()=>{call.iceState=pc.iceConnectionState;renderMedia();if(pc.iceConnectionState==='failed'){const hasTurn=buildIceServers().some(s=>s.urls.some(u=>/^turns?:/i.test(u)));setConn('Media ICE failed',hasTurn?'No usable media candidate pair was found. One ICE restart will be attempted.':'Direct media path failed. No TURN relay is configured for this browser/network.','bad');if(!call.iceRestartTried){mediaRestartIce(call).then(ok=>{if(!ok&&state.media.calls.has(call.id))setTimeout(()=>mediaEndCall(call.id,false),1200);});}else setTimeout(()=>{if(state.media.calls.has(call.id))mediaEndCall(call.id,false);},1200);}};
   pc.onconnectionstatechange=()=>{
-    const st=pc.connectionState;
+    const st=pc.connectionState;call.connectionState=st;
     if(st==='connected'){call.active=true;call.status='connected';renderMedia();}
     if(['failed','closed'].includes(st)){mediaEndCall(call.id,false);}
     if(st==='disconnected'){call.status='reconnecting';renderMedia();setTimeout(()=>{if(state.media.calls.has(call.id)&&call.pc?.connectionState==='disconnected')mediaEndCall(call.id,false);},6000);}
@@ -2400,6 +2494,7 @@ async function handleMediaSignal(m,peerId){
     mediaShowIncoming(m);return;
   }
   if(m.t==='media-answer')return mediaAcceptOfferAnswer(m);
+  if(m.t==='media-reoffer'){const c=state.media.calls.get(String(m.callId));if(!c?.pc)return;try{await c.pc.setRemoteDescription(new RTCSessionDescription(m.offer));await mediaFlushPendingIce(c);const a=await c.pc.createAnswer();await c.pc.setLocalDescription(a);await mediaSendSignal(c.peerMemberId,{t:'media-answer',callId:c.id,answer:c.pc.localDescription?.toJSON?c.pc.localDescription.toJSON():c.pc.localDescription});}catch(err){c.iceError=err?.message||String(err);renderMedia();}return;}
   if(m.t==='media-ice')return mediaHandleIce(m);
   if(m.t==='media-reject'){const c=state.media.calls.get(String(m.callId));if(c){toast(`${mediaKindLabel(c.kind)} call declined.`);mediaEndCall(c.id,false);}return;}
   if(m.t==='media-end'){mediaEndCall(String(m.callId),false);return;}
@@ -3049,6 +3144,7 @@ function createInternetPeerHost(code){
 }
 async function createInternetRoom(preferredCode=''){
   await ensurePeerJs();
+  await prepareInternetIce(false);
   cleanupConnection();
   cleanupInternet();
   els.internetServicePill.textContent='Connecting…';
@@ -3107,13 +3203,15 @@ async function createInternetRoom(preferredCode=''){
   throw new Error(lastErr?.message||lastErr?.type||'Could not create an Internet room.');
 }
 async function joinInternetRoomCode(code){
-  code=String(code||'').replace(/\D/g,'').slice(0,6);if(!/^\d{6}$/.test(code))throw new Error('Enter a 6-digit room code.');
+  code=String(code||'').replace(/\D/g,'').slice(0,6);
+  await ensurePeerJs();
+  await prepareInternetIce(false);if(!/^\d{6}$/.test(code))throw new Error('Enter a 6-digit room code.');
   const last=getLastRoomSession();
   const reclaimOwnRoom=!!(last?.role==='admin'&&String(last.code)===code&&String(last.memberId||'')===String(state.memberId||''));
   if(reclaimOwnRoom){
     return createInternetRoom(code);
   }
-  await ensurePeerJs();cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
+  cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
   const lastSession=(last?.role==='member'&&String(last.code)===code)?String(last.sessionId||''):'';
   state.internet.active=true;state.internet.role='join';state.internet.roomCode=code;state.room={active:true,role:'join',id:code,name:'P2P Room',sessionId:lastSession,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};wbActivate(lastSession,true,false);
   if(lastSession)resetRoomChat(lastSession,true);else resetRoomChat('',false);
@@ -3329,6 +3427,8 @@ els.chatSendBtn.onclick=async()=>{const v=els.chatInput.value.trim();if(!v)retur
 els.chatInput.addEventListener('keydown',async e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();els.chatSendBtn.click();}});
 els.chatClearBtn.onclick=clearChat;
 els.notifyBtn?.addEventListener('click',requestNotifications);
+els.turnRefreshBtn?.addEventListener('click',()=>refreshTurnCredentials(true).then(()=>toast(state.internet.turnIceServers.length?`TURN credentials loaded (${state.internet.turnIceServers.length} ICE server sets).`:'TURN credentials unavailable.')));
+els.turnTestBtn?.addEventListener('click',testTurnConnectivity);
 els.mobileNav?.querySelectorAll('[data-jump]').forEach(btn=>btn.addEventListener('click',()=>{els.mobileNav.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelector(btn.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'});}));
 window.addEventListener('scroll',()=>{if(!els.mobileNav)return;const navTop=window.scrollY+150;let active='#roomCard';for(const sel of ['#roomCard','#chatCard','#whiteboardCard','#transferCard','#historyCard']){const el=document.querySelector(sel);if(el&&navTop>=el.offsetTop)active=sel;}els.mobileNav.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.jump===active));},{passive:true});
 [els.chatReact1,els.chatReact2,els.chatReact3].forEach(b=>b.addEventListener('click',()=>sendChat(b.dataset.reaction,'chat').catch(()=>{})));
