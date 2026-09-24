@@ -1564,7 +1564,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '1.7.3';
+const APP_VERSION = '1.7.4';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1912,10 +1912,10 @@ async function handleMessage(data,peerId){
 
 async function handleHello(m,peerId){
   const p=getPeer(peerId);if(!p)return;
-  p.name=m.name||p.name;p.memberId=m.memberId||p.memberId||p.id;p.instanceId=m.instanceId||p.instanceId||'';p.roomRole=m.role||'Member';
+  const incomingMemberId=String(m.memberId||p.memberId||p.id);
+  p.name=m.name||p.name;p.memberId=incomingMemberId;p.instanceId=m.instanceId||p.instanceId||'';p.roomRole=m.role||'Member';
   if(state.room.active&&state.room.role==='host'&&p.room&&p.memberId){
-    const duplicate=[...state.peers.values()].find(x=>x.id!==peerId&&x.room&&x.memberId&&x.memberId===p.memberId&&x.connected);
-    if(duplicate){try{await sendJson({t:'room-replaced',memberId:p.memberId,reason:'A newer connection for this member was detected.'},duplicate.id)}catch{}cleanupPeer(duplicate.id);}
+    replaceExistingMemberSession(p.memberId,peerId,p.instanceId);
   }
   renderPeers();if(state.room.active&&state.room.role==='host'){syncRoomRoster();sendRoomRoster();}
   if(m.protected){
@@ -2140,10 +2140,23 @@ async function ensurePeerJs(){
 }
 function peerJsConfig(){return {host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0,config:rtcConfig()};}
 function cleanupInternet(){try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';state.internet.provider='peerjs-cloud';}
+function replaceExistingMemberSession(memberId,newPeerId,newInstanceId=''){
+  if(!memberId||!state.room.active)return;
+  const stale=[...state.peers.values()].filter(x=>x.id!==newPeerId&&x.room&&String(x.memberId||'')===String(memberId));
+  for(const oldPeer of stale){
+    try{
+      if(oldPeer.dc&&dcIsOpen(oldPeer.dc)) oldPeer.dc.send(JSON.stringify({t:'room-replaced',memberId,instanceId:newInstanceId,reason:'A newer connection for this member was detected.'}));
+    }catch{}
+    cleanupPeer(oldPeer.id);
+  }
+  if(stale.length && state.room.role==='host'){syncRoomRoster();sendRoomRoster();}
+}
 function attachPeerJsDataConnection(conn){
   const peerId='internet:'+conn.peer;
   if(state.peers.has(peerId))cleanupPeer(peerId);
-  const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS',memberId:conn.metadata?.memberId||'',instanceId:conn.metadata?.instanceId||'',roomRole:'Member'};
+  const incomingMemberId=conn.metadata?.memberId||'';
+  if(state.room.active&&state.room.role==='host'&&incomingMemberId)replaceExistingMemberSession(incomingMemberId,peerId,conn.metadata?.instanceId||'');
+  const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS',memberId:incomingMemberId,instanceId:conn.metadata?.instanceId||'',roomRole:'Member'};
   state.peers.set(peerId,peer);
   const opened=async()=>{peer.connected=true;peer.pending=false;setPrimaryIfNeeded(peerId);state.selectedPeerIds.add(peerId);renderPeers();setConn('Connected',`Internet WebRTC link · ${peerLabel(peer)}.`,'good');if(peer.pc?.getStats)startStats();await sendHello(peerId);if(state.room.role==='host')sendRoomRoster();else syncRoomRoster();renderChat();};
   conn.on('open',opened);
