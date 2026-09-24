@@ -59,7 +59,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
 @media(max-width:650px){.top{padding:10px 11px}.top-actions .btn:not(.primary){display:none}.main{padding:9px;gap:9px}.section,.connection,.card,.room-card{padding:11px}.steps{grid-template-columns:repeat(2,1fr)}.transfer-grid{grid-template-columns:1fr}.peer-grid{grid-template-columns:1fr}.mode-grid{grid-template-columns:1fr}.room-head{flex-direction:column}.room-actions .btn{flex:1}.code-actions .btn{flex:1}.file-actions .btn{flex:1}.work-head{align-items:flex-start}.work-actions{flex-wrap:wrap}.work-actions .btn{min-height:34px}.drop{padding:20px 11px}.settings-grid{grid-template-columns:1fr}}
 @media(max-width:420px){.brand-logo{width:38px;height:38px}.brand-title{font-size:13px}.brand-sub{display:none}.steps{grid-template-columns:1fr}.step{padding:8px}.connection-top{align-items:flex-start;flex-direction:column}.pair-code-value{font-size:18px}.room-code{align-items:flex-start;flex-direction:column}.room-code .btn{width:100%}}
 
-.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.mode-card{border:1px solid var(--border);background:#0b1423;color:var(--text);border-radius:13px;padding:10px;text-align:left;display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;gap:1px 8px;transition:.18s ease}.mode-card:hover{border-color:#35517a;background:#101b2d}.mode-card.active{border-color:#4e7fca;background:linear-gradient(180deg,#12223a,#0d1829);box-shadow:0 0 0 1px rgba(91,150,255,.14) inset}.mode-icon{grid-row:1/3;width:28px;height:28px;border-radius:9px;background:#16243a;display:grid;place-items:center;font-weight:900;color:#9fc0f8}.mode-main{font-size:10.5px;font-weight:900}.mode-sub{font-size:8.5px;color:var(--muted);line-height:1.35}.service-box{border:1px solid #1f314b;background:#0a1321;border-radius:12px;padding:10px}.service-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.service-head strong{font-size:10.5px}.service-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #16243a;font-size:8.5px;color:var(--muted)}.service-row:last-of-type{border-bottom:0}.service-row b{color:#c8d5e7;text-align:right;font-weight:700}.service-note{font-size:8.5px;line-height:1.55;color:#8496b0;margin-top:8px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.mode-card{border:1px solid var(--border);background:#0b1423;color:var(--text);border-radius:13px;padding:10px;text-align:left;display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto auto;gap:2px 8px;transition:.18s ease}.mode-card:hover{border-color:#35517a;background:#101b2d}.mode-card.active{border-color:#4e7fca;background:linear-gradient(180deg,#12223a,#0d1829);box-shadow:0 0 0 1px rgba(91,150,255,.14) inset}.mode-icon{grid-row:1/4;width:28px;height:28px;border-radius:9px;background:#16243a;display:grid;place-items:center;font-weight:900;color:#9fc0f8}.mode-badge{display:inline-flex;justify-self:start;align-items:center;padding:2px 6px;border-radius:999px;font-size:7px;line-height:1.2;font-weight:850;white-space:nowrap}.mode-badge.recommended{color:#9bbcff;background:#10213a;border:1px solid #2a4f7e}.mode-badge.fallback{color:#f4d18a;background:#2a2112;border:1px solid #654f23}.mode-main{font-size:10.5px;font-weight:900}.mode-sub{font-size:8.5px;color:var(--muted);line-height:1.35}.service-box{border:1px solid #1f314b;background:#0a1321;border-radius:12px;padding:10px}.service-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.service-head strong{font-size:10.5px}.service-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #16243a;font-size:8.5px;color:var(--muted)}.service-row:last-of-type{border-bottom:0}.service-row b{color:#c8d5e7;text-align:right;font-weight:700}.service-note{font-size:8.5px;line-height:1.55;color:#8496b0;margin-top:8px}
 
 
 /* Connection diagnostics */
@@ -85,7 +85,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
 
 
 /* v1.6 room-first / collaboration UI */
-.room-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.room-code-actions{display:flex;gap:7px;align-items:center}.room-card{border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg,rgba(18,29,48,.98),rgba(11,19,33,.98));padding:15px}.room-card .room-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.room-title{font-size:14px;font-weight:900}.room-sub{font-size:10px;color:var(--muted);line-height:1.55;margin-top:4px}.room-code{margin-top:12px;padding:12px 13px;border:1px solid #2b4163;background:#0a1424;border-radius:13px;display:flex;align-items:center;gap:12px}.room-code-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#8294b0;font-weight:800}.room-code-value{font:900 25px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em;margin-top:6px}.peer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px;margin-top:12px}.peer-card{border:1px solid #1f304a;background:#0a1423;border-radius:12px;padding:10px}.peer-top{display:flex;gap:9px;align-items:center}.peer-avatar{width:32px;height:32px;border-radius:10px;background:#15243a;border:1px solid #2b4163;display:grid;place-items:center;font-weight:900}.chat-card{padding:0;overflow:hidden;position:relative}.chat-card.chat-drag{border-color:var(--accent);box-shadow:0 0 0 2px rgba(91,150,255,.14) inset}.chat-dropzone{margin:10px 12px 0;border:1px dashed #39516f;background:#0a1321;border-radius:13px;padding:10px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:.16s}.chat-dropzone.drag{border-color:var(--accent);background:#0e1d35}.chat-dropzone-main{min-width:0}.chat-dropzone strong{display:block;font-size:10.5px}.chat-dropzone span{display:block;color:var(--muted);font-size:9px;margin-top:2px}.chat-drop-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.chat-drop-actions .btn{min-height:30px}.chat-log{min-height:150px;max-height:340px;overflow:auto;padding:10px 12px;display:grid;gap:7px;background:linear-gradient(180deg,rgba(9,16,28,.45),rgba(11,19,33,.7))}.chat-empty{font-size:10px;color:var(--muted);padding:12px 4px}.chat-msg{display:flex;gap:7px;align-items:flex-start}.chat-msg.self{justify-content:flex-end}.chat-bubble{max-width:min(78%,620px);border:1px solid #22344f;background:#101b2d;border-radius:12px;padding:7px 9px}.chat-msg.self .chat-bubble{background:#10223a;border-color:#2c4f7b}.chat-author{font-size:9px;font-weight:850;color:#9db2d0}.chat-time{font-size:8px;color:#6f809b;margin-left:6px}.chat-text{font-size:10.5px;line-height:1.45;margin-top:3px;white-space:pre-wrap;overflow-wrap:anywhere}.chat-msg.announcement .chat-bubble{border-color:#6b5122;background:#261f10}.chat-msg.system{justify-content:center}.chat-msg.system .chat-bubble{font-size:9px;color:#8798b0;background:#0b1422;border-style:dashed}.chat-composer{padding:10px 12px;border-top:1px solid var(--border);background:#0e1727}.chat-input{min-height:52px;max-height:140px}.chat-tools{display:flex;justify-content:flex-end;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}.reaction-btn{min-width:38px;padding-inline:8px}.advanced-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:0 14px 14px;align-items:start}.advanced-grid>.advanced-side,.advanced-grid>.easy-pairing-card{margin:0}.advanced-side{border:1px solid var(--border);border-radius:13px;background:#0b1422;overflow:hidden}.advanced-side>summary{cursor:pointer;padding:11px 12px;font-size:11px;font-weight:850;color:#bac7d9;list-style:none}.advanced-side>summary::-webkit-details-marker{display:none}.advanced-side>summary:before{content:'▸';margin-right:8px;color:#7185a3}.advanced-side[open]>summary:before{content:'▾'}.advanced-body{border-top:1px solid var(--border)}.advanced-body .section{background:transparent}.advanced-body .section:last-child{border-bottom:0}.advanced-body .easy-pairing-card{margin:0;border-left:0;border-right:0;border-bottom:0;border-radius:0;}.advanced-body .easy-pairing-card .connection-top{padding-top:2px}.advanced-internet-wrap{padding:12px}.advanced-internet-wrap>h2{margin-bottom:9px}.work-body{grid-template-rows:none}.work-body>.chat-card{min-height:0}.network-mode-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.mode-card{position:relative}.mode-card.active:after{content:'Recommended';position:absolute;top:8px;right:8px;font-size:8px;font-weight:850;color:#92baff;opacity:.9}.mode-card#offlineModeBtn.active:after{content:'Fallback'}.top-room-code{font:850 17px/1 ui-monospace,SFMono-Regular,Consolas,monospace}.quickpair{margin-top:12px}.quickpair-badge{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;border:1px solid #245a47;background:#0f281f;color:#7de8b8;font-size:9px;font-weight:850}.easy-pairing-card{margin:0 14px 14px;border:1px solid var(--border);border-radius:13px;background:#0b1422;overflow:hidden;opacity:.98}.easy-pairing-card>summary{cursor:pointer;padding:11px 12px;font-size:11px;font-weight:850;color:#bac7d9;list-style:none}.easy-pairing-card>summary::-webkit-details-marker{display:none}.easy-pairing-card>summary:before{content:'▸';margin-right:8px;color:#7185a3}.easy-pairing-card[open]>summary:before{content:'▾'}.easy-pairing-card .connection-inner{border-top:1px solid var(--border)}.easy-pairing-card .steps{grid-template-columns:repeat(4,1fr)}
+.room-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.room-code-actions{display:flex;gap:7px;align-items:center}.room-card{border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg,rgba(18,29,48,.98),rgba(11,19,33,.98));padding:15px}.room-card .room-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.room-title{font-size:14px;font-weight:900}.room-sub{font-size:10px;color:var(--muted);line-height:1.55;margin-top:4px}.room-code{margin-top:12px;padding:12px 13px;border:1px solid #2b4163;background:#0a1424;border-radius:13px;display:flex;align-items:center;gap:12px}.room-code-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#8294b0;font-weight:800}.room-code-value{font:900 25px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em;margin-top:6px}.peer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px;margin-top:12px}.peer-card{border:1px solid #1f304a;background:#0a1423;border-radius:12px;padding:10px}.peer-top{display:flex;gap:9px;align-items:center}.peer-avatar{width:32px;height:32px;border-radius:10px;background:#15243a;border:1px solid #2b4163;display:grid;place-items:center;font-weight:900}.chat-card{padding:0;overflow:hidden;position:relative}.chat-card.chat-drag{border-color:var(--accent);box-shadow:0 0 0 2px rgba(91,150,255,.14) inset}.chat-dropzone{margin:10px 12px 0;border:1px dashed #39516f;background:#0a1321;border-radius:13px;padding:10px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:.16s}.chat-dropzone.drag{border-color:var(--accent);background:#0e1d35}.chat-dropzone-main{min-width:0}.chat-dropzone strong{display:block;font-size:10.5px}.chat-dropzone span{display:block;color:var(--muted);font-size:9px;margin-top:2px}.chat-drop-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.chat-drop-actions .btn{min-height:30px}.chat-log{min-height:150px;max-height:340px;overflow:auto;padding:10px 12px;display:grid;gap:7px;background:linear-gradient(180deg,rgba(9,16,28,.45),rgba(11,19,33,.7))}.chat-empty{font-size:10px;color:var(--muted);padding:12px 4px}.chat-msg{display:flex;gap:7px;align-items:flex-start}.chat-msg.self{justify-content:flex-end}.chat-bubble{max-width:min(78%,620px);border:1px solid #22344f;background:#101b2d;border-radius:12px;padding:7px 9px}.chat-msg.self .chat-bubble{background:#10223a;border-color:#2c4f7b}.chat-bubble.path-host{border-inline-start:4px solid #41d39a;background:#10251f}.chat-bubble.path-internet{border-inline-start:4px solid #5b96ff;background:#10213a}.chat-bubble.path-turn{border-inline-start:4px solid #f2b84b;background:#2a2112}.chat-bubble.path-unknown{border-inline-start:4px solid #697891;background:#111a29}.chat-path-badge{display:inline-flex;align-items:center;margin-inline-start:7px;padding:2px 6px;border-radius:999px;font-size:7.5px;font-weight:800;vertical-align:middle;border:1px solid transparent}.chat-path-badge.host{color:#8cebc0;background:#10271f;border-color:#245b48}.chat-path-badge.internet{color:#9bbcff;background:#10213a;border-color:#2a4f7e}.chat-path-badge.turn{color:#f4d18a;background:#2a2112;border-color:#654f23}.chat-path-badge.unknown{color:#a3afc2;background:#111a29;border-color:#33445e}.chat-card.rtl .chat-log,.chat-card.rtl .chat-composer,.chat-card.rtl .chat-recipient-bar{direction:rtl}.chat-card.rtl .chat-time{margin-inline-start:6px;margin-inline-end:0}.chat-text[dir="auto"]{unicode-bidi:plaintext}.chat-author{font-size:9px;font-weight:850;color:#9db2d0}.chat-time{font-size:8px;color:#6f809b;margin-left:6px}.chat-text{font-size:10.5px;line-height:1.45;margin-top:3px;white-space:pre-wrap;overflow-wrap:anywhere}.chat-msg.announcement .chat-bubble{border-color:#6b5122;background:#261f10}.chat-msg.system{justify-content:center}.chat-msg.system .chat-bubble{font-size:9px;color:#8798b0;background:#0b1422;border-style:dashed}.chat-composer{padding:10px 12px;border-top:1px solid var(--border);background:#0e1727}.chat-input{min-height:52px;max-height:140px}.chat-tools{display:flex;justify-content:flex-end;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}.reaction-btn{min-width:38px;padding-inline:8px}.advanced-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:0 14px 14px;align-items:start}.advanced-grid>.advanced-side,.advanced-grid>.easy-pairing-card{margin:0}.advanced-side{border:1px solid var(--border);border-radius:13px;background:#0b1422;overflow:hidden}.advanced-side>summary{cursor:pointer;padding:11px 12px;font-size:11px;font-weight:850;color:#bac7d9;list-style:none}.advanced-side>summary::-webkit-details-marker{display:none}.advanced-side>summary:before{content:'▸';margin-right:8px;color:#7185a3}.advanced-side[open]>summary:before{content:'▾'}.advanced-body{border-top:1px solid var(--border)}.advanced-body .section{background:transparent}.advanced-body .section:last-child{border-bottom:0}.advanced-body .easy-pairing-card{margin:0;border-left:0;border-right:0;border-bottom:0;border-radius:0;}.advanced-body .easy-pairing-card .connection-top{padding-top:2px}.advanced-internet-wrap{padding:12px}.advanced-internet-wrap>h2{margin-bottom:9px}.work-body{grid-template-rows:none}.work-body>.chat-card{min-height:0}.network-mode-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.top-room-code{font:850 17px/1 ui-monospace,SFMono-Regular,Consolas,monospace}.quickpair{margin-top:12px}.quickpair-badge{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;border:1px solid #245a47;background:#0f281f;color:#7de8b8;font-size:9px;font-weight:850}.easy-pairing-card{margin:0 14px 14px;border:1px solid var(--border);border-radius:13px;background:#0b1422;overflow:hidden;opacity:.98}.easy-pairing-card>summary{cursor:pointer;padding:11px 12px;font-size:11px;font-weight:850;color:#bac7d9;list-style:none}.easy-pairing-card>summary::-webkit-details-marker{display:none}.easy-pairing-card>summary:before{content:'▸';margin-right:8px;color:#7185a3}.easy-pairing-card[open]>summary:before{content:'▾'}.easy-pairing-card .connection-inner{border-top:1px solid var(--border)}.easy-pairing-card .steps{grid-template-columns:repeat(4,1fr)}
 @media(max-width:900px){.advanced-grid{grid-template-columns:1fr}.main{grid-template-columns:1fr}.side{order:2;overflow:visible}.work{order:1;min-height:0;overflow:visible}.advanced-side{margin-inline:10px}.peer-grid{grid-template-columns:1fr 1fr}.room-actions .btn{flex:1 1 auto}.chat-bubble{max-width:84%}}
 @media(max-width:560px){.main{padding:9px;gap:9px}.top{padding:10px 11px}.brand-sub{display:none}.work-head{padding:10px 11px}.work-body{padding:10px;gap:10px}.room-card{padding:12px}.room-card .room-head{display:block}.room-head>.pill{display:inline-flex;margin-top:9px}.room-code{display:block}.room-code-actions{margin-top:10px}.room-actions .btn{min-width:calc(50% - 4px)}.room-actions #leaveRoomBtn{flex-basis:100%}.peer-grid{grid-template-columns:1fr}.chat-log{max-height:300px}.chat-tools{justify-content:stretch}.chat-tools .btn{flex:1}.chat-tools .reaction-btn{flex:0 0 42px}.steps{grid-template-columns:1fr 1fr}.easy-pairing-card .steps{grid-template-columns:1fr 1fr}.advanced-side{margin:0 9px 9px}.easy-pairing-card{margin:0 9px 9px}.side .section{padding:11px}}
 
@@ -128,6 +128,7 @@ input[type=file]{display:none!important}
 .room-activity{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding:8px 10px;border:1px solid #1d2c43;background:#0a1321;border-radius:11px;color:#a6b7ce;font-size:9px;min-height:34px}.room-activity-main{font-weight:800;color:#c7d4e6}.room-activity-detail{color:#7f92ad;text-align:right}.mobile-nav{display:none}.mobile-nav-btn{border:1px solid var(--border);background:#0e1829;color:#a9bad2;border-radius:10px;padding:8px 10px;font-size:10px;font-weight:800}.mobile-nav-btn.active{background:#152843;border-color:#42679d;color:#e8f0ff}
 @media(max-width:560px){.room-activity{align-items:flex-start;flex-direction:column}.room-activity-detail{text-align:left}.mobile-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:66px;z-index:14;padding:8px;background:rgba(8,13,23,.90);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}.mobile-nav-btn{min-height:36px}.chat-card,.room-card,.transfer-center,#historyCard{scroll-margin-top:122px}.mobile-nav-btn:active{transform:translateY(1px)}}
 
+.pairing-scenarios{display:grid;gap:6px;margin-top:10px}.pairing-scenario{display:grid;gap:3px;padding:8px 9px;border:1px solid #1c2b42;background:#0a1321;border-radius:10px;font-size:8.5px;line-height:1.5}.pairing-scenario strong{font-size:9.5px;color:#cbd8e9}.pairing-scenario span{color:#8fa2bc}.pairing-scenario b{color:#d8e4f5}
 </style>
 </head>
 <body>
@@ -160,22 +161,17 @@ input[type=file]{display:none!important}
 <div class="pillbar" style="margin-top:8px"><span class="pill good">Encrypted</span><span class="pill" id="signalingPill">Local</span><span class="pill">No account</span></div>
 </section>
 <section class="section">
-<h2 data-i18n="device">Device</h2>
+<h2 data-i18n="device">Display name</h2>
 <div class="row">
 <input class="input grow" id="deviceName" maxlength="32" placeholder="Device name"/>
 <button class="btn small" id="saveNameBtn">Save</button>
 </div>
-<div class="subtle" data-i18n="deviceHint" style="margin-top:6px">Your name is stored only in this browser.</div>
+<div class="subtle" data-i18n="deviceHint" style="margin-top:6px">Shown to people in your room and stored only in this browser.</div>
 </section>
 <details class="advanced-side"><summary data-i18n="advancedNetwork">Advanced network settings</summary><div class="advanced-body"><section class="section">
 <h2 data-i18n="networkModeHeading">Network mode</h2>
 <div class="mode-grid">
-<button class="mode-card active" id="internetModeBtn" type="button">
-<span class="mode-icon">◎</span><span class="mode-main" data-i18n="internetMode">Internet / Hybrid</span><span class="mode-sub" data-i18n="internetModeSub">Recommended · 6-digit rooms · works across networks</span>
-</button>
-<button class="mode-card" id="offlineModeBtn" type="button">
-<span class="mode-icon">⌂</span><span class="mode-main" data-i18n="offlineMode">Offline / LAN</span><span class="mode-sub" data-i18n="offlineModeSub">Fully serverless · same Wi‑Fi/LAN</span>
-</button>
+<button class="mode-card active" id="internetModeBtn" type="button"><span class="mode-icon">◎</span><span class="mode-badge recommended" data-i18n="modeRecommended">Recommended</span><span class="mode-main" data-i18n="internetMode">Internet / Hybrid</span><span class="mode-sub" data-i18n="internetModeSub">6-digit rooms · works across networks</span></button> <button class="mode-card" id="offlineModeBtn" type="button"><span class="mode-icon">⌂</span><span class="mode-badge fallback" data-i18n="modeFallback">Fallback</span><span class="mode-main" data-i18n="offlineMode">Offline / LAN</span><span class="mode-sub" data-i18n="offlineModeSub">Fully serverless · same Wi‑Fi/LAN</span></button>
 </div>
 <div class="setting" style="margin-top:8px">
 <label><span data-i18n="modeNoteLabel">How it works</span><span class="switch"><input checked="" id="lanOnly" type="checkbox"/><span class="slider"></span></span></label>
@@ -274,7 +270,7 @@ input[type=file]{display:none!important}
 </div>
 <div class="quickpair">
 <div class="quickpair-head"><div><div class="quickpair-title" data-i18n="offlinePairingTitle">Offline / LAN pairing</div><div class="quickpair-sub" data-i18n="offlinePairingSub">No signaling service, STUN, or TURN. QR exchanges only the WebRTC handshake.</div></div><span class="quickpair-badge">Fallback</span></div>
-<div class="quickpair-actions"><button class="btn primary" id="easyCreateBtn">Start pairing</button><button class="btn" id="easyJoinBtn">Join / Scan</button></div>
+<div class="pairing-scenarios"><div class="pairing-scenario"><strong>Internet / Hybrid · normal use</strong><span>Admin: <b>Create room</b> → share the 6-digit code. Member: <b>Join room</b> → enter the 6-digit code. Connection starts automatically; no QR is needed.</span></div><div class="pairing-scenario"><strong>Offline / LAN · QR</strong><span>Host: <b>Start pairing</b> → show the invitation QR. Other device: <b>Join / Scan</b> → scan it. The joining device creates the answer; the host then scans the return QR.</span></div><div class="pairing-scenario"><strong>Offline / LAN · no camera</strong><span>Open <b>Advanced pairing · copy/paste / .p2p files</b>. Host: <b>Create session → Create offer</b>. Joiner: <b>Join session → paste offer → Prepare answer</b>. Host: paste the answer → <b>Apply answer</b>.</span></div></div><div class="quickpair-actions"><button class="btn primary" id="easyCreateBtn">Start pairing</button><button class="btn" id="easyJoinBtn">Join / Scan</button></div>
 <div class="pair-code-card hidden" id="pairCodeCard"><div><div class="pair-code-label">6-digit verification code</div><div class="pair-code" id="pairCode">------</div><div class="pair-code-note" id="pairCodeNote">The other device should show the same code after scanning.</div></div><button class="btn small pair-qr-btn" id="pairQrBtn">Show QR</button></div>
 <div class="quick-status" id="quickStatus">Offline fallback: direct LAN pairing without external services. The 6-digit value is a verification code; QR carries the technical handshake.</div>
 </div>
@@ -1549,7 +1545,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '1.9.1';
+const APP_VERSION = '1.9.3';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1558,6 +1554,38 @@ const LOW_WATER = 1024 * 1024;
 const PBKDF2_ITERS = 120000;
 const enc = new TextEncoder();
 const dec = new TextDecoder();
+function detectDeviceLabel(){
+  const ua=String(navigator.userAgent||'').toLowerCase();
+  const platform=String(navigator.userAgentData?.platform||navigator.platform||'').toLowerCase();
+  const mobile=Boolean(navigator.userAgentData?.mobile)||/android|iphone|ipad|ipod|windows phone|mobile/i.test(ua);
+  const tablet=/ipad|tablet|android(?!.*mobile)/i.test(ua);
+  if(/cros/.test(ua)||/chrome os/.test(platform))return 'Chromebook';
+  if(/iphone|ipod/.test(ua))return 'iPhone';
+  if(/ipad/.test(ua)||tablet&&/macintosh/.test(ua))return 'iPad';
+  if(/android/.test(ua))return tablet?'Android Tablet':'Android Phone';
+  if(/windows/.test(platform)||/windows nt/.test(ua)||/^win/.test(platform))return 'Windows PC';
+  if(/mac os|macintel|macppc|mac/.test(platform)||/macintosh/.test(ua))return 'Mac';
+  if(/linux/.test(platform)||/linux/.test(ua))return mobile?'Linux Mobile':'Linux PC';
+  return mobile?'Mobile Device':'Browser Device';
+}
+function defaultDeviceName(){
+  const type=detectDeviceLabel();
+  let suffix='';try{suffix=localStorage.getItem('p2p-device-tag')||''}catch{}
+  if(!/^[A-Z0-9]{4}$/.test(suffix)){
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const bytes=crypto.getRandomValues(new Uint8Array(4));
+    suffix=[...bytes].map(b=>chars[b%chars.length]).join('');
+    try{localStorage.setItem('p2p-device-tag',suffix)}catch{}
+  }
+  return `${type} · ${suffix}`;
+}
+function normalizedStoredDeviceName(){
+  let value='';try{value=localStorage.getItem('p2p-device')||''}catch{}
+  if(/^(Win32|Linux[^ ]*|MacIntel|MacPPC|Mac|iPhone|iPad|Android|Linux x86_64).* device$/i.test(value)){
+    value='';try{localStorage.removeItem('p2p-device')}catch{}
+  }
+  return value||defaultDeviceName();
+}
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -1583,7 +1611,7 @@ const connectionInstanceId = uid();
 
 const state = {
   lang: localStorage.getItem('p2p-lang') || 'en',
-  device: localStorage.getItem('p2p-device') || `${navigator.platform || 'Browser'} device`,
+  device: normalizedStoredDeviceName(),
   memberId: persistedMemberId,
   connectionInstanceId,
   pc: null, dc: null, role: 'host', connected:false, selfTest:false,
@@ -1604,10 +1632,10 @@ try{sessionStorage.setItem('p2p-member-id',state.memberId)}catch{}
 
 const I18N = {
   en:{
-    appTitle:'P2P Share', appSub:'Browser-based rooms · chat · direct WebRTC sharing', diagnostics:'Connection diagnostics', refresh:'Refresh', candidatePair:'Candidate pair', transport:'Transport', signaling:'Signaling', iceServer:'ICE server', bytesSent:'Bytes sent', bytesReceived:'Bytes received', connection:'Connection', device:'Device', deviceHint:'Your name is stored only in this browser.', checks:'Browser checks', network:'Network mode', offlineMode:'Offline / LAN', offlineHint:'No STUN/TURN servers are used. Best for devices on the same Wi-Fi/LAN.', stunLabel:'Optional STUN server', stunHint:'Turn LAN-only off only when you intentionally want Internet/NAT traversal.', security:'Transfer security', passwordProtect:'Extra password protection', passwordHint:'Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.', about:'About this build', workspace:'P2P workspace', pairing:'Serverless pairing', stepCreate:'Create / join', stepCreate2:'Choose your role below.', stepExchange:'Exchange code', stepExchange2:'Copy the signaling code between devices.', stepConnect:'Connect', stepConnect2:'The browsers establish a direct WebRTC channel.', stepTransfer:'Transfer', stepTransfer2:'Files travel directly peer-to-peer.', sendFiles:'Send files', dropTitle:'Drop files here', dropSub:'or use the buttons below. Nothing is uploaded to a server.', incoming:'Incoming', incomingEmpty:'No incoming transfers yet.', history:'Transfer history', historyEmpty:'Your history is stored locally in this browser.', workSubNew:'Create a room, invite people, chat, and share directly.', aboutText:'P2P Share is a browser-based WebRTC sharing tool with Internet rooms, chat, multi-device sharing, and a fully serverless LAN fallback. It does not embed PairDrop code.', hostHint:'Send this offer to the other device. After it creates an answer, paste the answer below.', joinHint:'Send the answer back to the device that created the offer.', roomTitle:'Room', roomSub:'Create a room to share files, chat, and collaborate with several connected devices.', createRoom:'Create room', joinRoom:'Join room', copyRoom:'Copy code', shareRoom:'Share room', inviteDevice:'Invite device', scanAnswer:'Scan answer', leaveRoom:'Leave room', roomCodeLabel:'Room code', roomReadyHint:'Create or join a room to get started.', showQr:'Show QR', chatTitle:'Room chat', chatEmpty:'No messages yet. Room chat is available to everyone connected.', chatPlaceholder:'Write a message…', send:'Send', clearChat:'Clear', announce:'Announce', advanced:'Advanced', advancedNetwork:'Advanced network settings', networkModeHeading:'Network mode', internetMode:'Internet / Hybrid', internetModeSub:'Recommended · 6-digit rooms · works across networks', offlineModeSub:'Fully serverless · same Wi‑Fi/LAN', modeNoteLabel:'How it works', internetDefaultHint:'Internet / Hybrid is recommended for normal use. Files remain on WebRTC; Offline / LAN remains available as the fully serverless fallback.', easyPairing:'Pairing Offline / LAN fallback', easyPairingNote:'Use this fully serverless method when the devices share the same Wi‑Fi/LAN or when Internet signaling is unavailable.', offlinePairingTitle:'Offline / LAN pairing', offlinePairingSub:'No signaling service, STUN, or TURN. QR exchanges only the WebRTC handshake.', defaultConnDetail:'Create or join a room to start sharing.', internetSettingsTitle:'Internet settings',admin:'Admin',member:'Member',everyone:'Everyone in room',endRoom:'End room',leaveRoom:'Leave room',verified:'Verified',resume:'Resume',pause:'Pause',cancel:'Cancel',retry:'Resume / retry',completed:'Completed',sending:'Sending',receiving:'Receiving',paused:'Paused',interrupted:'Interrupted',failed:'Failed',noActiveTransfers:'No active transfers. Choose files to start sharing.',roomEnded:'The Admin ended this room.',endRoomConfirm:'End this room for everyone?',renameRoom:'Rename room',removeMember:'Remove member',roomName:'Room name',memberRemoved:'You were removed from this room.',rejoining:'Rejoining room…',sourceRequired:'Source file required',reconnectAndResume:'Reconnect & resume',transfersLabel:'Transfers',roomActivityEmpty:'Waiting for activity.',membersLabel:'members',sendingLabel:'sending',receivingLabel:'receiving',idleLabel:'idle',notifications:'Notifications',notificationsOn:'Notifications enabled',notificationsBlocked:'Notifications unavailable',roomAdminActivity:'Admin activity'
+    appTitle:'P2P Share', appSub:'Browser-based rooms · chat · direct WebRTC sharing', diagnostics:'Connection diagnostics', refresh:'Refresh', candidatePair:'Candidate pair', transport:'Transport', signaling:'Signaling', iceServer:'ICE server', bytesSent:'Bytes sent', bytesReceived:'Bytes received', connection:'Connection', device:'Display name', deviceHint:'Shown to people in your room and stored only in this browser.', checks:'Browser checks', network:'Network mode', offlineMode:'Offline / LAN', offlineHint:'No STUN/TURN servers are used. Best for devices on the same Wi-Fi/LAN.', stunLabel:'Optional STUN server', stunHint:'Turn LAN-only off only when you intentionally want Internet/NAT traversal.', security:'Transfer security', passwordProtect:'Extra password protection', passwordHint:'Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.', about:'About this build', workspace:'P2P workspace', pairing:'Serverless pairing', stepCreate:'Normal: Create room', stepCreate2:'Admin clicks Create room and shares the 6-digit code.', stepExchange:'Normal: Join room', stepExchange2:'Member clicks Join room and enters the 6-digit code. No QR is needed.', stepConnect:'Offline fallback', stepConnect2:'Only for Offline / LAN: Start pairing → show QR; Join / Scan → scan it; the host scans the return QR.', stepTransfer:'Advanced no-camera', stepTransfer2:'Create session → Create offer; Join session → paste offer → Prepare answer; host pastes the answer → Apply answer.', sendFiles:'Send files', dropTitle:'Drop files here', dropSub:'or use the buttons below. Nothing is uploaded to a server.', incoming:'Incoming', incomingEmpty:'No incoming transfers yet.', history:'Transfer history', historyEmpty:'Your history is stored locally in this browser.', workSubNew:'Create a room, invite people, chat, and share directly.', aboutText:'P2P Share is a browser-based WebRTC sharing tool with Internet rooms, chat, multi-device sharing, and a fully serverless LAN fallback. It does not embed PairDrop code.', hostHint:'Send this offer to the other device. After it creates an answer, paste the answer below.', joinHint:'Send the answer back to the device that created the offer.', roomTitle:'Room', roomSub:'Create a room to share files, chat, and collaborate with several connected devices.', createRoom:'Create room', joinRoom:'Join room', copyRoom:'Copy code', shareRoom:'Share room', inviteDevice:'Invite device', scanAnswer:'Scan answer', leaveRoom:'Leave room', roomCodeLabel:'Room code', roomReadyHint:'Create or join a room to get started.', showQr:'Show QR', chatTitle:'Room chat', chatEmpty:'No messages yet. Room chat is available to everyone connected.', chatPlaceholder:'Write a message…', send:'Send', clearChat:'Clear', announce:'Announce', advanced:'Advanced', advancedNetwork:'Advanced network settings', modeRecommended:'Recommended', modeFallback:'Fallback', networkModeHeading:'Network mode', internetMode:'Internet / Hybrid', internetModeSub:'6-digit rooms · works across networks', offlineModeSub:'Fully serverless · same Wi‑Fi/LAN', modeNoteLabel:'How it works', internetDefaultHint:'Internet / Hybrid is recommended for normal use. Files remain on WebRTC; Offline / LAN remains available as the fully serverless fallback.', easyPairing:'Pairing Offline / LAN fallback', easyPairingNote:'Use this only when you need a fully serverless LAN connection. For normal use, create or join an Internet / Hybrid room instead.', offlinePairingTitle:'Pairing Offline / LAN fallback', offlinePairingSub:'No signaling service, STUN, or TURN. QR carries only the WebRTC handshake between the two browsers.', defaultConnDetail:'Create or join a room to start sharing.', internetSettingsTitle:'Internet settings',admin:'Admin',member:'Member',everyone:'Everyone in room',endRoom:'End room',leaveRoom:'Leave room',verified:'Verified',resume:'Resume',pause:'Pause',cancel:'Cancel',retry:'Resume / retry',completed:'Completed',sending:'Sending',receiving:'Receiving',paused:'Paused',interrupted:'Interrupted',failed:'Failed',noActiveTransfers:'No active transfers. Choose files to start sharing.',roomEnded:'The Admin ended this room.',endRoomConfirm:'End this room for everyone?',renameRoom:'Rename room',removeMember:'Remove member',roomName:'Room name',memberRemoved:'You were removed from this room.',rejoining:'Rejoining room…',sourceRequired:'Source file required',reconnectAndResume:'Reconnect & resume',transfersLabel:'Transfers',roomActivityEmpty:'Waiting for activity.',membersLabel:'members',sendingLabel:'sending',receivingLabel:'receiving',idleLabel:'idle',notifications:'Notifications',notificationsOn:'Notifications enabled',notificationsBlocked:'Notifications unavailable',pathDirectHost:'Direct host',pathDirectInternet:'Direct Internet',pathTurnRelay:'TURN relay',pathUnknown:'Connection path unknown',roomAdminActivity:'Admin activity'
   },
   ar:{
-    appTitle:'مشاركة P2P', appSub:'ملف HTML واحد · وضع محلي بدون إنترنت + غرف عبر الإنترنت · نقل WebRTC مباشر', diagnostics:'تشخيص الاتصال', refresh:'تحديث', candidatePair:'زوج المرشحين', transport:'النقل', signaling:'الإشارة', iceServer:'خادم ICE', bytesSent:'البيانات المرسلة', bytesReceived:'البيانات المستلمة', connection:'الاتصال', device:'الجهاز', deviceHint:'يتم حفظ اسمك في هذا المتصفح فقط.', checks:'فحوصات المتصفح', network:'وضع الشبكة', offlineMode:'Offline / LAN', offlineHint:'لا يتم استخدام STUN/TURN. مناسب للأجهزة على نفس شبكة Wi‑Fi/LAN.', stunLabel:'خادم STUN اختياري', stunHint:'أوقف وضع الشبكة المحلية فقط عندما تريد اتصال الإنترنت/اجتياز NAT.', security:'أمان النقل', passwordProtect:'حماية إضافية بكلمة مرور', passwordHint:'يضيف PBKDF2 + AES-GCM على مستوى التطبيق فوق تشفير WebRTC.', about:'حول هذا الإصدار', workspace:'مساحة P2P', pairing:'اقتران بدون خادم', stepCreate:'إنشاء / انضمام', stepCreate2:'اختر دورك أدناه.', stepExchange:'تبادل الرمز', stepExchange2:'انسخ رمز الإشارة بين الجهازين.', stepConnect:'الاتصال', stepConnect2:'ينشئ المتصفحان قناة WebRTC مباشرة.', stepTransfer:'النقل', stepTransfer2:'تنتقل الملفات مباشرة بين الجهازين.', sendFiles:'إرسال الملفات', dropTitle:'أسقط الملفات هنا', dropSub:'أو استخدم الأزرار أدناه. لا يتم رفع أي ملف إلى خادم.', incoming:'الوارد', incomingEmpty:'لا توجد عمليات نقل واردة.', history:'سجل النقل', historyEmpty:'يتم حفظ السجل محليًا في هذا المتصفح.', workSubNew:'أنشئ غرفة وادعُ الآخرين وتحدث وشارك الملفات مباشرة.', aboutText:'P2P Share هو أداة مشاركة WebRTC تعمل من المتصفح وتدعم غرف الإنترنت والدردشة والمشاركة مع عدة أجهزة، مع وضع احتياطي محلي بدون خادم. لا يضم كود PairDrop.', hostHint:'أرسل العرض إلى الجهاز الآخر. بعد إنشاء الإجابة، الصقها هنا.', joinHint:'أرسل الإجابة مرة أخرى إلى الجهاز الذي أنشأ العرض.', roomTitle:'الغرفة', roomSub:'أنشئ غرفة لمشاركة الملفات والدردشة والتعاون مع عدة أجهزة.', createRoom:'إنشاء غرفة', joinRoom:'الانضمام إلى غرفة', copyRoom:'نسخ الرمز', shareRoom:'مشاركة الغرفة', inviteDevice:'دعوة جهاز', scanAnswer:'مسح الإجابة', leaveRoom:'مغادرة الغرفة', roomCodeLabel:'رمز الغرفة', roomReadyHint:'أنشئ غرفة أو انضم إلى غرفة للبدء.', showQr:'إظهار QR', chatTitle:'دردشة الغرفة', chatEmpty:'لا توجد رسائل بعد. الدردشة متاحة لجميع الأجهزة المتصلة.', chatPlaceholder:'اكتب رسالة…', send:'إرسال', clearChat:'مسح', announce:'إعلان', advanced:'متقدم', advancedNetwork:'إعدادات الشبكة المتقدمة', networkModeHeading:'وضع الشبكة', internetMode:'الإنترنت / هجين', internetModeSub:'موصى به · غرف برمز من 6 أرقام · يعمل عبر الشبكات', offlineModeSub:'بدون خادم · نفس شبكة Wi‑Fi/LAN', modeNoteLabel:'كيف يعمل', internetDefaultHint:'يوصى بوضع الإنترنت / الهجين للاستخدام العادي. تنتقل الملفات عبر WebRTC؛ ويبقى وضع الشبكة المحلية خيارًا احتياطيًا بدون خادم.', easyPairing:'اقتران Offline / LAN الاحتياطي', easyPairingNote:'استخدم هذه الطريقة بدون خادم عندما تكون الأجهزة على نفس Wi‑Fi/LAN أو عندما تتعذر خدمة الإشارة عبر الإنترنت.', offlinePairingTitle:'اقتران Offline / LAN', offlinePairingSub:'لا توجد خدمة إشارة أو STUN أو TURN. يستخدم QR فقط لتبادل معلومات مصافحة WebRTC.', defaultConnDetail:'أنشئ غرفة أو انضم إلى غرفة لبدء المشاركة.', internetSettingsTitle:'إعدادات الإنترنت',admin:'Admin',member:'Member',everyone:'الجميع في الغرفة',endRoom:'إنهاء الغرفة',leaveRoom:'مغادرة الغرفة',verified:'تم التحقق',resume:'استئناف',pause:'إيقاف مؤقت',cancel:'إلغاء',retry:'استئناف / إعادة المحاولة',completed:'مكتمل',sending:'جارٍ الإرسال',receiving:'جارٍ الاستقبال',paused:'متوقف مؤقتًا',interrupted:'متقطع',failed:'فشل',noActiveTransfers:'لا توجد عمليات نقل نشطة. اختر ملفات للبدء.',roomEnded:'أنهى المشرف هذه الغرفة.',endRoomConfirm:'هل تريد إنهاء هذه الغرفة للجميع؟',renameRoom:'إعادة تسمية الغرفة',removeMember:'إزالة العضو',roomName:'اسم الغرفة',memberRemoved:'تمت إزالتك من هذه الغرفة.',rejoining:'جارٍ إعادة الانضمام إلى الغرفة…',sourceRequired:'الملف المصدر مطلوب',reconnectAndResume:'إعادة الاتصال والاستئناف',transfersLabel:'النقل',roomActivityEmpty:'بانتظار النشاط.',membersLabel:'أعضاء',sendingLabel:'إرسال',receivingLabel:'استقبال',idleLabel:'خامل',notifications:'الإشعارات',notificationsOn:'تم تفعيل الإشعارات',notificationsBlocked:'الإشعارات غير متاحة',roomAdminActivity:'نشاط المشرف'
+    appTitle:'مشاركة P2P', appSub:'ملف HTML واحد · وضع محلي بدون إنترنت + غرف عبر الإنترنت · نقل WebRTC مباشر', diagnostics:'تشخيص الاتصال', refresh:'تحديث', candidatePair:'زوج المرشحين', transport:'النقل', signaling:'الإشارة', iceServer:'خادم ICE', bytesSent:'البيانات المرسلة', bytesReceived:'البيانات المستلمة', connection:'الاتصال', device:'الجهاز', deviceHint:'يتم حفظ اسمك في هذا المتصفح فقط.', checks:'فحوصات المتصفح', network:'وضع الشبكة', offlineMode:'Offline / LAN', offlineHint:'لا يتم استخدام STUN/TURN. مناسب للأجهزة على نفس شبكة Wi‑Fi/LAN.', stunLabel:'خادم STUN اختياري', stunHint:'أوقف وضع الشبكة المحلية فقط عندما تريد اتصال الإنترنت/اجتياز NAT.', security:'أمان النقل', passwordProtect:'حماية إضافية بكلمة مرور', passwordHint:'يضيف PBKDF2 + AES-GCM على مستوى التطبيق فوق تشفير WebRTC.', about:'حول هذا الإصدار', workspace:'مساحة P2P', pairing:'اقتران بدون خادم', stepCreate:'العادي: إنشاء غرفة', stepCreate2:'المسؤول يضغط إنشاء غرفة ويشارك رمز الغرفة من 6 أرقام.', stepExchange:'العادي: الانضمام', stepExchange2:'العضو يضغط الانضمام إلى غرفة ويدخل الرمز. لا حاجة إلى QR.', stepConnect:'بديل بدون إنترنت', stepConnect2:'لـ Offline / LAN فقط: ابدأ الاقتران ← اعرض QR؛ وانضم / امسح ← امسح الرمز؛ ثم يمسح المضيف QR العائد.', stepTransfer:'متقدم بدون كاميرا', stepTransfer2:'إنشاء جلسة ← إنشاء عرض؛ الانضمام ← لصق العرض ← تجهيز الإجابة؛ ثم يلصق المضيف الإجابة ويضغط تطبيق الإجابة.', sendFiles:'إرسال الملفات', dropTitle:'أسقط الملفات هنا', dropSub:'أو استخدم الأزرار أدناه. لا يتم رفع أي ملف إلى خادم.', incoming:'الوارد', incomingEmpty:'لا توجد عمليات نقل واردة.', history:'سجل النقل', historyEmpty:'يتم حفظ السجل محليًا في هذا المتصفح.', workSubNew:'أنشئ غرفة وادعُ الآخرين وتحدث وشارك الملفات مباشرة.', aboutText:'P2P Share هو أداة مشاركة WebRTC تعمل من المتصفح وتدعم غرف الإنترنت والدردشة والمشاركة مع عدة أجهزة، مع وضع احتياطي محلي بدون خادم. لا يضم كود PairDrop.', hostHint:'أرسل العرض إلى الجهاز الآخر. بعد إنشاء الإجابة، الصقها هنا.', joinHint:'أرسل الإجابة مرة أخرى إلى الجهاز الذي أنشأ العرض.', roomTitle:'الغرفة', roomSub:'أنشئ غرفة لمشاركة الملفات والدردشة والتعاون مع عدة أجهزة.', createRoom:'إنشاء غرفة', joinRoom:'الانضمام إلى غرفة', copyRoom:'نسخ الرمز', shareRoom:'مشاركة الغرفة', inviteDevice:'دعوة جهاز', scanAnswer:'مسح الإجابة', leaveRoom:'مغادرة الغرفة', roomCodeLabel:'رمز الغرفة', roomReadyHint:'أنشئ غرفة أو انضم إلى غرفة للبدء.', showQr:'إظهار QR', chatTitle:'دردشة الغرفة', chatEmpty:'لا توجد رسائل بعد. الدردشة متاحة لجميع الأجهزة المتصلة.', chatPlaceholder:'اكتب رسالة…', send:'إرسال', clearChat:'مسح', announce:'إعلان', advanced:'متقدم', advancedNetwork:'إعدادات الشبكة المتقدمة', modeRecommended:'موصى به', modeFallback:'بديل', networkModeHeading:'وضع الشبكة', internetMode:'الإنترنت / هجين', internetModeSub:'موصى به · غرف برمز من 6 أرقام · يعمل عبر الشبكات', offlineModeSub:'بدون خادم · نفس شبكة Wi‑Fi/LAN', modeNoteLabel:'كيف يعمل', internetDefaultHint:'يوصى بوضع الإنترنت / الهجين للاستخدام العادي. تنتقل الملفات عبر WebRTC؛ ويبقى وضع الشبكة المحلية خيارًا احتياطيًا بدون خادم.', easyPairing:'اقتران Offline / LAN الاحتياطي', easyPairingNote:'استخدم هذه الطريقة بدون خادم عندما تكون الأجهزة على نفس Wi‑Fi/LAN أو عندما تتعذر خدمة الإشارة عبر الإنترنت.', offlinePairingTitle:'اقتران Offline / LAN', offlinePairingSub:'لا توجد خدمة إشارة أو STUN أو TURN. يستخدم QR فقط لتبادل معلومات مصافحة WebRTC.', defaultConnDetail:'أنشئ غرفة أو انضم إلى غرفة لبدء المشاركة.', internetSettingsTitle:'إعدادات الإنترنت',admin:'Admin',member:'Member',everyone:'الجميع في الغرفة',endRoom:'إنهاء الغرفة',leaveRoom:'مغادرة الغرفة',verified:'تم التحقق',resume:'استئناف',pause:'إيقاف مؤقت',cancel:'إلغاء',retry:'استئناف / إعادة المحاولة',completed:'مكتمل',sending:'جارٍ الإرسال',receiving:'جارٍ الاستقبال',paused:'متوقف مؤقتًا',interrupted:'متقطع',failed:'فشل',noActiveTransfers:'لا توجد عمليات نقل نشطة. اختر ملفات للبدء.',roomEnded:'أنهى المشرف هذه الغرفة.',endRoomConfirm:'هل تريد إنهاء هذه الغرفة للجميع؟',renameRoom:'إعادة تسمية الغرفة',removeMember:'إزالة العضو',roomName:'اسم الغرفة',memberRemoved:'تمت إزالتك من هذه الغرفة.',rejoining:'جارٍ إعادة الانضمام إلى الغرفة…',sourceRequired:'الملف المصدر مطلوب',reconnectAndResume:'إعادة الاتصال والاستئناف',transfersLabel:'النقل',roomActivityEmpty:'بانتظار النشاط.',membersLabel:'أعضاء',sendingLabel:'إرسال',receivingLabel:'استقبال',idleLabel:'خامل',notifications:'الإشعارات',notificationsOn:'تم تفعيل الإشعارات',notificationsBlocked:'الإشعارات غير متاحة',pathDirectHost:'مباشر',pathDirectInternet:'مباشر عبر الإنترنت',pathTurnRelay:'ترحيل TURN',pathUnknown:'مسار الاتصال غير معروف',roomAdminActivity:'نشاط المشرف'
   }
 };
 
@@ -1616,6 +1644,10 @@ function applyLang(){
   document.documentElement.lang=state.lang;
   document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
   els.app.classList.toggle('rtl',state.lang==='ar');
+  if(els.chatCard){els.chatCard.classList.toggle('rtl',state.lang==='ar');els.chatCard.dir=state.lang==='ar'?'rtl':'ltr';}
+  if(els.chatLog)els.chatLog.dir=state.lang==='ar'?'rtl':'ltr';
+  if(els.chatInput)els.chatInput.dir=state.lang==='ar'?'rtl':'ltr';
+  if(els.chatRecipientSelect)els.chatRecipientSelect.dir=state.lang==='ar'?'rtl':'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.dataset.i18n; if(dict[k]) el.textContent=dict[k]; });
   document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const k=el.dataset.i18nHtml; if(dict[k]) el.innerHTML=dict[k]; }); document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ const k=el.dataset.i18nPlaceholder; if(dict[k]) el.placeholder=dict[k]; });
   els.langBtn.textContent=state.lang==='ar'?'EN':'AR';
@@ -1629,7 +1661,7 @@ function now(){return Date.now();}
 function uid(){return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;}
 function setDot(dot,text,ok,kind='good'){ dot.className='dot '+(ok?kind:'bad'); text.textContent=ok?'Available':'Unavailable'; }
 function setConn(stateName, detail, kind='warn'){ els.connState.textContent=stateName; els.connDetail.textContent=detail; els.connDot.className='dot '+kind; }
-function setPath(path){state.icePath=path; els.pathPill.textContent=path; els.pathPill.className='pill '+(path==='Direct LAN'||path==='Direct host'?'good':path==='TURN relay'?'warn':path==='Direct Internet'?'good':''); if(els.diagPath) els.diagPath.textContent=path;}
+function setPath(path){state.icePath=path; els.pathPill.textContent=path; const cls=path==='Direct LAN'||path==='Direct host'?'host':path==='TURN relay'?'relay':path==='Direct Internet'?'internet':''; els.pathPill.className='pill '+cls; if(els.diagPath) els.diagPath.textContent=path;}
 
 function browserChecks(){
   setDot(els.dWebrtc,els.tWebrtc,'RTCPeerConnection' in window); els.tWebrtc.textContent=('RTCPeerConnection' in window)?'Available':'Missing';
@@ -1880,11 +1912,10 @@ async function requestNotifications(){
     toast(`Notification setup failed${err?.message?` · ${err.message}`:''}`);
   }
 }
+function isP2PShareActive(){return document.visibilityState==='visible' && document.hasFocus();}
 function maybeNotify(title,body='',opts={}){
   if(!state.notifications.enabled||typeof Notification==='undefined'||Notification.permission!=='granted')return;
-  const important=opts.important===true;
-  const quietWhenVisible=opts.quietWhenVisible===true;
-  if(quietWhenVisible && !document.hidden)return;
+  if(isP2PShareActive())return;
   showSystemNotification(title,body,{tag:opts.tag});
 }
 
@@ -1899,7 +1930,7 @@ function renderPeers(){
   els.peerGrid.innerHTML='';
   if(!peers.length)els.peerGrid.innerHTML='<div class="subtle" style="grid-column:1/-1;padding:8px 2px">No connected devices yet. Create a room or start a direct pair.</div>';
   for(const p of peers){
-    const checked=state.selectedPeerIds.has(p.id);const roleLabel=p.roomRole||'Member';const canPrivate=p.connected&&p.authenticated&&state.room.active;
+    const checked=state.selectedPeerIds.has(p.id);const roleLabel=p.roomRole||'Member';const canPrivate=p.connected&&p.authenticated&&((state.room.active&&p.room)||!state.room.active);
     const div=document.createElement('div');div.className='peer-card';
     div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(p.name))}</div><div class="grow"><div class="peer-name" title="${escapeHtml(peerLabel(p))}">${escapeHtml(peerLabel(p))}</div><div class="peer-meta"><span class="role-pill ${roleLabel==='Admin'?'admin':''}">${escapeHtml(roleLabel)}</span> · ${p.connected?'Connected':'Waiting for answer'}${p.room?' · Room':' · Direct'}</div></div></div><div class="peer-controls"><label class="peer-target"><input type="checkbox" data-peer-select="${escapeHtml(p.id)}" ${checked?'checked':''} ${p.connected&&p.authenticated?'':'disabled'}> Include in send</label><span class="peer-status"><span class="dot ${p.connected?'good':'warn'}"></span>${p.connected?'Connected':'Pending'}</span></div>${canPrivate?`<div class="peer-private-actions"><button class="btn small ghost" data-private-chat="${escapeHtml(p.memberId||p.id)}">Message</button><button class="btn small ghost" data-private-file="${escapeHtml(p.memberId||p.id)}">Send file</button>${state.room.role==='host'&&p.room&&p.memberId?`<button class="btn small danger" data-remove-member="${escapeHtml(p.memberId)}">Remove</button>`:''}</div>`:''}`;
     els.peerGrid.appendChild(div);
@@ -1942,7 +1973,7 @@ function renderTargets(){
 function createPeerConnection(peerId,role,{room=false,name='Peer'}={}){
   if(state.peers.has(peerId)){try{state.peers.get(peerId).pc.close()}catch{}}
   const pc=new RTCPeerConnection(rtcConfig());
-  const peer={id:peerId,pc,dc:null,name,role,room,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,memberId:'',instanceId:'',roomRole:role==='host'?'Admin':'Member'};
+  const peer={id:peerId,pc,dc:null,name,role,room,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,memberId:'',instanceId:'',roomRole:role==='host'?'Admin':'Member',icePath:'Unknown'};
   state.peers.set(peerId,peer);
   pc.oniceconnectionstatechange=()=>{
     const s=pc.iceConnectionState;
@@ -1966,7 +1997,7 @@ function setupPeerConnection(role){cleanupConnection();const pc=createPeerConnec
 function attachDataChannel(peerId,dc){
   const peer=state.peers.get(peerId);if(!peer)return;peer.dc=dc;dc.binaryType='arraybuffer';dc.bufferedAmountLowThreshold=LOW_WATER;
   dc.onopen=async()=>{peer.connected=true;peer.pending=false;state.selectedPeerIds.add(peerId);setPrimaryIfNeeded(peerId);syncPrimary(peerId);renderPeers();setConn('Connected',`Data channel open · ${peerLabel(peer)}.`,'good');await sendHello(peerId);if(state.room.role==='host')sendRoomRoster();else syncRoomRoster();renderChat();};
-  dc.onclose=()=>{peer.connected=false;peer.pending=false;for(const j of state.transferJobs.values())if((j.peerId===peerId||j.targetMemberId===peer.memberId)&&['sending','receiving','paused'].includes(j.status)){j.status='interrupted';maybeNotify('Transfer interrupted',`${j.name||'A file'} · ${peerLabel(peer)} reconnect to resume.`,{important:true});}syncPrimary();renderPeers();renderTransferCenter();renderChat();if(state.room.role==='host')sendRoomRoster();if(state.room.role==='join'&&peer.memberId) scheduleInternetReconnect('Room connection interrupted.'); else if(!state.selfTest&&!connectedPeers().length)setConn('Disconnected','All peer data channels are closed.','warn');};
+  dc.onclose=()=>{peer.connected=false;peer.pending=false;for(const j of state.transferJobs.values())if((j.peerId===peerId||j.targetMemberId===peer.memberId)&&['sending','receiving','paused'].includes(j.status)){j.status='interrupted';maybeNotify('Transfer interrupted',`${j.name||'A file'} · ${peerLabel(peer)} reconnect to resume.`,{important:true});}syncPrimary();renderPeers();renderTransferCenter();renderChat();if(state.room.role==='host')sendRoomRoster();if(state.room.role==='join'&&peer.memberId) scheduleInternetReconnect('Room connection interrupted.'); else if(!state.selfTest&&!connectedPeers().length)setConn('Disconnected','No peer data channel is currently open. Waiting for a connection.','warn');};
   dc.onerror=e=>setConn('Channel error',e?.message||'A data channel error occurred.','bad');
   dc.onmessage=e=>handleMessage(e.data,peerId).catch(err=>showModal('Transfer error',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));
 }
@@ -2164,6 +2195,33 @@ function toHex(bytes){return [...bytes].map(b=>b.toString(16).padStart(2,'0')).j
 function addHistory(name,size,direction){state.history.unshift({id:uid(),name,size,direction,at:Date.now()});state.history=state.history.slice(0,60);localStorage.setItem('p2p-history',JSON.stringify(state.history));renderHistory();}
 function renderHistory(){els.historyList.innerHTML='';if(!state.history.length){els.historyList.innerHTML='<div class="history-empty">Your history is stored locally in this browser.</div>';return;}for(const h of state.history){const d=document.createElement('div');d.className='history-item';d.innerHTML=`<div class="grow"><div class="history-name" title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</div><div class="history-meta">${h.direction==='sent'?'Sent':'Received'} · ${fmtBytes(h.size)} · ${new Date(h.at).toLocaleString()}</div></div><span class="pill ${h.direction==='sent'?'':'good'}">${h.direction==='sent'?'↑':'↓'}</span>`;els.historyList.appendChild(d);}}
 
+function chatPathKey(path){
+  const p=String(path||'Unknown');
+  if(p==='Direct LAN'||p==='Direct host') return 'host';
+  if(p==='Direct Internet') return 'internet';
+  if(p==='TURN relay') return 'turn';
+  return 'unknown';
+}
+function chatPathLabel(path){
+  const key=chatPathKey(path);
+  const d=I18N[state.lang]||I18N.en;
+  return key==='host' ? (d.pathDirectHost||'Direct host') : key==='internet' ? (d.pathDirectInternet||'Direct Internet') : key==='turn' ? (d.pathTurnRelay||'TURN relay') : (d.pathUnknown||'Connection path unknown');
+}
+function chatPathForTargets(target){
+  const peers=[...state.peers.values()].filter(p=>p.connected&&dcIsOpen(p.dc)&&p.authenticated);
+  if(!peers.length)return state.icePath||'Unknown';
+  let selected=[];
+  if(!state.room.active){ selected=peers.filter(p=>p.id===state.primaryPeerId); if(!selected.length)selected=peers.slice(0,1); }
+  else if(state.room.role==='host'){
+    if(target&&target!=='all'){const m=state.room.members.get(target);const p=m?.peerId?state.peers.get(m.peerId):null;if(p)selected=[p];}
+    else selected=peers.filter(p=>p.room);
+  } else {
+    const host=peers.find(p=>p.roomRole==='Admin'||p.role==='internet'||p.role==='join')||peers[0];
+    if(host)selected=[host];
+  }
+  const paths=[...new Set(selected.map(p=>p.icePath||'Unknown'))];
+  return paths.length===1?paths[0]:'Mixed';
+}
 function addChatMessage(message,opts={}){
   if(!message||!message.id)return;
   if(state.chat.seen.has(message.id))return;
@@ -2178,7 +2236,9 @@ function addChatMessage(message,opts={}){
     kind:message.kind||'chat',
     self:!!message.self,
     private:!!message.private || !!message.toMemberId,
-    relay:!!message.relay
+    relay:!!message.relay,
+    direct:!!message.direct,
+    path:String(message.path||'Unknown')
   });
   if(state.chat.messages.length>500){
     const removed=state.chat.messages.splice(0,state.chat.messages.length-500);
@@ -2188,7 +2248,7 @@ function addChatMessage(message,opts={}){
   if(opts.render!==false)renderChat();
 }
 
-function chatRecipients(){const peers=connectedPeers().filter(p=>p.authenticated&&p.room);if(!state.room.active)return targetPeerIds();if(state.room.role!=='host'){const host=peers.find(p=>p.roomRole==='Admin'||p.role==='internet'||p.role==='join')||peers[0];return host?[host.id]:[];}return peers.map(p=>p.id);}
+function chatRecipients(){const allPeers=connectedPeers().filter(p=>p.authenticated);if(!state.room.active){const target=state.chat.target||els.chatRecipientSelect?.value||'all';if(target&&target!=='all'){const direct=getPeer(target);return direct&&direct.authenticated&&direct.connected&&dcIsOpen(direct.dc)?[direct.id]:[];}return targetPeerIds();}const peers=allPeers.filter(p=>p.room);if(state.room.role!=='host'){const host=peers.find(p=>p.roomRole==='Admin'||p.role==='internet'||p.role==='join')||peers[0];return host?[host.id]:[];}return peers.map(p=>p.id);}
 function renderChat(){
   if(!els.chatLog)return;
   els.chatLog.innerHTML='';
@@ -2196,11 +2256,11 @@ function renderChat(){
   if(!msgs.length){els.chatLog.appendChild(els.chatEmpty);els.chatEmpty.classList.remove('hidden');}
   else{els.chatEmpty.classList.add('hidden');for(const m of msgs){
     const row=document.createElement('div');row.className='chat-msg'+(m.self?' self':'')+(m.kind==='announcement'?' announcement':'')+(m.kind==='system'?' system':'');
-    const bubble=document.createElement('div');bubble.className='chat-bubble';
+    const bubble=document.createElement('div');const pathKey=chatPathKey(m.path);bubble.className='chat-bubble path-'+pathKey;
     if(m.kind==='system'){bubble.textContent=m.text;row.appendChild(bubble);els.chatLog.appendChild(row);continue;}
-    const author=document.createElement('div');author.className='chat-author';author.textContent=m.from||'Peer';
+    const author=document.createElement('div');author.className='chat-author';author.textContent=m.from||'Peer';const badge=document.createElement('span');badge.className=`chat-path-badge ${pathKey}`;badge.textContent=chatPathLabel(m.path);author.appendChild(badge);
     const time=document.createElement('span');time.className='chat-time';time.textContent=new Date(m.at||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});author.appendChild(time);
-    const text=document.createElement('div');text.className='chat-text';text.textContent=m.text||'';if(m.kind==='file'){const fileNote=document.createElement('div');fileNote.className='subtle';fileNote.textContent='Attachment shared — see Transfers / Incoming.';bubble.append(fileNote);}if(m.private){const priv=document.createElement('div');priv.className='subtle';priv.textContent='Private message';bubble.append(author,priv,text);}else bubble.append(author,text);row.appendChild(bubble);els.chatLog.appendChild(row);
+    const text=document.createElement('div');text.className='chat-text';text.dir='auto';text.textContent=m.text||'';if(m.kind==='file'){const fileNote=document.createElement('div');fileNote.className='subtle';fileNote.textContent='Attachment shared — see Transfers / Incoming.';bubble.append(fileNote);}if(m.private){const priv=document.createElement('div');priv.className='subtle';priv.textContent=m.direct?'Direct message':'Private message';bubble.append(author,priv,text);}else bubble.append(author,text);row.appendChild(bubble);els.chatLog.appendChild(row);
   }}
   els.chatCount.textContent=String(msgs.length);
   els.chatLog.scrollTop=els.chatLog.scrollHeight;
@@ -2215,6 +2275,8 @@ function renderChatRecipients(){
   if(state.room.active){
     const members=[...state.room.members.values()].filter(m=>!m.self&&m.connected).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
     for(const m of members)opts.push(`<option value="${escapeHtml(m.memberId)}">${escapeHtml(m.name)} · ${escapeHtml(m.role||'Member')}</option>`);
+  }else{
+    for(const p of connectedPeers().filter(x=>x.authenticated).sort((a,b)=>peerLabel(a).localeCompare(peerLabel(b))))opts.push(`<option value="${escapeHtml(p.id)}">${escapeHtml(peerLabel(p))} · Direct</option>`);
   }
   els.chatRecipientSelect.innerHTML=opts.join('');
   els.chatRecipientSelect.value=[...els.chatRecipientSelect.options].some(o=>o.value===current)?current:'all';
@@ -2223,21 +2285,23 @@ function renderChatRecipients(){
 }
 async function sendChat(text, kind='chat'){
   text=String(text||'').trim();if(!text)return;const target=state.chat.target||els.chatRecipientSelect?.value||'all';const ids=chatRecipients();if(!ids.length){toast('Create or join a room first.');return;}
-  const msg={t:'chat',id:uid(),from:state.device,fromMemberId:state.memberId,toMemberId:target==='all'?'':target,text,at:Date.now(),kind,relay:false};addChatMessage({...msg,self:true,private:target!=='all'});
+  const directTarget=!state.room.active&&target!=='all';
+  const msg={t:'chat',id:uid(),from:state.device,fromMemberId:state.memberId,toMemberId:(!directTarget&&target!=='all')?target:'',direct:directTarget,text,at:Date.now(),kind,relay:false,path:chatPathForTargets(target)};addChatMessage({...msg,self:true,private:target!=='all',direct:directTarget});
   if(state.room.active&&state.room.role!=='host')await sendJson(msg,ids[0]);
-  else if(target==='all'){for(const id of ids)await sendJson(msg,id);}else{const targetMember=state.room.members.get(target);if(targetMember?.peerId)await sendJson(msg,targetMember.peerId);else toast('That member is no longer connected.');}
+  else if(target==='all'){for(const id of ids)await sendJson(msg,id);}else if(directTarget){await sendJson(msg,target);}else{const targetMember=state.room.members.get(target);if(targetMember?.peerId)await sendJson(msg,targetMember.peerId);else toast('That member is no longer connected.');}
 }
 async function receiveChatMessage(m,peerId){
   if(!m?.id||!m?.text)return;
   const host=state.room.active&&state.room.role==='host';
   if(host){
+    if(!state.room.active&&m.direct){addChatMessage({...m,self:false,private:true,direct:true,path:getPeer(peerId)?.icePath||m.path||'Unknown'});maybeNotify(`Private message from ${m.from||'Peer'}`,m.text||'');return;}
     const fromMemberId=m.fromMemberId||roomMemberIdForPeer(peerId);
     if(m.toMemberId){
       const targetId=String(m.toMemberId);
       // The Admin is the host, so a member's private message addressed to the
       // Admin must be consumed locally instead of being routed to a nonexistent peerId.
       if(targetId===String(state.memberId)){
-        addChatMessage({...m,fromMemberId,self:false,private:true});
+        addChatMessage({...m,fromMemberId,self:false,private:true,path:getPeer(peerId)?.icePath||m.path||'Unknown'});
         maybeNotify(`Private message from ${m.from||'Member'}`,m.text||'',{important:true});
         return;
       }
@@ -2248,7 +2312,7 @@ async function receiveChatMessage(m,peerId){
       // Do not render another member's private message on the relay host.
       return;
     }
-    addChatMessage({...m,fromMemberId,self:false});
+    addChatMessage({...m,fromMemberId,self:false,path:getPeer(peerId)?.icePath||m.path||'Unknown'});
     maybeNotify(`Message from ${m.from||'Member'}`,m.text||'',{important:true});
     for(const p of connectedPeers().filter(x=>x.authenticated&&x.room&&x.id!==peerId)){
       try{await sendJson({...m,fromMemberId,relay:true},p.id);}catch{}
@@ -2257,8 +2321,9 @@ async function receiveChatMessage(m,peerId){
   }
   // Non-host members only receive private messages that are routed to them.
   if(m.toMemberId && String(m.toMemberId)!==String(state.memberId))return;
-  addChatMessage({...m,self:false,private:!!m.toMemberId});
-  maybeNotify(m.toMemberId?'Private message':`Message from ${m.from||'Member'}`,m.text||'');
+  const direct=!state.room.active&&!!m.direct;
+  addChatMessage({...m,self:false,private:!!m.toMemberId||direct,direct,path:getPeer(peerId)?.icePath||m.path||'Unknown'});
+  maybeNotify(m.toMemberId||direct?'Private message':`Message from ${m.from||'Member'}`,m.text||'');
 }
 function clearChat(){state.chat.messages=[];state.chat.seen.clear();persistChatHistory();renderChat();}
 function showModal(title,body,onOk=null,onCancel=null){
@@ -2309,7 +2374,7 @@ function attachPeerJsDataConnection(conn){
   if(state.peers.has(peerId))cleanupPeer(peerId);
   const incomingMemberId=conn.metadata?.memberId||'';
   if(state.room.active&&state.room.role==='host'&&incomingMemberId)replaceExistingMemberSession(incomingMemberId,peerId,conn.metadata?.instanceId||'');
-  const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS',memberId:incomingMemberId,instanceId:conn.metadata?.instanceId||'',roomRole:'Member'};
+  const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS',memberId:incomingMemberId,instanceId:conn.metadata?.instanceId||'',roomRole:'Member',icePath:'Unknown'};
   state.peers.set(peerId,peer);
   const opened=async()=>{peer.connected=true;peer.pending=false;state.reconnectAttempts=0;setPrimaryIfNeeded(peerId);state.selectedPeerIds.add(peerId);renderPeers();setConn('Connected',`Internet WebRTC link · ${peerLabel(peer)}.`,'good');if(peer.pc?.getStats)startStats();await sendHello(peerId);if(state.room.role==='host')sendRoomRoster();else syncRoomRoster();renderChat();maybeResumeInterruptedJobs(peer.memberId);};
   conn.on('open',opened);
@@ -2524,7 +2589,8 @@ function classifyCandidatePath(local,remote){
   if(lt==='relay'||rt==='relay') return 'TURN relay';
   if(lt==='srflx'||rt==='srflx'||lt==='prflx'||rt==='prflx') return 'Direct Internet';
   if(lt==='host'&&rt==='host'){
-    const localLocal=isPrivateOrLocalAddress(local?.address); const remoteLocal=isPrivateOrLocalAddress(remote?.address);
+    const la=String(local?.address||'').toLowerCase(); const ra=String(remote?.address||'').toLowerCase();
+    const localLocal=isPrivateOrLocalAddress(la)||la.endsWith('.local'); const remoteLocal=isPrivateOrLocalAddress(ra)||ra.endsWith('.local');
     if(localLocal&&remoteLocal) return 'Direct LAN';
     return 'Direct host';
   }
@@ -2540,7 +2606,7 @@ async function readConnectionStats(pc){
     candidates.sort((a,b)=>Number(!!b.nominated)-Number(!!a.nominated) || ((b.bytesSent||0)+(b.bytesReceived||0))-((a.bytesSent||0)+(a.bytesReceived||0)));
     selected=candidates[0]||null;
   }
-  if(!selected) return {path:'Connecting',candidates:'—',transport:'—',server:'—',bytesSent:0,bytesReceived:0,connected:false};
+  if(!selected) return {path:(pc.connectionState==='connected'||pc.iceConnectionState==='connected'||pc.iceConnectionState==='completed')?'Awaiting ICE path':'Connecting',candidates:'—',transport:'—',server:'—',bytesSent:0,bytesReceived:0,connected:true};
   const local=stats.get(selected.localCandidateId); const remote=stats.get(selected.remoteCandidateId);
   if(!selectedTransport){stats.forEach(r=>{if(r.type==='transport'&&!selectedTransport)selectedTransport=r;});}
   const transport=selectedTransport||{};
@@ -2565,14 +2631,14 @@ function signalingLabel(){
   return 'None';
 }
 function renderDiagnostics(results){
-  const active=results.filter(x=>x.info?.connected); const primary=active.find(x=>x.id===state.primaryPeerId)||active[0];
+  const active=results.filter(x=>x.peer?.connected); const primary=active.find(x=>x.id===state.primaryPeerId)||active[0];
   els.diagSignaling.textContent=signalingLabel();
   if(!primary){
     els.diagDot.className='dot'; els.diagPath.textContent='No active WebRTC path'; els.diagPathTitle.textContent='Waiting for connection'; els.diagHint.textContent='When connected, this panel reads the selected ICE candidate pair from the browser.';
     els.diagCandidates.textContent='—'; els.diagTransport.textContent='—'; els.diagIceServer.textContent='—'; els.diagSent.textContent='0 B'; els.diagReceived.textContent='0 B'; els.diagPeers.innerHTML=''; return;
   }
   const i=primary.info; els.diagDot.className='dot good'; els.diagPath.textContent=i.path; els.diagPathTitle.textContent=`${active.length} active ${active.length===1?'connection':'connections'}`;
-  els.diagHint.textContent=i.path==='Direct LAN'?'The selected file path is direct host-to-host on local/private candidates.':i.path==='Direct Internet'?'The selected path uses NAT-traversal candidates; the data is not using a TURN relay.':i.path==='TURN relay'?'A TURN relay is carrying the WebRTC traffic.':'WebRTC is connected but the selected ICE path is not yet classified.';
+  els.diagHint.textContent=i.path==='Direct LAN'?'The selected file path is direct host-to-host on local/private candidates.':i.path==='Direct host'?'WebRTC is using a direct host-to-host path; the browser is not exposing private addresses clearly enough to confirm LAN.':i.path==='Direct Internet'?'The selected path uses NAT-traversal candidates; the data is not using a TURN relay.':i.path==='TURN relay'?'A TURN relay is carrying the WebRTC traffic.':'WebRTC is connected; waiting for the browser to expose the selected ICE candidate pair.';
   els.diagCandidates.textContent=i.candidates; els.diagTransport.textContent=i.transport; els.diagIceServer.textContent=i.server||'none'; els.diagSent.textContent=fmtBytes(i.bytesSent||0); els.diagReceived.textContent=fmtBytes(i.bytesReceived||0);
   setPath(i.path);
   els.diagPeers.innerHTML='';
@@ -2581,7 +2647,7 @@ function renderDiagnostics(results){
 async function updateDiagnostics(){
   const peers=diagnosticConnections(); const results=[];
   for(const peer of peers){
-    try{const info=await readConnectionStats(peer.pc);if(info)results.push({id:peer.id,peer,info});}catch{}
+    try{if(!peer.pc&&peer.dc?.peerConnection)peer.pc=peer.dc.peerConnection;const info=await readConnectionStats(peer.pc);if(info){peer.icePath=info.path;peer.iceUpdatedAt=Date.now();results.push({id:peer.id,peer,info});}}catch{}
   }
   renderDiagnostics(results);
 }
@@ -2599,7 +2665,7 @@ async function selfTest(){
   catch(err){showModal('Self-test failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}finally{try{a.close()}catch{}try{b.close()}catch{}state.selfTest=false;setConn('Not connected','Create a session or join an offer from another device.','warn');}
 }
 
-els.createOfferBtn.onclick=()=>createOffer(false);els.prepareAnswerBtn.onclick=()=>prepareAnswer(false);els.applyAnswerBtn.onclick=()=>applyAnswer(false);els.easyCreateBtn.onclick=()=>createRoom();els.easyJoinBtn.onclick=()=>{state.quickMode=true;switchRole('join');setQuickStatus('Scan the room invitation. The answer will be generated automatically.');scanRoomInvite();};els.pairQrBtn.onclick=()=>{if(state.room.active&&state.room.currentInviteText)showQr('Room invitation',state.room.currentInviteText,state.room.currentInviteCode);else if(state.offerText)showQr('Scan to join',state.offerText,state.pairCode);};els.copyOfferBtn.onclick=()=>copy(els.offerOut.value);els.showOfferQrBtn.onclick=()=>showQr('Offer QR',els.offerOut.value,state.pairCode);els.copyAnswerBtn.onclick=()=>copy(els.answerOut.value);els.showAnswerQrBtn.onclick=()=>showQr('Answer QR',els.answerOut.value);els.scanOfferQrBtn.onclick=()=>scanQrInto('offerIn',false);els.scanAnswerQrBtn.onclick=()=>scanQrInto('answerIn',true);els.saveOfferBtn.onclick=()=>saveSignal('offer',els.offerOut.value);els.saveAnswerBtn.onclick=()=>saveSignal('answer',els.answerOut.value);els.loadSignalBtn.onclick=importSignalFile;els.loadOfferFileBtn.onclick=importOfferFile;
+els.createOfferBtn.onclick=()=>createOffer(false);els.prepareAnswerBtn.onclick=()=>prepareAnswer(false);els.applyAnswerBtn.onclick=()=>applyAnswer(false);els.easyCreateBtn.onclick=async()=>{setNetworkMode(false);await createLanRoom();setQuickStatus('Offline / LAN pairing started. Show the QR invitation to the other device.','good');};els.easyJoinBtn.onclick=async()=>{setNetworkMode(false);state.quickMode=true;switchRole('join');setQuickStatus('Scan the Offline / LAN invitation. The answer will be generated automatically.');scanRoomInvite();};els.pairQrBtn.onclick=()=>{if(state.room.active&&state.room.currentInviteText)showQr('Room invitation',state.room.currentInviteText,state.room.currentInviteCode);else if(state.offerText)showQr('Scan to join',state.offerText,state.pairCode);};els.copyOfferBtn.onclick=()=>copy(els.offerOut.value);els.showOfferQrBtn.onclick=()=>showQr('Offer QR',els.offerOut.value,state.pairCode);els.copyAnswerBtn.onclick=()=>copy(els.answerOut.value);els.showAnswerQrBtn.onclick=()=>showQr('Answer QR',els.answerOut.value);els.scanOfferQrBtn.onclick=()=>scanQrInto('offerIn',false);els.scanAnswerQrBtn.onclick=()=>scanQrInto('answerIn',true);els.saveOfferBtn.onclick=()=>saveSignal('offer',els.offerOut.value);els.saveAnswerBtn.onclick=()=>saveSignal('answer',els.answerOut.value);els.loadSignalBtn.onclick=importSignalFile;els.loadOfferFileBtn.onclick=importOfferFile;
 els.createRoomBtn.onclick=createRoom;els.renameRoomBtn.onclick=renameRoom;
 els.joinRoomBtn.onclick=()=>els.lanOnly.checked?scanRoomInvite():joinInternetRoom();
 els.copyRoomBtn.onclick=()=>{const code=els.roomCode?.textContent?.trim();if(!code||code==='------'){toast('Create or join a room first.');return;}navigator.clipboard?.writeText(code).then(()=>toast('Room code copied.')).catch(()=>toast(code));};
