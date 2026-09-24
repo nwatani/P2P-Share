@@ -1824,40 +1824,57 @@ function renderNotificationButton(){
   els.notifyBtn.title=state.notifications.enabled?'Click to test notifications':'Enable browser notifications';
   els.notifyBtn.textContent=state.notifications.enabled?`${d.notificationsOn} · Test`:d.notifications;
 }
-async function showSystemNotification(title,body=''){
+async function showSystemNotification(title,body='',opts={}){
   if(typeof Notification==='undefined'||Notification.permission!=='granted')return false;
-  const options={body,tag:`p2p-share-${state.room.id||'direct'}`};
+  const options={body,tag:opts.tag||`p2p-share-${state.room.id||'direct'}-${Date.now()}`,renotify:true};
   try{
     const n=new Notification(title,options);
+    let shown=false, settled=false;
+    const finish=(ok)=>{if(settled)return;settled=true;shown=ok;};
+    n.onshow=()=>finish(true);
+    n.onerror=()=>finish(false);
     n.onclick=()=>{try{window.focus();n.close();}catch{}};
+    // Some browsers do not fire onshow reliably. Treat successful construction as usable,
+    // but provide a visible diagnostic if neither show nor error arrives promptly.
+    setTimeout(()=>{
+      if(!settled && document.visibilityState!=='hidden'){
+        toast('Notification was accepted by the browser but was not displayed. Check browser/Windows notification settings.');
+      }
+    },1800);
     return true;
   }catch(err){
-    toast((I18N[state.lang]||I18N.en).notificationsBlocked);
+    toast(`${(I18N[state.lang]||I18N.en).notificationsBlocked}${err?.message?` · ${err.message}`:''}`);
     return false;
   }
 }
 async function requestNotifications(){
   if(typeof Notification==='undefined'){toast((I18N[state.lang]||I18N.en).notificationsBlocked);return;}
   try{
-    const p=await Notification.requestPermission();
+    if(!window.isSecureContext){
+      toast('Notifications require HTTPS. Open P2P Share from your GitHub Pages HTTPS address.');
+      return;
+    }
+    const p=Notification.permission==='granted'?'granted':await Notification.requestPermission();
     state.notifications.enabled=p==='granted';
     renderNotificationButton();
     if(p==='granted'){
-      const shown=await showSystemNotification('P2P Share','Notifications are working in this browser tab.');
+      const shown=await showSystemNotification('P2P Share','Notifications are working. This is a test notification.',{tag:'p2p-share-test'});
       if(shown)toast((I18N[state.lang]||I18N.en).notificationsOn);
-      else toast((I18N[state.lang]||I18N.en).notificationsBlocked);
+    }else if(p==='denied'){
+      toast('Notifications are blocked for this site. Enable them in your browser site permissions.');
     }else{
-      toast((I18N[state.lang]||I18N.en).notificationsBlocked);
+      toast('Notification permission was not granted.');
     }
-  }catch{toast((I18N[state.lang]||I18N.en).notificationsBlocked);}
-}
-function maybeNotify(title,body=''){
-  if(!state.notifications.enabled||typeof Notification==='undefined'||Notification.permission!=='granted')return;
-  if(!document.hidden){
-    // The room is visible, so the in-app UI is already the notification surface.
-    return;
+  }catch(err){
+    toast(`Notification setup failed${err?.message?` · ${err.message}`:''}`);
   }
-  showSystemNotification(title,body);
+}
+function maybeNotify(title,body='',opts={}){
+  if(!state.notifications.enabled||typeof Notification==='undefined'||Notification.permission!=='granted')return;
+  const important=opts.important===true;
+  const quietWhenVisible=opts.quietWhenVisible===true;
+  if(quietWhenVisible && !document.hidden)return;
+  showSystemNotification(title,body,{tag:opts.tag});
 }
 
 function renderPeers(){
@@ -1938,7 +1955,7 @@ function setupPeerConnection(role){cleanupConnection();const pc=createPeerConnec
 function attachDataChannel(peerId,dc){
   const peer=state.peers.get(peerId);if(!peer)return;peer.dc=dc;dc.binaryType='arraybuffer';dc.bufferedAmountLowThreshold=LOW_WATER;
   dc.onopen=async()=>{peer.connected=true;peer.pending=false;state.selectedPeerIds.add(peerId);setPrimaryIfNeeded(peerId);syncPrimary(peerId);renderPeers();setConn('Connected',`Data channel open · ${peerLabel(peer)}.`,'good');await sendHello(peerId);if(state.room.role==='host')sendRoomRoster();else syncRoomRoster();renderChat();};
-  dc.onclose=()=>{peer.connected=false;peer.pending=false;for(const j of state.transferJobs.values())if((j.peerId===peerId||j.targetMemberId===peer.memberId)&&['sending','receiving','paused'].includes(j.status)){j.status='interrupted';maybeNotify('Transfer interrupted',`${j.name||'A file'} · ${peerLabel(peer)} reconnect to resume.`);}syncPrimary();renderPeers();renderTransferCenter();renderChat();if(state.room.role==='host')sendRoomRoster();if(state.room.role==='join'&&peer.memberId) scheduleInternetReconnect('Room connection interrupted.'); else if(!state.selfTest&&!connectedPeers().length)setConn('Disconnected','All peer data channels are closed.','warn');};
+  dc.onclose=()=>{peer.connected=false;peer.pending=false;for(const j of state.transferJobs.values())if((j.peerId===peerId||j.targetMemberId===peer.memberId)&&['sending','receiving','paused'].includes(j.status)){j.status='interrupted';maybeNotify('Transfer interrupted',`${j.name||'A file'} · ${peerLabel(peer)} reconnect to resume.`,{important:true});}syncPrimary();renderPeers();renderTransferCenter();renderChat();if(state.room.role==='host')sendRoomRoster();if(state.room.role==='join'&&peer.memberId) scheduleInternetReconnect('Room connection interrupted.'); else if(!state.selfTest&&!connectedPeers().length)setConn('Disconnected','All peer data channels are closed.','warn');};
   dc.onerror=e=>setConn('Channel error',e?.message||'A data channel error occurred.','bad');
   dc.onmessage=e=>handleMessage(e.data,peerId).catch(err=>showModal('Transfer error',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));
 }
@@ -1992,7 +2009,7 @@ async function handleHello(m,peerId){
   if(state.room.active&&state.room.role==='host'&&p.room&&p.memberId){
     replaceExistingMemberSession(p.memberId,peerId,p.instanceId);
   }
-  renderPeers();if(state.room.active&&state.room.role==='host'){syncRoomRoster();sendRoomRoster();if(p.room)maybeNotify('Member connected',`${p.name||'A member'} joined the room.`);}
+  renderPeers();if(state.room.active&&state.room.role==='host'){syncRoomRoster();sendRoomRoster();if(p.room)maybeNotify('Member connected',`${p.name||'A member'} joined the room.`,{quietWhenVisible:true});}
   if(m.protected){
     const salt=fromB64(m.salt),challenge=fromB64(m.challenge),expected=fromB64(m.proof);const pwd=await askPassword();
     if(pwd===null){await sendJson({t:'auth-fail',reason:'cancelled'},peerId);return;}
@@ -2030,7 +2047,7 @@ async function resumeTransfer(id){const j=state.transferJobs.get(id);if(!j?.file
 async function cancelTransfer(id){const j=state.transferJobs.get(id);if(!j)return;state.cancelledTransfers.add(id);state.transferQueue=state.transferQueue.filter(x=>x!==id);try{if(getPeer(j.peerId)?.connected)await sendJson({t:'file-cancel',id,routeToMemberId:j.routeToMemberId||'',fromMemberId:state.memberId},j.peerId);}catch{}updateTransfer(id,{status:'cancelled'});pumpTransferQueue();}
 async function waitIfPaused(job){while(state.pausedTransfers.has(job.id)){if(state.cancelledTransfers.has(job.id))throw new Error('Transfer cancelled.');await new Promise(r=>setTimeout(r,180));}}
 function waitForFileControlAny(id,events,timeoutMs,peerId){return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{document.removeEventListener('p2p-file-control',handler);reject(new Error('Timed out waiting for receiver.'));},timeoutMs);const handler=e=>{const m=e.detail;if(m?.id!==id||m?.peerId!==peerId)return;const t=String(m.t||m.type||'').replace(/^file-/,'');if(events.includes(t)){clearTimeout(timer);document.removeEventListener('p2p-file-control',handler);resolve(m);}else if(t==='reject'){clearTimeout(timer);document.removeEventListener('p2p-file-control',handler);reject(new Error('Receiver rejected the transfer.'));}};document.addEventListener('p2p-file-control',handler);});}
-async function sendFileTransfer(job,resumeMode=false){if(job.targetMemberId){const np=[...state.peers.values()].find(x=>x.memberId===job.targetMemberId&&x.connected&&dcIsOpen(x.dc));if(np)job.peerId=np.id;}const p=getPeerForSend(job.peerId);const file=job.file;const encrypted=!!p.sessionKeys;const maxMessage=p.pc?.sctp?.maxMessageSize||CHUNK_DEFAULT;const chunkSize=Math.max(16*1024,Math.min(CHUNK_DEFAULT,maxMessage));job.chunkSize=chunkSize;job.sha256 ||= await hashFile(file);job.status='sending';renderTransferCenter();await sendJson({t:'file-start',id:job.id,name:file.name,size:file.size,type:file.type||'application/octet-stream',lastModified:file.lastModified,chunkSize,encrypted,relativePath:file.webkitRelativePath||'',from:state.device,fromMemberId:state.memberId,relayToMemberId:job.routeToMemberId||'',sha256:job.sha256},job.peerId);const control=await waitForFileControlAny(job.id,['accept','resume'],120000,job.peerId);if(control.t==='file-resume')job.offset=Math.min(Number(control.offset)||0,file.size);else if(control.t==='file-accept'&&resumeMode)job.offset=0;else if(!Number.isFinite(job.offset))job.offset=0;job.bytes=job.offset;job.progress=file.size?job.offset/file.size*100:0;const started=job.started||performance.now();job.started=started;while(job.offset<file.size){if(state.cancelledTransfers.has(job.id))throw new Error('Transfer cancelled.');await waitIfPaused(job);if(!getPeer(job.peerId)?.connected)throw new Error('Peer connection interrupted.');const slice=file.slice(job.offset,Math.min(file.size,job.offset+chunkSize));const plain=new Uint8Array(await slice.arrayBuffer());const payload=encrypted?await encryptChunk(p.sessionKeys,plain):plain;await waitBackpressure(job.peerId);p.dc.send(payload);job.offset+=plain.length;job.bytes=job.offset;job.progress=file.size?job.offset/file.size*100:100;job.speed=job.offset/Math.max(.001,(performance.now()-started)/1000);renderTransferCenter();}await sendJson({t:'file-end',id:job.id,chunks:Math.ceil(file.size/chunkSize),sha256:job.sha256,routeToMemberId:job.routeToMemberId||'',fromMemberId:state.memberId},job.peerId);const done=await waitForFileControlAny(job.id,['done'],120000,job.peerId);job.verified=done.verified!==false;job.status='completed';job.progress=100;job.bytes=file.size;job.verified=done.verified!==false;addHistory(file.name,file.size,'sent');maybeNotify('Transfer complete',`${file.name} to ${job.peerName||'room'} · ${fmtBytes(file.size)}${job.verified?' · Verified':''}`);renderTransferCenter();}
+async function sendFileTransfer(job,resumeMode=false){if(job.targetMemberId){const np=[...state.peers.values()].find(x=>x.memberId===job.targetMemberId&&x.connected&&dcIsOpen(x.dc));if(np)job.peerId=np.id;}const p=getPeerForSend(job.peerId);const file=job.file;const encrypted=!!p.sessionKeys;const maxMessage=p.pc?.sctp?.maxMessageSize||CHUNK_DEFAULT;const chunkSize=Math.max(16*1024,Math.min(CHUNK_DEFAULT,maxMessage));job.chunkSize=chunkSize;job.sha256 ||= await hashFile(file);job.status='sending';renderTransferCenter();await sendJson({t:'file-start',id:job.id,name:file.name,size:file.size,type:file.type||'application/octet-stream',lastModified:file.lastModified,chunkSize,encrypted,relativePath:file.webkitRelativePath||'',from:state.device,fromMemberId:state.memberId,relayToMemberId:job.routeToMemberId||'',sha256:job.sha256},job.peerId);const control=await waitForFileControlAny(job.id,['accept','resume'],120000,job.peerId);if(control.t==='file-resume')job.offset=Math.min(Number(control.offset)||0,file.size);else if(control.t==='file-accept'&&resumeMode)job.offset=0;else if(!Number.isFinite(job.offset))job.offset=0;job.bytes=job.offset;job.progress=file.size?job.offset/file.size*100:0;const started=job.started||performance.now();job.started=started;while(job.offset<file.size){if(state.cancelledTransfers.has(job.id))throw new Error('Transfer cancelled.');await waitIfPaused(job);if(!getPeer(job.peerId)?.connected)throw new Error('Peer connection interrupted.');const slice=file.slice(job.offset,Math.min(file.size,job.offset+chunkSize));const plain=new Uint8Array(await slice.arrayBuffer());const payload=encrypted?await encryptChunk(p.sessionKeys,plain):plain;await waitBackpressure(job.peerId);p.dc.send(payload);job.offset+=plain.length;job.bytes=job.offset;job.progress=file.size?job.offset/file.size*100:100;job.speed=job.offset/Math.max(.001,(performance.now()-started)/1000);renderTransferCenter();}await sendJson({t:'file-end',id:job.id,chunks:Math.ceil(file.size/chunkSize),sha256:job.sha256,routeToMemberId:job.routeToMemberId||'',fromMemberId:state.memberId},job.peerId);const done=await waitForFileControlAny(job.id,['done'],120000,job.peerId);job.verified=done.verified!==false;job.status='completed';job.progress=100;job.bytes=file.size;job.verified=done.verified!==false;addHistory(file.name,file.size,'sent');maybeNotify('Transfer complete',`${file.name} to ${job.peerName||'room'} · ${fmtBytes(file.size)}${job.verified?' · Verified':''}`,{important:true});renderTransferCenter();}
 
 async function sendFiles(){const ids=targetPeerIds();if(!ids.length||!state.sendQueue.length){if(!ids.length)toast('Select or connect a device first.');return;}const files=state.sendQueue.slice();state.sendQueue=[];renderSendQueue();for(const file of files){for(const pid of ids){const peer=getPeer(pid);const job=registerTransfer({id:uid(),file,peerId:pid,peerName:peerLabel(peer),name:file.name,size:file.size,bytes:0,progress:0,speed:0,status:'queued',direction:'sent',started:performance.now(),sha256:'',verified:false,offset:0,routeToMemberId:'',targetMemberId:peer?.memberId||'',chatTarget:state.chat.target||'all'});state.transferQueue.push(job.id);}}pumpTransferQueue();}
 function pumpTransferQueue(){if(state._pumpingTransfers)return;state._pumpingTransfers=true;const run=async()=>{while(state.activeTransferPeers.size<state.maxConcurrentTransfers){const idx=state.transferQueue.findIndex(id=>{const j=state.transferJobs.get(id);if(!j||j.status!=='queued')return false;const key=j.targetMemberId||j.peerId;return !state.activeTransferPeers.has(key);});if(idx<0)break;const id=state.transferQueue.splice(idx,1)[0];const j=state.transferJobs.get(id);if(!j)continue;const key=j.targetMemberId||j.peerId;state.activeTransferPeers.add(key);j.status='sending';renderTransferCenter();sendFileTransfer(j,false).catch(err=>{j.status=getPeer(j.peerId)?.connected?'failed':'interrupted';j.error=err?.message||String(err);renderTransferCenter();}).finally(()=>{state.activeTransferPeers.delete(key);pumpTransferQueue();});}state._pumpingTransfers=false;renderTransferCenter();};run();}
@@ -2095,7 +2112,7 @@ function handleRoomRoster(m,peerId){
 }
 
 function handleRoomEnd(m){showModal('Room ended',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].roomEnded)}</div>`);for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended',m.reason||I18N[state.lang].roomEnded,'warn');}
-function handleRoomLeave(m,peerId){if(state.room.role!=='host')return;const memberId=m.memberId||roomMemberIdForPeer(peerId);const name=m.name||state.room.members.get(memberId)?.name||'Member';if(memberId)state.room.members.delete(memberId);cleanupPeer(peerId);syncRoomRoster();sendRoomRoster();maybeNotify('Member left',`${name} left the room.`);}
+function handleRoomLeave(m,peerId){if(state.room.role!=='host')return;const memberId=m.memberId||roomMemberIdForPeer(peerId);const name=m.name||state.room.members.get(memberId)?.name||'Member';if(memberId)state.room.members.delete(memberId);cleanupPeer(peerId);syncRoomRoster();sendRoomRoster();maybeNotify('Member left',`${name} left the room.`,{quietWhenVisible:true});}
 function handleRoomKick(m){for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Removed from room','The Admin removed you from this room.','warn');showModal('Removed from room',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].memberRemoved)}</div>`);}
 function handleRoomUpdate(m){if(!state.room.active)return;if(m.roomName)state.room.name=String(m.roomName);renderPeers();renderChat();}
 function removeRoomMember(memberId){if(state.room.role!=='host'||!state.room.active)return;const m=state.room.members.get(memberId);if(!m||m.memberId===state.memberId)return;if(!confirm(`Remove ${m.name||'this member'} from the room?`))return;const p=m.peerId?getPeer(m.peerId):[...state.peers.values()].find(x=>x.memberId===memberId);if(p){sendJson({t:'room-kick',memberId,reason:'The Admin removed you from the room.'},p.id).catch(()=>{});cleanupPeer(p.id);}state.room.members.delete(memberId);syncRoomRoster();sendRoomRoster();toast(`${m.name||'Member'} removed.`);}
@@ -2104,7 +2121,7 @@ function renameRoom(){if(state.room.role!=='host'||!state.room.active)return;con
 async function handleFileStart(m,peerId){
   const p=getPeer(peerId);if(!p)return;
   if(m.relayToMemberId&&state.room.role==='host'){const target=state.room.members.get(m.relayToMemberId);if(target?.peerId){state.relayTransfers.set(peerId,{fileId:m.id,targetPeerId:target.peerId});await sendJson({...m,relayToMemberId:'',routeFromMemberId:m.fromMemberId||roomMemberIdForPeer(peerId)},target.peerId);}return;}
-  maybeNotify(`Incoming file from ${peerLabel(p)}`,`${m.name} · ${fmtBytes(m.size||0)}`);
+  maybeNotify(`Incoming file from ${peerLabel(p)}`,`${m.name} · ${fmtBytes(m.size||0)}`,{important:true});
   const existing=state.incoming.get(m.id);if(existing&&!existing.complete){if(existing.accepted)await sendJson({t:'file-resume',id:m.id,offset:existing.received,routeToMemberId:m.routeFromMemberId||'',fromMemberId:state.memberId},peerId);else await sendJson({t:'file-accept',id:m.id,routeToMemberId:m.routeFromMemberId||'',fromMemberId:state.memberId},peerId);renderIncoming();return;}
   const item={id:m.id,peerId,peerName:peerLabel(p),name:m.name,size:m.size,type:m.type,lastModified:m.lastModified,chunkSize:m.chunkSize||CHUNK_DEFAULT,chunks:[],received:0,index:0,started:performance.now(),encrypted:m.encrypted,accepted:false,sink:null,writer:null,handle:null,sha256:m.sha256||'',receivedHash:'',relayFromMemberId:m.routeFromMemberId||'',complete:false};state.incoming.set(m.id,item);if(!state.transferJobs.has(m.id))state.transferJobs.set(m.id,{id:m.id,name:m.name,size:m.size,bytes:0,progress:0,speed:0,status:'receiving',direction:'received',peerId,peerName:peerLabel(p),started:performance.now(),sha256:m.sha256||'',verified:false});renderIncoming();renderTransferCenter();
 }
@@ -2112,7 +2129,7 @@ async function acceptIncoming(id){const item=state.incoming.get(id);if(!item)ret
 function rejectIncoming(id){const item=state.incoming.get(id);if(!item)return;state.incoming.delete(id);sendJson({t:'file-reject',id,routeToMemberId:item.relayFromMemberId||'',fromMemberId:state.memberId},item.peerId).catch(()=>{});renderIncoming();}
 function getExtension(name){const m=String(name).match(/(\.[^.]+)$/);return m?m[1]:'.bin';}
 async function receiveChunk(data,peerId){const item=[...state.incoming.values()].find(x=>x.accepted&&!x.complete&&x.peerId===peerId);if(!item)return;const p=getPeer(peerId);let payload=new Uint8Array(data);if(item.encrypted)payload=await decryptChunk(p.sessionKeys,payload);item.received+=payload.length;if(!item.writer&&!("indexedDB" in window))item.chunks.push(payload.buffer.slice(payload.byteOffset,payload.byteOffset+payload.byteLength));item.index++;if(item.writer)await item.writer.write(payload);else if('indexedDB' in window)await idbPut(item.id,item.index-1,new Blob([payload]));const tr=state.transferJobs.get(item.id);if(tr){tr.bytes=item.received;tr.progress=item.size?item.received/item.size*100:0;tr.status='receiving';tr.speed=item.received/Math.max(.001,(performance.now()-tr.started)/1000);}renderIncoming();renderTransferCenter();}
-async function handleFileEnd(m,peerId){const item=state.incoming.get(m.id);if(!item)return;item.complete=true;item.completedAt=performance.now();if(item.writer)await item.writer.close();const sizeOk=item.received===item.size;let hashOk=true;let receivedHash='';if(item.sha256){try{receivedHash=await hashIncoming(item);item.receivedHash=receivedHash;hashOk=receivedHash.toLowerCase()===String(item.sha256).toLowerCase();}catch{hashOk=false;}}const verified=sizeOk&&hashOk;item.verified=verified;if(!sizeOk){item.status='failed';showModal('Integrity check failed',`<div class="notice bad">Received ${fmtBytes(item.received)} but expected ${fmtBytes(item.size)}.</div>`);}else if(item.sha256&&!hashOk){item.status='failed';showModal('Integrity check failed',`<div class="notice bad">SHA-256 verification failed for ${escapeHtml(item.name)}.</div>`);}else{item.status='complete';if(!item.writer)item.readyToDownload=true;}const tr=state.transferJobs.get(item.id);if(tr){tr.status=verified?'completed':'failed';tr.progress=100;tr.bytes=item.received;tr.verified=verified;tr.sha256=item.sha256||receivedHash;}await sendJson({t:'file-done',id:item.id,verified,sha256:receivedHash,routeToMemberId:item.relayFromMemberId||'',fromMemberId:state.memberId},peerId);if(state.room.role==='host'&&item.relayFromMemberId)state.relayTransfers.delete(peerId);addHistory(item.name,item.size,'received');maybeNotify('Transfer complete',`${item.name} · ${fmtBytes(item.size||0)}${verified?' · Verified':''}`);renderIncoming();renderTransferCenter();}
+async function handleFileEnd(m,peerId){const item=state.incoming.get(m.id);if(!item)return;item.complete=true;item.completedAt=performance.now();if(item.writer)await item.writer.close();const sizeOk=item.received===item.size;let hashOk=true;let receivedHash='';if(item.sha256){try{receivedHash=await hashIncoming(item);item.receivedHash=receivedHash;hashOk=receivedHash.toLowerCase()===String(item.sha256).toLowerCase();}catch{hashOk=false;}}const verified=sizeOk&&hashOk;item.verified=verified;if(!sizeOk){item.status='failed';showModal('Integrity check failed',`<div class="notice bad">Received ${fmtBytes(item.received)} but expected ${fmtBytes(item.size)}.</div>`);}else if(item.sha256&&!hashOk){item.status='failed';showModal('Integrity check failed',`<div class="notice bad">SHA-256 verification failed for ${escapeHtml(item.name)}.</div>`);}else{item.status='complete';if(!item.writer)item.readyToDownload=true;}const tr=state.transferJobs.get(item.id);if(tr){tr.status=verified?'completed':'failed';tr.progress=100;tr.bytes=item.received;tr.verified=verified;tr.sha256=item.sha256||receivedHash;}await sendJson({t:'file-done',id:item.id,verified,sha256:receivedHash,routeToMemberId:item.relayFromMemberId||'',fromMemberId:state.memberId},peerId);if(state.room.role==='host'&&item.relayFromMemberId)state.relayTransfers.delete(peerId);addHistory(item.name,item.size,'received');maybeNotify('Transfer complete',`${item.name} · ${fmtBytes(item.size||0)}${verified?' · Verified':''}`,{important:true});renderIncoming();renderTransferCenter();}
 function handleFileCancel(m){if(m.id){state.incoming.delete(m.id);renderIncoming();}}
 async function downloadIncoming(id){const item=state.incoming.get(id);if(!item||!item.complete)return;let blob;if(item.chunks.length)blob=new Blob(item.chunks,{type:item.type||'application/octet-stream'});else{const recs=await idbGetAll(id);blob=new Blob(recs.map(x=>x.blob),{type:item.type||'application/octet-stream'});}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=item.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},0);await idbDelete(id).catch(()=>{});state.incoming.delete(id);renderIncoming();}
 async function receiveText(m,peerId){const p=getPeer(peerId);showModal(`Received text · ${escapeHtml(peerLabel(p))}`,`<div class="notice good">Text received from ${escapeHtml(peerLabel(p))}</div><div style="margin-top:10px"><textarea class="textarea" readonly>${escapeHtml(m.text||'')}</textarea></div>`,null,()=>{});addHistory('Text message',new Blob([m.text||'']).size,'received');}
@@ -2210,7 +2227,7 @@ async function receiveChatMessage(m,peerId){
       // Admin must be consumed locally instead of being routed to a nonexistent peerId.
       if(targetId===String(state.memberId)){
         addChatMessage({...m,fromMemberId,self:false,private:true});
-        maybeNotify(`Private message from ${m.from||'Member'}`,m.text||'');
+        maybeNotify(`Private message from ${m.from||'Member'}`,m.text||'',{important:true});
         return;
       }
       const target=state.room.members.get(targetId);
