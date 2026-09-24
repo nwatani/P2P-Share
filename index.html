@@ -1,11 +1,12 @@
-<!doctype html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a0f1b">
-<meta name="description" content="Professional serverless P2P file sharing over WebRTC with GitHub Pages HTTPS QR pairing.">
-<title>P2P Share — Multi-Device WebRTC File Transfer</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#0a0f1b" name="theme-color"/>
+<meta content="P2P Share: browser-based rooms, chat and direct WebRTC file sharing with Internet and fully serverless LAN modes." name="description"/>
+<title>P2P Share — Rooms, Chat &amp; Direct WebRTC Transfer</title>
 <style>
 :root{
   --bg:#080d17;--panel:#0e1626;--panel2:#111b2d;--panel3:#0b1321;
@@ -82,239 +83,205 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
 .diag-legend b{color:#a8bad3}
 @media (max-width:560px){.diag-grid{grid-template-columns:1fr 1fr}.diag-peers{max-height:220px}}
 
+
+/* v1.6 room-first / collaboration UI */
+.room-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.room-code-actions{display:flex;gap:7px;align-items:center}.room-card{border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg,rgba(18,29,48,.98),rgba(11,19,33,.98));padding:15px}.room-card .room-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.room-title{font-size:14px;font-weight:900}.room-sub{font-size:10px;color:var(--muted);line-height:1.55;margin-top:4px}.room-code{margin-top:12px;padding:12px 13px;border:1px solid #2b4163;background:#0a1424;border-radius:13px;display:flex;align-items:center;gap:12px}.room-code-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#8294b0;font-weight:800}.room-code-value{font:900 25px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em;margin-top:6px}.peer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px;margin-top:12px}.peer-card{border:1px solid #1f304a;background:#0a1423;border-radius:12px;padding:10px}.peer-top{display:flex;gap:9px;align-items:center}.peer-avatar{width:32px;height:32px;border-radius:10px;background:#15243a;border:1px solid #2b4163;display:grid;place-items:center;font-weight:900}.chat-card{padding:0;overflow:hidden}.chat-log{min-height:150px;max-height:340px;overflow:auto;padding:10px 12px;display:grid;gap:7px;background:linear-gradient(180deg,rgba(9,16,28,.45),rgba(11,19,33,.7))}.chat-empty{font-size:10px;color:var(--muted);padding:12px 4px}.chat-msg{display:flex;gap:7px;align-items:flex-start}.chat-msg.self{justify-content:flex-end}.chat-bubble{max-width:min(78%,620px);border:1px solid #22344f;background:#101b2d;border-radius:12px;padding:7px 9px}.chat-msg.self .chat-bubble{background:#10223a;border-color:#2c4f7b}.chat-author{font-size:9px;font-weight:850;color:#9db2d0}.chat-time{font-size:8px;color:#6f809b;margin-left:6px}.chat-text{font-size:10.5px;line-height:1.45;margin-top:3px;white-space:pre-wrap;overflow-wrap:anywhere}.chat-msg.announcement .chat-bubble{border-color:#6b5122;background:#261f10}.chat-msg.system{justify-content:center}.chat-msg.system .chat-bubble{font-size:9px;color:#8798b0;background:#0b1422;border-style:dashed}.chat-composer{padding:10px 12px;border-top:1px solid var(--border);background:#0e1727}.chat-input{min-height:52px;max-height:140px}.chat-tools{display:flex;justify-content:flex-end;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}.reaction-btn{min-width:38px;padding-inline:8px}.advanced-side{margin:0 14px 14px;border:1px solid var(--border);border-radius:13px;background:#0b1422;overflow:hidden}.advanced-side>summary{cursor:pointer;padding:11px 12px;font-size:11px;font-weight:850;color:#bac7d9;list-style:none}.advanced-side>summary::-webkit-details-marker{display:none}.advanced-side>summary:before{content:'▸';margin-right:8px;color:#7185a3}.advanced-side[open]>summary:before{content:'▾'}.advanced-body{border-top:1px solid var(--border)}.advanced-body .section{background:transparent}.advanced-body .section:last-child{border-bottom:0}.advanced-internet-wrap{padding:12px}.advanced-internet-wrap>h2{margin-bottom:9px}.work-body{grid-template-rows:none}.work-body>.chat-card{min-height:0}.network-mode-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.mode-card{position:relative}.mode-card.active:after{content:'Recommended';position:absolute;top:8px;right:8px;font-size:8px;font-weight:850;color:#92baff;opacity:.9}.mode-card#offlineModeBtn.active:after{content:'Fallback'}.top-room-code{font:850 17px/1 ui-monospace,SFMono-Regular,Consolas,monospace}.quickpair{margin-top:12px}.quickpair-badge{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;border:1px solid #245a47;background:#0f281f;color:#7de8b8;font-size:9px;font-weight:850}.easy-pairing-card{opacity:.98}.easy-pairing-card .steps{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.main{grid-template-columns:1fr}.side{order:2;overflow:visible}.work{order:1;min-height:0}.advanced-side{margin-inline:10px}.peer-grid{grid-template-columns:1fr 1fr}.room-actions .btn{flex:1 1 auto}.chat-bubble{max-width:84%}}
+@media(max-width:560px){.main{padding:9px;gap:9px}.top{padding:10px 11px}.brand-sub{display:none}.work-head{padding:10px 11px}.work-body{padding:10px;gap:10px}.room-card{padding:12px}.room-card .room-head{display:block}.room-head>.pill{display:inline-flex;margin-top:9px}.room-code{display:block}.room-code-actions{margin-top:10px}.room-actions .btn{min-width:calc(50% - 4px)}.room-actions #leaveRoomBtn{flex-basis:100%}.peer-grid{grid-template-columns:1fr}.chat-log{max-height:300px}.chat-tools{justify-content:stretch}.chat-tools .btn{flex:1}.chat-tools .reaction-btn{flex:0 0 42px}.steps{grid-template-columns:1fr 1fr}.easy-pairing-card .steps{grid-template-columns:1fr 1fr}.advanced-side{margin:0 9px 9px}.side .section{padding:11px}}
+
+input[type=file]{display:none!important}
 </style>
 </head>
 <body>
 <div class="app" id="app">
 <header class="top">
-  <div class="brand">
-    <div class="brand-logo" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-        <path d="M8.3 8.3 5.8 10.8a4.15 4.15 0 0 0 0 5.87l1.55 1.55a4.15 4.15 0 0 0 5.87 0l2.5-2.5"/>
-        <path d="m15.7 15.7 2.5-2.5a4.15 4.15 0 0 0 0-5.87l-1.55-1.55a4.15 4.15 0 0 0-5.87 0l-2.5 2.5"/>
-        <path d="m9.2 14.8 5.6-5.6"/>
-      </svg>
-    </div>
-    <div class="brand-text"><div class="brand-title" data-i18n="appTitle">P2P Share</div><div class="brand-sub" data-i18n="appSub">One HTML file · multi-device rooms · no server · direct WebRTC transfer</div></div>
-  </div>
-  <div class="top-actions">
-    <button class="icon-btn" id="langBtn" title="English / العربية">AR</button>
-    <button class="icon-btn" id="helpBtn" title="Help">?</button>
-    <button class="icon-btn" id="resetBtn" title="Reset">↻</button>
-  </div>
+<div class="brand">
+<div aria-hidden="true" class="brand-logo">
+<svg fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24">
+<path d="M8.3 8.3 5.8 10.8a4.15 4.15 0 0 0 0 5.87l1.55 1.55a4.15 4.15 0 0 0 5.87 0l2.5-2.5"></path>
+<path d="m15.7 15.7 2.5-2.5a4.15 4.15 0 0 0 0-5.87l-1.55-1.55a4.15 4.15 0 0 0-5.87 0l-2.5 2.5"></path>
+<path d="m9.2 14.8 5.6-5.6"></path>
+</svg>
+</div>
+<div class="brand-text"><div class="brand-title" data-i18n="appTitle">P2P Share</div><div class="brand-sub" data-i18n="appSub">Browser-based rooms · chat · direct WebRTC sharing</div></div>
+</div>
+<div class="top-actions">
+<button class="icon-btn" id="langBtn" title="English / العربية">AR</button>
+<button class="icon-btn" id="helpBtn" title="Help">?</button>
+<button class="icon-btn" id="resetBtn" title="Reset">↻</button>
+</div>
 </header>
-
 <main class="main">
 <aside class="side">
-  <section class="section">
-    <h2 data-i18n="connection">Connection</h2>
-    <div class="state">
-      <div class="state-line"><div class="row"><span class="dot" id="connDot"></span><span class="state-name" id="connState">Not connected</span></div><span class="pill warn" id="pathPill">LAN-only</span></div>
-      <div class="subtle" id="connDetail">Create a session or join an offer from another device.</div>
-    </div>
-    <div class="pillbar" style="margin-top:8px">
-      <span class="pill good">WebRTC</span><span class="pill good">DTLS</span><span class="pill" id="signalingPill">No cloud</span><span class="pill">No account</span>
-    </div>
-  </section>
-
-  <section class="section">
-    <h2 data-i18n="diagnostics">Connection diagnostics</h2>
-    <div class="diag-box">
-      <div class="diag-head"><strong id="diagPathTitle">Waiting for connection</strong><button class="btn small ghost" id="diagRefreshBtn" type="button" data-i18n="refresh">Refresh</button></div>
-      <div class="diag-summary"><span class="dot" id="diagDot"></span><div class="grow"><div class="diag-path" id="diagPath">No active WebRTC path</div><div class="diag-sub" id="diagHint">When connected, this panel reads the selected ICE candidate pair from the browser.</div></div></div>
-      <div class="diag-grid">
-        <div class="diag-row"><span data-i18n="candidatePair">Candidate pair</span><b id="diagCandidates">—</b></div>
-        <div class="diag-row"><span data-i18n="transport">Transport</span><b id="diagTransport">—</b></div>
-        <div class="diag-row"><span data-i18n="signaling">Signaling</span><b id="diagSignaling">—</b></div>
-        <div class="diag-row"><span data-i18n="iceServer">ICE server</span><b id="diagIceServer">—</b></div>
-        <div class="diag-row"><span data-i18n="bytesSent">Bytes sent</span><b id="diagSent">0 B</b></div>
-        <div class="diag-row"><span data-i18n="bytesReceived">Bytes received</span><b id="diagReceived">0 B</b></div>
-      </div>
-      <div class="diag-peers" id="diagPeers"></div>
-      <div class="diag-legend"><b>Direct LAN</b> = host/host with local/private candidates. <b>Direct Internet</b> = NAT-traversal candidate. <b>TURN relay</b> = a relay is carrying the WebRTC traffic.</div>
-    </div>
-  </section>
-
-  <section class="section">
-    <h2 data-i18n="device">Device</h2>
-    <div class="row">
-      <input id="deviceName" class="input grow" maxlength="32" placeholder="Device name">
-      <button class="btn small" id="saveNameBtn">Save</button>
-    </div>
-    <div class="subtle" style="margin-top:6px" data-i18n="deviceHint">Your name is stored only in this browser.</div>
-  </section>
-
-  <section class="section">
-    <h2 data-i18n="checks">Browser checks</h2>
-    <div class="checks">
-      <div class="check"><div class="check-left"><span class="dot" id="dWebrtc"></span><span>RTCPeerConnection</span></div><span class="check-status" id="tWebrtc">Checking</span></div>
-      <div class="check"><div class="check-left"><span class="dot" id="dDc"></span><span>RTCDataChannel</span></div><span class="check-status" id="tDc">Checking</span></div>
-      <div class="check"><div class="check-left"><span class="dot" id="dCrypto"></span><span>Web Crypto</span></div><span class="check-status" id="tCrypto">Checking</span></div>
-      <div class="check"><div class="check-left"><span class="dot" id="dIdb"></span><span>IndexedDB</span></div><span class="check-status" id="tIdb">Checking</span></div>
-      <div class="check"><div class="check-left"><span class="dot" id="dFs"></span><span>Save-to-disk API</span></div><span class="check-status" id="tFs">Checking</span></div>
-      <div class="check"><div class="check-left"><span class="dot" id="dSecure"></span><span>HTTPS / secure context</span></div><span class="check-status" id="tSecure">Checking</span></div>
-      <div class="check"><div class="check-left"><span class="dot" id="dCamera"></span><span>Camera QR scanning</span></div><span class="check-status" id="tCamera">Checking</span></div>
-    </div>
-  </section>
-
-  <section class="section">
-    <h2 data-i18n="network">Network mode</h2>
-    <div class="mode-grid">
-      <button class="mode-card active" id="offlineModeBtn" type="button">
-        <span class="mode-icon">⌂</span><span class="mode-main">Offline / LAN</span><span class="mode-sub">No Internet services · same Wi‑Fi/LAN</span>
-      </button>
-      <button class="mode-card" id="internetModeBtn" type="button">
-        <span class="mode-icon">◎</span><span class="mode-main">Internet / Hybrid</span><span class="mode-sub">6-digit rooms · Internet NAT traversal</span>
-      </button>
-    </div>
-    <div class="setting" style="margin-top:8px">
-      <label><span>Serverless local mode</span><span class="switch"><input id="lanOnly" type="checkbox" checked><span class="slider"></span></span></label>
-      <small id="networkModeHint">No signaling/STUN/TURN services are used. Best for devices on the same Wi‑Fi/LAN.</small>
-    </div>
-    <div id="internetSettings" class="setting hidden" style="margin-top:8px">
-      <div class="service-box">
-        <div class="service-head"><strong>Internet connectivity</strong><span class="pill warn" id="internetServicePill">Not active</span></div>
-        <div class="service-row"><span>Signaling</span><b>PeerJS Cloud</b></div>
-        <div class="service-row"><span>ICE fallback</span><b>Google STUN · Cloudflare STUN · Twilio STUN</b></div>
-        <div class="service-row"><span>File path</span><b>Direct WebRTC whenever possible</b></div>
-        <div class="service-note">PeerJS is used only to broker the WebRTC handshake. The file data travels over WebRTC, and the Connection diagnostics panel shows the selected ICE path. If PeerJS is unavailable, the existing QR-based direct pairing remains the fallback; TURN credentials can be supplied in Advanced settings for restrictive networks.</div>
-      </div>
-      <details style="margin-top:8px"><summary>Advanced Internet settings</summary>
-        <label style="display:block;margin-top:9px"><span>Additional STUN server</span></label>
-        <input id="stunServer" class="input" style="margin-top:7px" placeholder="stun:example.example.com:3478">
-        <small>Optional. The built-in Google, Cloudflare and Twilio STUN entries remain enabled.</small>
-        <label style="display:block;margin-top:9px"><span>TURN URL(s)</span></label>
-        <input id="turnUrls" class="input" style="margin-top:7px" placeholder="turn:example.com:3478,turns:example.com:443">
-        <label style="display:block;margin-top:9px"><span>TURN username</span></label>
-        <input id="turnUsername" class="input" style="margin-top:7px" autocomplete="off">
-        <label style="display:block;margin-top:9px"><span>TURN credential</span></label>
-        <input id="turnCredential" class="input" type="password" style="margin-top:7px" autocomplete="off">
-        <small>Use short-lived TURN credentials from your provider. Do not put permanent account API keys into the HTML.</small>
-      </details>
-    </div>
-  </section>
-
-  <section class="section">
-    <h2 data-i18n="security">Transfer security</h2>
-    <div class="setting">
-      <label><span data-i18n="passwordProtect">Extra password protection</span><span class="switch"><input id="passwordEnabled" type="checkbox"><span class="slider"></span></span></label>
-      <small data-i18n="passwordHint">Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.</small>
-    </div>
-    <div id="passwordBox" class="hidden" style="margin-top:8px">
-      <input id="sessionPassword" class="input" type="password" autocomplete="new-password" minlength="8" placeholder="Password (8+ characters)">
-    </div>
-  </section>
-
-  <section class="section" style="margin-top:auto">
-    <h2 data-i18n="about">About this build</h2>
-    <div class="footer" data-i18n-html="aboutText">This is a new serverless WebRTC application inspired by the core idea behind PairDrop/ToffeeShare. It does not embed PairDrop code and does not require a PairDrop server. The bundled QR generator is used locally with no network call.</div>
-  </section>
-</aside>
-
+<section class="section">
+<h2 data-i18n="connection">Connection</h2>
+<div class="state">
+<div class="state-line"><div class="row"><span class="dot" id="connDot"></span><span class="state-name" id="connState">Not connected</span></div><span class="pill" id="pathPill">Not connected</span></div>
+<div class="subtle" data-i18n="defaultConnDetail" id="connDetail">Create or join a room to start sharing.</div>
+</div>
+<div class="pillbar" style="margin-top:8px"><span class="pill good">Encrypted</span><span class="pill" id="signalingPill">Local</span><span class="pill">No account</span></div>
+</section>
+<section class="section">
+<h2 data-i18n="device">Device</h2>
+<div class="row">
+<input class="input grow" id="deviceName" maxlength="32" placeholder="Device name"/>
+<button class="btn small" id="saveNameBtn">Save</button>
+</div>
+<div class="subtle" data-i18n="deviceHint" style="margin-top:6px">Your name is stored only in this browser.</div>
+</section>
+<section class="section">
+<h2 data-i18n="network">Connection method</h2>
+<div class="mode-grid">
+<button class="mode-card active" id="internetModeBtn" type="button">
+<span class="mode-icon">◎</span><span class="mode-main" data-i18n="internetMode">Internet / Hybrid</span><span class="mode-sub" data-i18n="internetModeSub">Recommended · 6-digit rooms · works across networks</span>
+</button>
+<button class="mode-card" id="offlineModeBtn" type="button">
+<span class="mode-icon">⌂</span><span class="mode-main" data-i18n="offlineMode">Offline / LAN</span><span class="mode-sub" data-i18n="offlineModeSub">Fully serverless · same Wi‑Fi/LAN</span>
+</button>
+</div>
+<div class="setting" style="margin-top:8px">
+<label><span data-i18n="modeNoteLabel">How it works</span><span class="switch"><input checked="" id="lanOnly" type="checkbox"/><span class="slider"></span></span></label>
+<small data-i18n="internetDefaultHint" id="networkModeHint">Internet / Hybrid is recommended for normal use. Files remain on WebRTC; Offline / LAN remains available as the fully serverless fallback.</small>
+</div>
+</section>
+<details class="advanced-side"><summary data-i18n="advanced">Advanced</summary><div class="advanced-body"><section class="section">
+<h2 data-i18n="diagnostics">Connection diagnostics</h2>
+<div class="diag-box">
+<div class="diag-head"><strong id="diagPathTitle">Waiting for connection</strong><button class="btn small ghost" data-i18n="refresh" id="diagRefreshBtn" type="button">Refresh</button></div>
+<div class="diag-summary"><span class="dot" id="diagDot"></span><div class="grow"><div class="diag-path" id="diagPath">No active WebRTC path</div><div class="diag-sub" id="diagHint">When connected, this panel reads the selected ICE candidate pair from the browser.</div></div></div>
+<div class="diag-grid">
+<div class="diag-row"><span data-i18n="candidatePair">Candidate pair</span><b id="diagCandidates">—</b></div>
+<div class="diag-row"><span data-i18n="transport">Transport</span><b id="diagTransport">—</b></div>
+<div class="diag-row"><span data-i18n="signaling">Signaling</span><b id="diagSignaling">—</b></div>
+<div class="diag-row"><span data-i18n="iceServer">ICE server</span><b id="diagIceServer">—</b></div>
+<div class="diag-row"><span data-i18n="bytesSent">Bytes sent</span><b id="diagSent">0 B</b></div>
+<div class="diag-row"><span data-i18n="bytesReceived">Bytes received</span><b id="diagReceived">0 B</b></div>
+</div>
+<div class="diag-peers" id="diagPeers"></div>
+<div class="diag-legend"><b>Direct LAN</b> = host/host with local/private candidates. <b>Direct Internet</b> = NAT-traversal candidate. <b>TURN relay</b> = a relay is carrying the WebRTC traffic.</div>
+</div>
+</section><section class="section">
+<h2 data-i18n="checks">Browser checks</h2>
+<div class="checks">
+<div class="check"><div class="check-left"><span class="dot" id="dWebrtc"></span><span>RTCPeerConnection</span></div><span class="check-status" id="tWebrtc">Checking</span></div>
+<div class="check"><div class="check-left"><span class="dot" id="dDc"></span><span>RTCDataChannel</span></div><span class="check-status" id="tDc">Checking</span></div>
+<div class="check"><div class="check-left"><span class="dot" id="dCrypto"></span><span>Web Crypto</span></div><span class="check-status" id="tCrypto">Checking</span></div>
+<div class="check"><div class="check-left"><span class="dot" id="dIdb"></span><span>IndexedDB</span></div><span class="check-status" id="tIdb">Checking</span></div>
+<div class="check"><div class="check-left"><span class="dot" id="dFs"></span><span>Save-to-disk API</span></div><span class="check-status" id="tFs">Checking</span></div>
+<div class="check"><div class="check-left"><span class="dot" id="dSecure"></span><span>HTTPS / secure context</span></div><span class="check-status" id="tSecure">Checking</span></div>
+<div class="check"><div class="check-left"><span class="dot" id="dCamera"></span><span>Camera QR scanning</span></div><span class="check-status" id="tCamera">Checking</span></div>
+</div>
+</section><section class="section">
+<h2 data-i18n="security">Transfer security</h2>
+<div class="setting">
+<label><span data-i18n="passwordProtect">Extra password protection</span><span class="switch"><input id="passwordEnabled" type="checkbox"/><span class="slider"></span></span></label>
+<small data-i18n="passwordHint">Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.</small>
+</div>
+<div class="hidden" id="passwordBox" style="margin-top:8px">
+<input autocomplete="new-password" class="input" id="sessionPassword" minlength="8" placeholder="Password (8+ characters)" type="password"/>
+</div>
+</section><section class="section" style="margin-top:auto">
+<h2 data-i18n="about">About this build</h2>
+<div class="footer" data-i18n-html="aboutText">This is a new serverless WebRTC application inspired by the core idea behind PairDrop/ToffeeShare. It does not embed PairDrop code and does not require a PairDrop server. The bundled QR generator is used locally with no network call.</div>
+</section><section class="section advanced-internet-wrap"><h2 data-i18n="internetSettingsTitle">Internet settings</h2><div class="setting hidden" id="internetSettings" style="margin-top:8px">
+<div class="service-box">
+<div class="service-head"><strong>Internet connectivity</strong><span class="pill warn" id="internetServicePill">Not active</span></div>
+<div class="service-row"><span>Signaling</span><b>PeerJS Cloud</b></div>
+<div class="service-row"><span>ICE fallback</span><b>Google STUN · Cloudflare STUN · Twilio STUN</b></div>
+<div class="service-row"><span>File path</span><b>Direct WebRTC whenever possible</b></div>
+<div class="service-note">PeerJS is used only to broker the WebRTC handshake. The file data travels over WebRTC, and the Connection diagnostics panel shows the selected ICE path. If PeerJS is unavailable, the existing QR-based direct pairing remains the fallback; TURN credentials can be supplied in Advanced settings for restrictive networks.</div>
+</div>
+<details style="margin-top:8px"><summary>Advanced Internet settings</summary>
+<label style="display:block;margin-top:9px"><span>Additional STUN server</span></label>
+<input class="input" id="stunServer" placeholder="stun:example.example.com:3478" style="margin-top:7px"/>
+<small>Optional. The built-in Google, Cloudflare and Twilio STUN entries remain enabled.</small>
+<label style="display:block;margin-top:9px"><span>TURN URL(s)</span></label>
+<input class="input" id="turnUrls" placeholder="turn:example.com:3478,turns:example.com:443" style="margin-top:7px"/>
+<label style="display:block;margin-top:9px"><span>TURN username</span></label>
+<input autocomplete="off" class="input" id="turnUsername" style="margin-top:7px"/>
+<label style="display:block;margin-top:9px"><span>TURN credential</span></label>
+<input autocomplete="off" class="input" id="turnCredential" style="margin-top:7px" type="password"/>
+<small>Use short-lived TURN credentials from your provider. Do not put permanent account API keys into the HTML.</small>
+</details>
+</div></section></div></details></aside>
 <section class="work">
-  <div class="work-head">
-    <div><div class="work-title" data-i18n="workspace">P2P workspace</div><div class="work-sub" id="workSub">Start a secure peer connection, then transfer files directly.</div></div>
-    <div class="work-actions"><button class="btn small ghost" id="selfTestBtn">Self-test</button><button class="btn small danger" id="disconnectBtn" disabled>Disconnect</button></div>
-  </div>
-  <div class="work-body">
-    <section class="connection">
-      <div class="connection-top"><div><div class="conn-id" data-i18n="pairing">Serverless pairing</div><div class="conn-note" id="pairingNote">GitHub Pages provides the HTTPS page and camera permission; the actual transfer remains direct WebRTC. No file data is sent through GitHub.</div></div><span class="pill" id="securityPill">DTLS encrypted</span></div>
-      <div class="steps">
-        <div class="step"><div class="n">Step 1</div><strong data-i18n="stepCreate">Create / join</strong><span data-i18n="stepCreate2">Choose your role below.</span></div>
-        <div class="step"><div class="n">Step 2</div><strong data-i18n="stepExchange">Scan pairing QR</strong><span data-i18n="stepExchange2">The long handshake moves through the QR, not through the file-transfer path.</span></div>
-        <div class="step"><div class="n">Step 3</div><strong data-i18n="stepConnect">Connect</strong><span data-i18n="stepConnect2">The browsers establish a direct WebRTC channel.</span></div>
-        <div class="step"><div class="n">Step 4</div><strong data-i18n="stepTransfer">Transfer</strong><span data-i18n="stepTransfer2">Files travel directly peer-to-peer.</span></div>
-      </div>
-      <div class="quickpair">
-        <div class="quickpair-head"><div><div class="quickpair-title">Easy pairing</div><div class="quickpair-sub">On GitHub Pages, HTTPS enables camera access. QR carries the WebRTC handshake; the 6-digit code verifies the peer.</div></div><span class="quickpair-badge">Recommended</span></div>
-        <div class="quickpair-actions"><button class="btn primary" id="easyCreateBtn">Start pairing</button><button class="btn" id="easyJoinBtn">Join / Scan</button></div>
-        <div id="pairCodeCard" class="pair-code-card hidden"><div><div class="pair-code-label">6-digit verification code</div><div class="pair-code" id="pairCode">------</div><div class="pair-code-note" id="pairCodeNote">The other device should show the same code after scanning.</div></div><button class="btn small pair-qr-btn" id="pairQrBtn">Show QR</button></div>
-        <div class="quick-status" id="quickStatus">Serverless room mode: one host can connect up to 8 devices directly. QR transports the technical WebRTC handshake; the 6-digit value is a verification fingerprint only.</div>
-        <div class="row wrap" style="margin-top:9px"><button class="btn small warn" id="sixDigitInfoBtn">6-digit only?</button><span class="subtle">Use this only with an optional signaling server.</span></div>
-      </div>
-      <details class="advanced-wrap">
-        <summary>Advanced pairing · copy/paste / .p2p files</summary>
-      <div class="role-tabs"><button class="btn role-tab active" id="roleHost">1 · Create session</button><button class="btn role-tab" id="roleJoin">2 · Join session</button></div>
-      <div id="hostPanel" class="codebox">
-        <div class="row wrap"><button class="btn primary" id="createOfferBtn">Create offer</button><button class="btn" id="copyOfferBtn" disabled>Copy offer</button><button class="btn" id="showOfferQrBtn" disabled>Show QR</button><button class="btn" id="saveOfferBtn" disabled>Save .p2p</button></div>
-        <textarea id="offerOut" class="textarea ltr-only" readonly placeholder="Your offer code will appear here…"></textarea>
-        <div class="subtle" data-i18n="hostHint">Send this offer to the other device. After it creates an answer, paste the answer below.</div>
-        <textarea id="answerIn" class="textarea ltr-only" placeholder="Paste the answer code here…"></textarea>
-        <div class="row wrap"><button class="btn good" id="applyAnswerBtn" disabled>Apply answer</button><button class="btn" id="scanAnswerQrBtn">Scan QR</button><button class="btn" id="loadSignalBtn">Import .p2p</button></div>
-      </div>
-      <div id="joinPanel" class="codebox hidden">
-        <div class="row wrap"><button class="btn primary" id="prepareAnswerBtn">Prepare answer</button><button class="btn" id="copyAnswerBtn" disabled>Copy answer</button><button class="btn" id="showAnswerQrBtn" disabled>Show QR</button><button class="btn" id="saveAnswerBtn" disabled>Save .p2p</button></div>
-        <textarea id="offerIn" class="textarea ltr-only" placeholder="Paste the offer code received from the other device…"></textarea>
-        <div class="row wrap"><button class="btn small" id="scanOfferQrBtn">Scan QR</button></div>
-        <textarea id="answerOut" class="textarea ltr-only" readonly placeholder="Your answer code will appear here…"></textarea>
-        <div class="subtle" data-i18n="joinHint">Send the answer back to the device that created the offer.</div>
-        <button class="btn" id="loadOfferFileBtn">Import offer .p2p</button>
-      </div>
-      </details>
-
-    </section>
-
-
-    <section class="room-card" id="roomCard">
-      <div class="room-head">
-        <div><div class="room-title">Multi-device room</div><div class="room-sub">Host a small private room and connect several devices directly. Each participant gets a separate WebRTC link to the host; no room server is required.</div></div>
-        <span class="pill" id="roomLimitPill">0 / 8 devices</span>
-      </div>
-      <div class="room-actions">
-        <button class="btn primary" id="createRoomBtn">Create room</button>
-        <button class="btn" id="joinRoomBtn">Join room / Scan</button>
-        <button class="btn" id="inviteRoomBtn" disabled>Invite device</button>
-        <button class="btn" id="scanRoomAnswerBtn" disabled>Scan answer</button>
-        <button class="btn danger" id="leaveRoomBtn" disabled>Leave room</button>
-      </div>
-      <div class="room-code hidden" id="roomCodeCard">
-        <div class="grow"><div class="room-code-label">Room verification</div><div class="room-code-value" id="roomCode">------</div><div class="room-sub" id="roomStatus">Create a room, then invite devices with QR.</div></div>
-        <button class="btn small" id="showRoomInviteBtn" disabled>Show current QR</button>
-      </div>
-      <div class="peer-grid" id="peerGrid"></div>
-    </section>
-
-    <section class="transfer-grid">
-      <div class="card">
-        <div class="card-head"><div class="card-title" data-i18n="sendFiles">Send files</div><span class="pill" id="sendQueueCount">0 files</span></div>
-        <div id="dropZone" class="drop">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
-          <strong data-i18n="dropTitle">Drop files here</strong><span data-i18n="dropSub">or use the buttons below. Nothing is uploaded to a server.</span>
-          <div class="file-actions"><button class="btn primary small" id="pickFilesBtn">Choose files</button><button class="btn small" id="pickFolderBtn">Choose folder</button><button class="btn small" id="sendTextBtn">Send text</button></div>
-        </div>
-        <div class="target-bar" id="targetBar">
-          <div class="target-head"><div class="target-title">Send to</div><div class="target-actions"><button class="btn small ghost" id="selectAllPeersBtn">All</button><button class="btn small ghost" id="clearPeersBtn">None</button></div></div>
-          <div class="target-list" id="targetList"><span class="subtle">Connect to a peer first.</span></div>
-        </div>
-        <div id="sendQueue" class="queue"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-head"><div class="card-title" data-i18n="incoming">Incoming</div><span class="pill" id="incomingCount">0</span></div>
-        <div id="incomingList" class="incoming"><div class="incoming-empty" data-i18n="incomingEmpty">No incoming transfers yet.</div></div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="card-head"><div class="card-title" data-i18n="history">Transfer history</div><button class="btn small ghost" id="clearHistoryBtn">Clear</button></div>
-      <div id="historyList" class="history"><div class="history-empty" data-i18n="historyEmpty">Your history is stored locally in this browser.</div></div>
-    </section>
-  </div>
+<div class="work-head">
+<div><div class="work-title" data-i18n="workspace">P2P workspace</div><div class="work-sub" data-i18n="workSubNew" id="workSub">Create a room, invite people, chat, and share directly.</div></div>
+<div class="work-actions"><button class="btn small ghost" id="selfTestBtn">Self-test</button><button class="btn small danger" disabled="" id="disconnectBtn">Disconnect</button></div>
+</div>
+<div class="work-body">
+<section class="room-card" id="roomCard">
+<div class="room-head"><div><div class="room-title" data-i18n="roomTitle">Room</div><div class="room-sub" data-i18n="roomSub">Create a room to share files, chat, and collaborate with several connected devices.</div></div><span class="pill" id="roomLimitPill">0 / 20 devices</span></div>
+<div class="room-actions"><button class="btn primary" data-i18n="createRoom" id="createRoomBtn" type="button">Create room</button><button class="btn" data-i18n="joinRoom" id="joinRoomBtn" type="button">Join room</button><button class="btn" data-i18n="copyRoom" id="copyRoomBtn" type="button">Copy code</button><button class="btn" data-i18n="shareRoom" id="shareRoomBtn" type="button">Share room</button><button class="btn" data-i18n="inviteDevice" disabled="" id="inviteRoomBtn" type="button">Invite device</button><button class="btn" data-i18n="scanAnswer" disabled="" id="scanRoomAnswerBtn" type="button">Scan answer</button><button class="btn danger" data-i18n="leaveRoom" disabled="" id="leaveRoomBtn" type="button">Leave room</button></div>
+<div class="room-code hidden" id="roomCodeCard"><div class="grow"><div class="room-code-label" data-i18n="roomCodeLabel" id="roomCodeLabel">Room code</div><div class="room-code-value" id="roomCode">------</div><div class="room-sub" data-i18n="roomReadyHint" id="roomStatus">Create or join a room to get started.</div></div><div class="room-code-actions"><button class="btn small" data-i18n="showQr" disabled="" id="showRoomInviteBtn" type="button">Show QR</button></div></div>
+<div class="peer-grid" id="peerGrid"></div>
+</section><section class="card chat-card" id="chatCard"><div class="card-head"><div class="card-title" data-i18n="chatTitle">Room chat</div><div class="row"><span class="pill" id="chatCount">0</span><button class="btn small ghost" data-i18n="clearChat" id="chatClearBtn" type="button">Clear</button></div></div><div class="chat-log" id="chatLog"><div class="chat-empty" data-i18n="chatEmpty" id="chatEmpty">No messages yet. Room chat is available to everyone connected.</div></div><div class="chat-composer"><textarea class="textarea chat-input" data-i18n-placeholder="chatPlaceholder" id="chatInput" maxlength="2000" placeholder="Write a message…" rows="2"></textarea><div class="chat-tools"><button class="btn small ghost reaction-btn" data-reaction="👍" id="chatReact1" type="button">👍</button><button class="btn small ghost reaction-btn" data-reaction="✅" id="chatReact2" type="button">✅</button><button class="btn small ghost reaction-btn" data-reaction="👀" id="chatReact3" type="button">👀</button><button class="btn small warn hidden" data-i18n="announce" id="announceChatBtn" type="button">Announce</button><button class="btn primary small" data-i18n="send" id="chatSendBtn" type="button">Send</button></div></div></section><section class="transfer-grid">
+<div class="card">
+<div class="card-head"><div class="card-title" data-i18n="sendFiles">Send files</div><span class="pill" id="sendQueueCount">0 files</span></div>
+<div class="drop" id="dropZone">
+<svg fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 16V4"></path><path d="m7 9 5-5 5 5"></path><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path></svg>
+<strong data-i18n="dropTitle">Drop files here</strong><span data-i18n="dropSub">or use the buttons below. Nothing is uploaded to a server.</span>
+<div class="file-actions"><button class="btn primary small" id="pickFilesBtn">Choose files</button><button class="btn small" id="pickFolderBtn">Choose folder</button><button class="btn small" id="sendTextBtn">Send text</button></div>
+</div>
+<div class="target-bar" id="targetBar">
+<div class="target-head"><div class="target-title">Send to</div><div class="target-actions"><button class="btn small ghost" id="selectAllPeersBtn">All</button><button class="btn small ghost" id="clearPeersBtn">None</button></div></div>
+<div class="target-list" id="targetList"><span class="subtle">Connect to a peer first.</span></div>
+</div>
+<div class="queue" id="sendQueue"></div>
+</div>
+<div class="card">
+<div class="card-head"><div class="card-title" data-i18n="incoming">Incoming</div><span class="pill" id="incomingCount">0</span></div>
+<div class="incoming" id="incomingList"><div class="incoming-empty" data-i18n="incomingEmpty">No incoming transfers yet.</div></div>
+</div>
+</section><section class="card">
+<div class="card-head"><div class="card-title" data-i18n="history">Transfer history</div><button class="btn small ghost" id="clearHistoryBtn">Clear</button></div>
+<div class="history" id="historyList"><div class="history-empty" data-i18n="historyEmpty">Your history is stored locally in this browser.</div></div>
+</section><section class="connection easy-pairing-card">
+<div class="connection-top"><div><div class="conn-id" data-i18n="easyPairing">Easy pairing · Offline / LAN fallback</div><div class="conn-note" data-i18n="easyPairingNote" id="pairingNote">Use this fully serverless method when the devices share the same Wi‑Fi/LAN or when Internet signaling is unavailable.</div></div><span class="pill" id="securityPill">DTLS encrypted</span></div>
+<div class="steps">
+<div class="step"><div class="n">Step 1</div><strong data-i18n="stepCreate">Create / join</strong><span data-i18n="stepCreate2">Choose your role below.</span></div>
+<div class="step"><div class="n">Step 2</div><strong data-i18n="stepExchange">Scan pairing QR</strong><span data-i18n="stepExchange2">The long handshake moves through the QR, not through the file-transfer path.</span></div>
+<div class="step"><div class="n">Step 3</div><strong data-i18n="stepConnect">Connect</strong><span data-i18n="stepConnect2">The browsers establish a direct WebRTC channel.</span></div>
+<div class="step"><div class="n">Step 4</div><strong data-i18n="stepTransfer">Transfer</strong><span data-i18n="stepTransfer2">Files travel directly peer-to-peer.</span></div>
+</div>
+<div class="quickpair">
+<div class="quickpair-head"><div><div class="quickpair-title" data-i18n="offlinePairingTitle">Offline / LAN pairing</div><div class="quickpair-sub" data-i18n="offlinePairingSub">No signaling service, STUN, or TURN. QR exchanges only the WebRTC handshake.</div></div><span class="quickpair-badge">Recommended</span></div>
+<div class="quickpair-actions"><button class="btn primary" id="easyCreateBtn">Start pairing</button><button class="btn" id="easyJoinBtn">Join / Scan</button></div>
+<div class="pair-code-card hidden" id="pairCodeCard"><div><div class="pair-code-label">6-digit verification code</div><div class="pair-code" id="pairCode">------</div><div class="pair-code-note" id="pairCodeNote">The other device should show the same code after scanning.</div></div><button class="btn small pair-qr-btn" id="pairQrBtn">Show QR</button></div>
+<div class="quick-status" id="quickStatus">Offline fallback: direct LAN pairing without external services. The 6-digit value is a verification code; QR carries the technical handshake.</div>
+</div>
+<details class="advanced-wrap">
+<summary>Advanced pairing · copy/paste / .p2p files</summary>
+<div class="role-tabs"><button class="btn role-tab active" id="roleHost">1 · Create session</button><button class="btn role-tab" id="roleJoin">2 · Join session</button></div>
+<div class="codebox" id="hostPanel">
+<div class="row wrap"><button class="btn primary" id="createOfferBtn">Create offer</button><button class="btn" disabled="" id="copyOfferBtn">Copy offer</button><button class="btn" disabled="" id="showOfferQrBtn">Show QR</button><button class="btn" disabled="" id="saveOfferBtn">Save .p2p</button></div>
+<textarea class="textarea ltr-only" id="offerOut" placeholder="Your offer code will appear here…" readonly=""></textarea>
+<div class="subtle" data-i18n="hostHint">Send this offer to the other device. After it creates an answer, paste the answer below.</div>
+<textarea class="textarea ltr-only" id="answerIn" placeholder="Paste the answer code here…"></textarea>
+<div class="row wrap"><button class="btn good" disabled="" id="applyAnswerBtn">Apply answer</button><button class="btn" id="scanAnswerQrBtn">Scan QR</button><button class="btn" id="loadSignalBtn">Import .p2p</button></div>
+</div>
+<div class="codebox hidden" id="joinPanel">
+<div class="row wrap"><button class="btn primary" id="prepareAnswerBtn">Prepare answer</button><button class="btn" disabled="" id="copyAnswerBtn">Copy answer</button><button class="btn" disabled="" id="showAnswerQrBtn">Show QR</button><button class="btn" disabled="" id="saveAnswerBtn">Save .p2p</button></div>
+<textarea class="textarea ltr-only" id="offerIn" placeholder="Paste the offer code received from the other device…"></textarea>
+<div class="row wrap"><button class="btn small" id="scanOfferQrBtn">Scan QR</button></div>
+<textarea class="textarea ltr-only" id="answerOut" placeholder="Your answer code will appear here…" readonly=""></textarea>
+<div class="subtle" data-i18n="joinHint">Send the answer back to the device that created the offer.</div>
+<button class="btn" id="loadOfferFileBtn">Import offer .p2p</button>
+</div>
+</details>
+</section></div>
 </section>
 </main>
 </div>
-
-<textarea id="roomAnswerIn" class="hidden"></textarea>
-<input id="fileInput" type="file" multiple>
-<input id="folderInput" type="file" webkitdirectory multiple>
-<input id="signalFileInput" type="file" accept=".p2p,.json,application/json,text/plain">
-
+<textarea class="hidden" id="roomAnswerIn"></textarea>
+<input id="fileInput" multiple="" type="file"/>
+<input id="folderInput" multiple="" type="file" webkitdirectory=""/>
+<input accept=".p2p,.json,application/json,text/plain" id="signalFileInput" type="file"/>
 <div class="overlay" id="modal"><div class="modal">
-  <div class="modal-head"><div class="modal-title" id="modalTitle">Notice</div><button class="btn small ghost" id="modalClose">Close</button></div>
-  <div class="modal-body" id="modalBody"></div>
-  <div class="modal-foot" id="modalFoot"><button class="btn primary" id="modalOk">OK</button></div>
+<div class="modal-head"><div class="modal-title" id="modalTitle">Notice</div><button class="btn small ghost" id="modalClose">Close</button></div>
+<div class="modal-body" id="modalBody"></div>
+<div class="modal-foot" id="modalFoot"><button class="btn primary" id="modalOk">OK</button></div>
 </div></div>
-
 <script>
 (() => {
 'use strict';
@@ -1553,7 +1520,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.6.0';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1573,11 +1540,11 @@ const els = {
   dWebrtc:$('dWebrtc'), tWebrtc:$('tWebrtc'), dDc:$('dDc'), tDc:$('tDc'), dCrypto:$('dCrypto'), tCrypto:$('tCrypto'), dIdb:$('dIdb'), tIdb:$('tIdb'), dFs:$('dFs'), tFs:$('tFs'), dSecure:$('dSecure'), tSecure:$('tSecure'), dCamera:$('dCamera'), tCamera:$('tCamera'),
   lanOnly:$('lanOnly'), offlineModeBtn:$('offlineModeBtn'), internetModeBtn:$('internetModeBtn'), internetSettings:$('internetSettings'), internetServicePill:$('internetServicePill'), networkModeHint:$('networkModeHint'), stunServer:$('stunServer'), turnUrls:$('turnUrls'), turnUsername:$('turnUsername'), turnCredential:$('turnCredential'), passwordEnabled:$('passwordEnabled'), passwordBox:$('passwordBox'), sessionPassword:$('sessionPassword'),
   workSub:$('workSub'), selfTestBtn:$('selfTestBtn'), disconnectBtn:$('disconnectBtn'),
-  roleHost:$('roleHost'), roleJoin:$('roleJoin'), easyCreateBtn:$('easyCreateBtn'), easyJoinBtn:$('easyJoinBtn'), pairCodeCard:$('pairCodeCard'), pairCode:$('pairCode'), pairCodeNote:$('pairCodeNote'), pairQrBtn:$('pairQrBtn'), sixDigitInfoBtn:$('sixDigitInfoBtn'), quickStatus:$('quickStatus'), hostPanel:$('hostPanel'), joinPanel:$('joinPanel'), createOfferBtn:$('createOfferBtn'), copyOfferBtn:$('copyOfferBtn'), showOfferQrBtn:$('showOfferQrBtn'), saveOfferBtn:$('saveOfferBtn'), offerOut:$('offerOut'), answerIn:$('answerIn'), applyAnswerBtn:$('applyAnswerBtn'), loadSignalBtn:$('loadSignalBtn'),
+  roleHost:$('roleHost'), roleJoin:$('roleJoin'), easyCreateBtn:$('easyCreateBtn'), easyJoinBtn:$('easyJoinBtn'), pairCodeCard:$('pairCodeCard'), pairCode:$('pairCode'), pairCodeNote:$('pairCodeNote'), pairQrBtn:$('pairQrBtn'), quickStatus:$('quickStatus'), hostPanel:$('hostPanel'), joinPanel:$('joinPanel'), createOfferBtn:$('createOfferBtn'), copyOfferBtn:$('copyOfferBtn'), showOfferQrBtn:$('showOfferQrBtn'), saveOfferBtn:$('saveOfferBtn'), offerOut:$('offerOut'), answerIn:$('answerIn'), applyAnswerBtn:$('applyAnswerBtn'), loadSignalBtn:$('loadSignalBtn'),
   prepareAnswerBtn:$('prepareAnswerBtn'), copyAnswerBtn:$('copyAnswerBtn'), showAnswerQrBtn:$('showAnswerQrBtn'), saveAnswerBtn:$('saveAnswerBtn'), offerIn:$('offerIn'), answerOut:$('answerOut'), loadOfferFileBtn:$('loadOfferFileBtn'),
   scanOfferQrBtn:$('scanOfferQrBtn'), scanAnswerQrBtn:$('scanAnswerQrBtn'), dropZone:$('dropZone'), pickFilesBtn:$('pickFilesBtn'), pickFolderBtn:$('pickFolderBtn'), sendTextBtn:$('sendTextBtn'), fileInput:$('fileInput'), folderInput:$('folderInput'), sendQueue:$('sendQueue'), sendQueueCount:$('sendQueueCount'), incomingList:$('incomingList'), incomingCount:$('incomingCount'), historyList:$('historyList'), clearHistoryBtn:$('clearHistoryBtn'),
   signalFileInput:$('signalFileInput'), modal:$('modal'), modalTitle:$('modalTitle'), modalBody:$('modalBody'), modalFoot:$('modalFoot'), modalClose:$('modalClose'), modalOk:$('modalOk'),
-  createRoomBtn:$('createRoomBtn'), joinRoomBtn:$('joinRoomBtn'), inviteRoomBtn:$('inviteRoomBtn'), scanRoomAnswerBtn:$('scanRoomAnswerBtn'), leaveRoomBtn:$('leaveRoomBtn'), roomCodeCard:$('roomCodeCard'), roomCode:$('roomCode'), roomStatus:$('roomStatus'), showRoomInviteBtn:$('showRoomInviteBtn'), roomLimitPill:$('roomLimitPill'), peerGrid:$('peerGrid'), roomAnswerIn:$('roomAnswerIn'), selectAllPeersBtn:$('selectAllPeersBtn'), clearPeersBtn:$('clearPeersBtn'), targetList:$('targetList')
+  createRoomBtn:$('createRoomBtn'), joinRoomBtn:$('joinRoomBtn'), copyRoomBtn:$('copyRoomBtn'), shareRoomBtn:$('shareRoomBtn'), inviteRoomBtn:$('inviteRoomBtn'), scanRoomAnswerBtn:$('scanRoomAnswerBtn'), leaveRoomBtn:$('leaveRoomBtn'), roomCodeCard:$('roomCodeCard'), roomCodeLabel:$('roomCodeLabel'), roomCode:$('roomCode'), roomStatus:$('roomStatus'), showRoomInviteBtn:$('showRoomInviteBtn'), roomLimitPill:$('roomLimitPill'), peerGrid:$('peerGrid'), roomAnswerIn:$('roomAnswerIn'), selectAllPeersBtn:$('selectAllPeersBtn'), clearPeersBtn:$('clearPeersBtn'), targetList:$('targetList'), chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatInput:$('chatInput'), chatSendBtn:$('chatSendBtn'), chatClearBtn:$('chatClearBtn'), chatReact1:$('chatReact1'), chatReact2:$('chatReact2'), chatReact3:$('chatReact3'), announceChatBtn:$('announceChatBtn'), chatCount:$('chatCount')
 };
 
 const state = {
@@ -1592,16 +1559,16 @@ const state = {
   sessionSalt:null, sessionChallenge:null, sessionKeys:null, authenticated:false, passwordEnabled:false, sessionPassword:'',
   icePath:'Unknown', statsTimer:null, qrStream:null, qrTimer:null, pairCode:'', quickMode:false,
   diagSamples:new Map(), diagLast:null,
-  peers:new Map(), primaryPeerId:null, selectedPeerIds:new Set(),
-  room:{active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:''}, roomMaxPeers:8, roomAnswerBuffer:'', internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false},
+  peers:new Map(), primaryPeerId:null, selectedPeerIds:new Set(), chat:{messages:[],seen:new Set()},
+  room:{active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:''}, roomMaxPeers:20, roomAnswerBuffer:'', internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false},
 };
 
 const I18N = {
   en:{
-    appTitle:'P2P Share', appSub:'One HTML file · offline LAN + Internet rooms · direct WebRTC transfer', diagnostics:'Connection diagnostics', refresh:'Refresh', candidatePair:'Candidate pair', transport:'Transport', signaling:'Signaling', iceServer:'ICE server', bytesSent:'Bytes sent', bytesReceived:'Bytes received', connection:'Connection', device:'Device', deviceHint:'Your name is stored only in this browser.', checks:'Browser checks', network:'Network mode', offlineMode:'Offline / LAN-only mode', offlineHint:'No STUN/TURN servers are used. Best for devices on the same Wi-Fi/LAN.', stunLabel:'Optional STUN server', stunHint:'Turn LAN-only off only when you intentionally want Internet/NAT traversal.', security:'Transfer security', passwordProtect:'Extra password protection', passwordHint:'Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.', about:'About this build', workspace:'P2P workspace', pairing:'Serverless pairing', stepCreate:'Create / join', stepCreate2:'Choose your role below.', stepExchange:'Exchange code', stepExchange2:'Copy the signaling code between devices.', stepConnect:'Connect', stepConnect2:'The browsers establish a direct WebRTC channel.', stepTransfer:'Transfer', stepTransfer2:'Files travel directly peer-to-peer.', sendFiles:'Send files', dropTitle:'Drop files here', dropSub:'or use the buttons below. Nothing is uploaded to a server.', incoming:'Incoming', incomingEmpty:'No incoming transfers yet.', history:'Transfer history', historyEmpty:'Your history is stored locally in this browser.', aboutText:'This is a new serverless WebRTC application inspired by the core idea behind PairDrop/ToffeeShare. It does not embed PairDrop code and does not require a PairDrop server.', hostHint:'Send this offer to the other device. After it creates an answer, paste the answer below.', joinHint:'Send the answer back to the device that created the offer.'
+    appTitle:'P2P Share', appSub:'Browser-based rooms · chat · direct WebRTC sharing', diagnostics:'Connection diagnostics', refresh:'Refresh', candidatePair:'Candidate pair', transport:'Transport', signaling:'Signaling', iceServer:'ICE server', bytesSent:'Bytes sent', bytesReceived:'Bytes received', connection:'Connection', device:'Device', deviceHint:'Your name is stored only in this browser.', checks:'Browser checks', network:'Network mode', offlineMode:'Offline / LAN', offlineHint:'No STUN/TURN servers are used. Best for devices on the same Wi-Fi/LAN.', stunLabel:'Optional STUN server', stunHint:'Turn LAN-only off only when you intentionally want Internet/NAT traversal.', security:'Transfer security', passwordProtect:'Extra password protection', passwordHint:'Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.', about:'About this build', workspace:'P2P workspace', pairing:'Serverless pairing', stepCreate:'Create / join', stepCreate2:'Choose your role below.', stepExchange:'Exchange code', stepExchange2:'Copy the signaling code between devices.', stepConnect:'Connect', stepConnect2:'The browsers establish a direct WebRTC channel.', stepTransfer:'Transfer', stepTransfer2:'Files travel directly peer-to-peer.', sendFiles:'Send files', dropTitle:'Drop files here', dropSub:'or use the buttons below. Nothing is uploaded to a server.', incoming:'Incoming', incomingEmpty:'No incoming transfers yet.', history:'Transfer history', historyEmpty:'Your history is stored locally in this browser.', workSubNew:'Create a room, invite people, chat, and share directly.', aboutText:'P2P Share is a browser-based WebRTC sharing tool with Internet rooms, chat, multi-device sharing, and a fully serverless LAN fallback. It does not embed PairDrop code.', hostHint:'Send this offer to the other device. After it creates an answer, paste the answer below.', joinHint:'Send the answer back to the device that created the offer.', roomTitle:'Room', roomSub:'Create a room to share files, chat, and collaborate with several connected devices.', createRoom:'Create room', joinRoom:'Join room', copyRoom:'Copy code', shareRoom:'Share room', inviteDevice:'Invite device', scanAnswer:'Scan answer', leaveRoom:'Leave room', roomCodeLabel:'Room code', roomReadyHint:'Create or join a room to get started.', showQr:'Show QR', chatTitle:'Room chat', chatEmpty:'No messages yet. Room chat is available to everyone connected.', chatPlaceholder:'Write a message…', send:'Send', clearChat:'Clear', announce:'Announce', advanced:'Advanced', internetMode:'Internet / Hybrid', internetModeSub:'Recommended · 6-digit rooms · works across networks', offlineModeSub:'Fully serverless · same Wi‑Fi/LAN', modeNoteLabel:'How it works', internetDefaultHint:'Internet / Hybrid is recommended for normal use. Files remain on WebRTC; Offline / LAN remains available as the fully serverless fallback.', easyPairing:'Easy pairing · Offline / LAN fallback', easyPairingNote:'Use this fully serverless method when the devices share the same Wi‑Fi/LAN or when Internet signaling is unavailable.', offlinePairingTitle:'Offline / LAN pairing', offlinePairingSub:'No signaling service, STUN, or TURN. QR exchanges only the WebRTC handshake.', defaultConnDetail:'Create or join a room to start sharing.', internetSettingsTitle:'Internet settings'
   },
   ar:{
-    appTitle:'مشاركة P2P', appSub:'ملف HTML واحد · وضع محلي بدون إنترنت + غرف عبر الإنترنت · نقل WebRTC مباشر', diagnostics:'تشخيص الاتصال', refresh:'تحديث', candidatePair:'زوج المرشحين', transport:'النقل', signaling:'الإشارة', iceServer:'خادم ICE', bytesSent:'البيانات المرسلة', bytesReceived:'البيانات المستلمة', connection:'الاتصال', device:'الجهاز', deviceHint:'يتم حفظ اسمك في هذا المتصفح فقط.', checks:'فحوصات المتصفح', network:'وضع الشبكة', offlineMode:'وضع الشبكة المحلية بدون إنترنت', offlineHint:'لا يتم استخدام STUN/TURN. مناسب للأجهزة على نفس شبكة Wi‑Fi/LAN.', stunLabel:'خادم STUN اختياري', stunHint:'أوقف وضع الشبكة المحلية فقط عندما تريد اتصال الإنترنت/اجتياز NAT.', security:'أمان النقل', passwordProtect:'حماية إضافية بكلمة مرور', passwordHint:'يضيف PBKDF2 + AES-GCM على مستوى التطبيق فوق تشفير WebRTC.', about:'حول هذا الإصدار', workspace:'مساحة P2P', pairing:'اقتران بدون خادم', stepCreate:'إنشاء / انضمام', stepCreate2:'اختر دورك أدناه.', stepExchange:'تبادل الرمز', stepExchange2:'انسخ رمز الإشارة بين الجهازين.', stepConnect:'الاتصال', stepConnect2:'ينشئ المتصفحان قناة WebRTC مباشرة.', stepTransfer:'النقل', stepTransfer2:'تنتقل الملفات مباشرة بين الجهازين.', sendFiles:'إرسال الملفات', dropTitle:'أسقط الملفات هنا', dropSub:'أو استخدم الأزرار أدناه. لا يتم رفع أي ملف إلى خادم.', incoming:'الوارد', incomingEmpty:'لا توجد عمليات نقل واردة.', history:'سجل النقل', historyEmpty:'يتم حفظ السجل محليًا في هذا المتصفح.', aboutText:'هذا تطبيق WebRTC جديد بدون خادم، مستوحى من الفكرة الأساسية في PairDrop/ToffeeShare. لا يضم كود PairDrop ولا يحتاج إلى خادم PairDrop.', hostHint:'أرسل العرض إلى الجهاز الآخر. بعد إنشاء الإجابة، الصقها هنا.', joinHint:'أرسل الإجابة مرة أخرى إلى الجهاز الذي أنشأ العرض.'
+    appTitle:'مشاركة P2P', appSub:'ملف HTML واحد · وضع محلي بدون إنترنت + غرف عبر الإنترنت · نقل WebRTC مباشر', diagnostics:'تشخيص الاتصال', refresh:'تحديث', candidatePair:'زوج المرشحين', transport:'النقل', signaling:'الإشارة', iceServer:'خادم ICE', bytesSent:'البيانات المرسلة', bytesReceived:'البيانات المستلمة', connection:'الاتصال', device:'الجهاز', deviceHint:'يتم حفظ اسمك في هذا المتصفح فقط.', checks:'فحوصات المتصفح', network:'وضع الشبكة', offlineMode:'Offline / LAN', offlineHint:'لا يتم استخدام STUN/TURN. مناسب للأجهزة على نفس شبكة Wi‑Fi/LAN.', stunLabel:'خادم STUN اختياري', stunHint:'أوقف وضع الشبكة المحلية فقط عندما تريد اتصال الإنترنت/اجتياز NAT.', security:'أمان النقل', passwordProtect:'حماية إضافية بكلمة مرور', passwordHint:'يضيف PBKDF2 + AES-GCM على مستوى التطبيق فوق تشفير WebRTC.', about:'حول هذا الإصدار', workspace:'مساحة P2P', pairing:'اقتران بدون خادم', stepCreate:'إنشاء / انضمام', stepCreate2:'اختر دورك أدناه.', stepExchange:'تبادل الرمز', stepExchange2:'انسخ رمز الإشارة بين الجهازين.', stepConnect:'الاتصال', stepConnect2:'ينشئ المتصفحان قناة WebRTC مباشرة.', stepTransfer:'النقل', stepTransfer2:'تنتقل الملفات مباشرة بين الجهازين.', sendFiles:'إرسال الملفات', dropTitle:'أسقط الملفات هنا', dropSub:'أو استخدم الأزرار أدناه. لا يتم رفع أي ملف إلى خادم.', incoming:'الوارد', incomingEmpty:'لا توجد عمليات نقل واردة.', history:'سجل النقل', historyEmpty:'يتم حفظ السجل محليًا في هذا المتصفح.', workSubNew:'أنشئ غرفة وادعُ الآخرين وتحدث وشارك الملفات مباشرة.', aboutText:'P2P Share هو أداة مشاركة WebRTC تعمل من المتصفح وتدعم غرف الإنترنت والدردشة والمشاركة مع عدة أجهزة، مع وضع احتياطي محلي بدون خادم. لا يضم كود PairDrop.', hostHint:'أرسل العرض إلى الجهاز الآخر. بعد إنشاء الإجابة، الصقها هنا.', joinHint:'أرسل الإجابة مرة أخرى إلى الجهاز الذي أنشأ العرض.', roomTitle:'الغرفة', roomSub:'أنشئ غرفة لمشاركة الملفات والدردشة والتعاون مع عدة أجهزة.', createRoom:'إنشاء غرفة', joinRoom:'الانضمام إلى غرفة', copyRoom:'نسخ الرمز', shareRoom:'مشاركة الغرفة', inviteDevice:'دعوة جهاز', scanAnswer:'مسح الإجابة', leaveRoom:'مغادرة الغرفة', roomCodeLabel:'رمز الغرفة', roomReadyHint:'أنشئ غرفة أو انضم إلى غرفة للبدء.', showQr:'إظهار QR', chatTitle:'دردشة الغرفة', chatEmpty:'لا توجد رسائل بعد. الدردشة متاحة لجميع الأجهزة المتصلة.', chatPlaceholder:'اكتب رسالة…', send:'إرسال', clearChat:'مسح', announce:'إعلان', advanced:'متقدم', internetMode:'الإنترنت / هجين', internetModeSub:'موصى به · غرف برمز من 6 أرقام · يعمل عبر الشبكات', offlineModeSub:'بدون خادم · نفس شبكة Wi‑Fi/LAN', modeNoteLabel:'كيف يعمل', internetDefaultHint:'يوصى بوضع الإنترنت / الهجين للاستخدام العادي. تنتقل الملفات عبر WebRTC؛ ويبقى وضع الشبكة المحلية خيارًا احتياطيًا بدون خادم.', easyPairing:'اقتران سهل · احتياطي للشبكة المحلية', easyPairingNote:'استخدم هذه الطريقة بدون خادم عندما تكون الأجهزة على نفس Wi‑Fi/LAN أو عندما تتعذر خدمة الإشارة عبر الإنترنت.', offlinePairingTitle:'اقتران Offline / LAN', offlinePairingSub:'لا توجد خدمة إشارة أو STUN أو TURN. يستخدم QR فقط لتبادل معلومات مصافحة WebRTC.', defaultConnDetail:'أنشئ غرفة أو انضم إلى غرفة لبدء المشاركة.', internetSettingsTitle:'إعدادات الإنترنت'
   }
 };
 
@@ -1611,7 +1578,7 @@ function applyLang(){
   document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
   els.app.classList.toggle('rtl',state.lang==='ar');
   document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.dataset.i18n; if(dict[k]) el.textContent=dict[k]; });
-  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const k=el.dataset.i18nHtml; if(dict[k]) el.innerHTML=dict[k]; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const k=el.dataset.i18nHtml; if(dict[k]) el.innerHTML=dict[k]; }); document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ const k=el.dataset.i18nPlaceholder; if(dict[k]) el.placeholder=dict[k]; });
   els.langBtn.textContent=state.lang==='ar'?'EN':'AR';
 }
 
@@ -1789,17 +1756,17 @@ function renderPeers(){
   for(const p of peers){
     const checked=state.selectedPeerIds.has(p.id);
     const div=document.createElement('div');div.className='peer-card';
-    div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(p.name))}</div><div class="grow"><div class="peer-name" title="${escapeHtml(peerLabel(p))}">${escapeHtml(peerLabel(p))}</div><div class="peer-meta">${p.connected?'Direct WebRTC':'Waiting for answer'}${p.room?' · Room':' · Direct'}</div></div></div><div class="peer-controls"><label class="peer-target"><input type="checkbox" data-peer-select="${escapeHtml(p.id)}" ${checked?'checked':''} ${p.connected&&p.authenticated?'':'disabled'}> Send target</label><span class="peer-status"><span class="dot ${p.connected?'good':'warn'}"></span>${p.connected?'Connected':'Pending'}</span></div>`;
+    div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(p.name))}</div><div class="grow"><div class="peer-name" title="${escapeHtml(peerLabel(p))}">${escapeHtml(peerLabel(p))}</div><div class="peer-meta">${p.connected?'Direct WebRTC':'Waiting for answer'}${p.room?' · Room':' · Direct'}</div></div></div><div class="peer-controls"><label class="peer-target"><input type="checkbox" data-peer-select="${escapeHtml(p.id)}" ${checked?'checked':''} ${p.connected&&p.authenticated?'':'disabled'}> Include in send</label><span class="peer-status"><span class="dot ${p.connected?'good':'warn'}"></span>${p.connected?'Connected':'Pending'}</span></div>`;
     els.peerGrid.appendChild(div);
   }
   els.peerGrid.querySelectorAll('[data-peer-select]').forEach(ch=>ch.addEventListener('change',()=>{const id=ch.dataset.peerSelect;if(ch.checked)state.selectedPeerIds.add(id);else state.selectedPeerIds.delete(id);renderPeers();}));
   renderTargets();
-  const active=state.room.active;
+  const active=state.room.active;els.copyRoomBtn?.classList.toggle('hidden',!active||els.lanOnly.checked);els.shareRoomBtn?.classList.toggle('hidden',!active||els.lanOnly.checked);els.inviteRoomBtn?.classList.toggle('hidden',!active||state.room.role!=='host'||!els.lanOnly.checked);els.scanRoomAnswerBtn?.classList.toggle('hidden',!active||state.room.role!=='host'||!els.lanOnly.checked);
   els.inviteRoomBtn.disabled=!active||state.room.role!=='host'||peers.filter(p=>p.room&&p.connected).length>=state.roomMaxPeers;
   els.scanRoomAnswerBtn.disabled=!active||state.room.role!=='host'||!state.room.pendingPeerId;
   els.leaveRoomBtn.disabled=!active;
   els.showRoomInviteBtn.disabled=!state.room.currentInviteText;
-  if(active){els.roomCodeCard.classList.remove('hidden');els.roomCode.textContent=state.room.id||'------';els.roomStatus.textContent=state.room.role==='host'?(state.room.pendingPeerId?'Invite displayed · waiting for answer':'Room ready · invite another device'):'Connected to host · wait for host confirmation';}
+  if(active){els.roomCodeCard.classList.remove('hidden');els.roomCodeLabel.textContent=els.lanOnly.checked?'Verification code':'Room code';els.roomCode.textContent=state.room.id||'------';els.roomStatus.textContent=els.lanOnly.checked ? (state.room.role==='host'?(state.room.pendingPeerId?'Invitation ready · waiting for answer':'Room ready · invite another device'):'Connected to host') : (state.room.role==='host'?'Room ready · share the 6-digit code':'Connected to the room');} 
   else els.roomCodeCard.classList.add('hidden');
 }
 function renderTargets(){
@@ -1829,13 +1796,13 @@ function createPeerConnection(peerId,role,{room=false,name='Peer'}={}){
   return pc;
 }
 function setPrimaryIfNeeded(peerId){if(!state.primaryPeerId||!state.peers.get(state.primaryPeerId)?.connected){state.primaryPeerId=peerId;syncPrimary(peerId);}}
-function cleanupPeer(peerId){const p=state.peers.get(peerId);if(!p)return;try{p.dc?.close()}catch{}try{p.pc?.close()}catch{}state.peers.delete(peerId);state.selectedPeerIds.delete(peerId);if(state.primaryPeerId===peerId)state.primaryPeerId=null;syncPrimary();renderPeers();}
+function cleanupPeer(peerId){const p=state.peers.get(peerId);if(!p)return;try{p.dc?.close()}catch{}try{p.pc?.close()}catch{}state.peers.delete(peerId);state.selectedPeerIds.delete(peerId);if(state.primaryPeerId===peerId)state.primaryPeerId=null;syncPrimary();renderPeers();renderChat();}
 function cleanupConnection(){if(state.internet?.peer){try{state.internet.peer.destroy()}catch{ }state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';}if(state.statsTimer){clearInterval(state.statsTimer);state.statsTimer=null;}for(const id of [...state.peers.keys()])cleanupPeer(id);state.pc=null;state.dc=null;state.connected=false;state.authenticated=false;state.sessionKeys=null;state.currentSend=null;state.sending=false;state.diagSamples.clear();state.diagLast=null;state.room.active=false;state.room.role=null;state.room.pendingPeerId=null;state.room.currentInviteText='';state.room.currentInviteCode='';updateSendUi();renderPeers();renderDiagnostics([]);}
 function setupPeerConnection(role){cleanupConnection();const pc=createPeerConnection('primary',role,{room:false,name:'Peer'});setPrimaryIfNeeded('primary');return pc;}
 function attachDataChannel(peerId,dc){
   const peer=state.peers.get(peerId);if(!peer)return;peer.dc=dc;dc.binaryType='arraybuffer';dc.bufferedAmountLowThreshold=LOW_WATER;
-  dc.onopen=async()=>{peer.connected=true;peer.pending=false;state.selectedPeerIds.add(peerId);setPrimaryIfNeeded(peerId);syncPrimary(peerId);renderPeers();setConn('Connected',`Data channel open · ${peerLabel(peer)}.`,'good');await sendHello(peerId);};
-  dc.onclose=()=>{peer.connected=false;peer.pending=false;syncPrimary();renderPeers();if(!state.selfTest&&!connectedPeers().length)setConn('Disconnected','All peer data channels are closed.','warn');};
+  dc.onopen=async()=>{peer.connected=true;peer.pending=false;state.selectedPeerIds.add(peerId);setPrimaryIfNeeded(peerId);syncPrimary(peerId);renderPeers();setConn('Connected',`Data channel open · ${peerLabel(peer)}.`,'good');await sendHello(peerId);renderChat();};
+  dc.onclose=()=>{peer.connected=false;peer.pending=false;syncPrimary();renderPeers();renderChat();if(!state.selfTest&&!connectedPeers().length)setConn('Disconnected','All peer data channels are closed.','warn');};
   dc.onerror=e=>setConn('Channel error',e?.message||'A data channel error occurred.','bad');
   dc.onmessage=e=>handleMessage(e.data,peerId).catch(err=>showModal('Transfer error',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));
 }
@@ -1868,7 +1835,7 @@ async function handleMessage(data,peerId){
     if(m.t==='file-start')return handleFileStart(m,peerId);
     if(m.t==='file-accept'||m.t==='file-reject'||m.t==='file-done'||m.t==='file-cancel')return dispatchFileControl(m,peerId);
     if(m.t==='file-end')return handleFileEnd(m,peerId);
-    if(m.t==='text')return receiveText(m,peerId);
+    if(m.t==='text')return receiveText(m,peerId); if(m.t==='chat')return receiveChatMessage(m,peerId);
     if(m.t==='ping'){await sendJson({t:'pong',at:m.at},peerId);return;}
     return;
   }
@@ -1946,6 +1913,61 @@ async function sendText(){
 }
 function askText(){return new Promise(resolve=>{showModal('Send text','<textarea id="modalText" class="textarea" placeholder="Type a message…"></textarea>',()=>{const v=$('modalText')?.value||'';resolve(v);return true;},()=>resolve(null));});}
 
+
+function chatRecipients(){
+  const peers=connectedPeers().filter(p=>p.authenticated&&p.room);
+  if(!state.room.active){return targetPeerIds();}
+  if(state.room.role==='host')return peers.map(p=>p.id);
+  const host=peers.find(p=>p.role==='internet' || p.role==='join') || peers[0];
+  return host?[host.id]:[];
+}
+function addChatMessage(msg, local=false){
+  const id=msg.id||uid();
+  if(state.chat.seen.has(id))return;
+  state.chat.seen.add(id);state.chat.messages.push({...msg,id});
+  if(state.chat.messages.length>100)state.chat.messages.splice(0,state.chat.messages.length-100);
+  renderChat();
+}
+function renderChat(){
+  if(!els.chatLog)return;
+  els.chatLog.innerHTML='';
+  const msgs=state.chat.messages;
+  if(!msgs.length){els.chatLog.appendChild(els.chatEmpty);els.chatEmpty.classList.remove('hidden');}
+  else{els.chatEmpty.classList.add('hidden');for(const m of msgs){
+    const row=document.createElement('div');row.className='chat-msg'+(m.self?' self':'')+(m.kind==='announcement'?' announcement':'')+(m.kind==='system'?' system':'');
+    const bubble=document.createElement('div');bubble.className='chat-bubble';
+    if(m.kind==='system'){bubble.textContent=m.text;row.appendChild(bubble);els.chatLog.appendChild(row);continue;}
+    const author=document.createElement('div');author.className='chat-author';author.textContent=m.from||'Peer';
+    const time=document.createElement('span');time.className='chat-time';time.textContent=new Date(m.at||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});author.appendChild(time);
+    const text=document.createElement('div');text.className='chat-text';text.textContent=m.text||'';bubble.append(author,text);row.appendChild(bubble);els.chatLog.appendChild(row);
+  }}
+  els.chatCount.textContent=String(msgs.length);
+  els.chatLog.scrollTop=els.chatLog.scrollHeight;
+  const canAnnounce=state.room.active&&state.room.role==='host'&&connectedPeers().some(p=>p.authenticated&&p.room);
+  els.announceChatBtn.classList.toggle('hidden',!canAnnounce);
+}
+async function sendChat(text, kind='chat'){
+  text=String(text||'').trim();if(!text)return;
+  const ids=chatRecipients();if(!ids.length){toast('Create or join a room first.');return;}
+  const msg={t:'chat',id:uid(),from:state.device,text,at:Date.now(),kind,relay:false};
+  addChatMessage({...msg,self:true});
+  if(state.room.active && state.room.role!=='host'){
+    await sendJson(msg,ids[0]);
+  }else{
+    for(const id of ids)await sendJson(msg,id);
+  }
+}
+async function receiveChatMessage(m,peerId){
+  if(!m?.id||!m?.text)return;
+  const host=state.room.active&&state.room.role==='host';
+  addChatMessage({...m,self:false});
+  if(host && !m.relay){
+    const recipients=connectedPeers().filter(p=>p.authenticated&&p.room&&p.id!==peerId);
+    const relay={...m,relay:true};
+    for(const p of recipients){try{await sendJson(relay,p.id)}catch{}}
+  }
+}
+function clearChat(){state.chat.messages=[];state.chat.seen.clear();renderChat();}
 function showModal(title,body,onOk=null,onCancel=null){
   els.modalTitle.textContent=title;els.modalBody.innerHTML=body;els.modalFoot.innerHTML='';
   if(onCancel){const c=document.createElement('button');c.className='btn';c.textContent='Cancel';c.onclick=()=>{stopQrScan();els.modal.classList.remove('show');onCancel();};els.modalFoot.appendChild(c);}
@@ -1975,7 +1997,7 @@ function attachPeerJsDataConnection(conn){
   if(state.peers.has(peerId))cleanupPeer(peerId);
   const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS'};
   state.peers.set(peerId,peer);
-  const opened=async()=>{peer.connected=true;peer.pending=false;setPrimaryIfNeeded(peerId);state.selectedPeerIds.add(peerId);renderPeers();setConn('Connected',`Internet WebRTC link · ${peerLabel(peer)}.`,'good');if(peer.pc?.getStats)startStats();await sendHello(peerId);};
+  const opened=async()=>{peer.connected=true;peer.pending=false;setPrimaryIfNeeded(peerId);state.selectedPeerIds.add(peerId);renderPeers();setConn('Connected',`Internet WebRTC link · ${peerLabel(peer)}.`,'good');if(peer.pc?.getStats)startStats();await sendHello(peerId);renderChat();};
   conn.on('open',opened);
   conn.on('data',data=>handleMessage(data,peerId).catch(err=>showModal('Transfer error',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`)));
   conn.on('close',()=>{peer.connected=false;peer.pending=false;renderPeers();if(!connectedPeers().length)setConn('Disconnected','The Internet peer connection closed.','warn');});
@@ -1996,7 +2018,7 @@ async function createInternetRoom(){
   let lastErr=null;
   for(let i=0;i<7;i++){
     const code=randomRoomCode();
-    try{await createInternetPeerHost(code);state.internet.active=true;state.internet.role='host';state.room={active:true,role:'host',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:''};setPath('Internet / WebRTC');setConn('Room ready',`Internet room ${code} is ready. Share the 6-digit code.`,'good');els.internetServicePill.textContent='PeerJS Cloud ready';els.internetServicePill.className='pill good';els.signalingPill.textContent='PeerJS signaling';renderPeers();toast(`Internet room ${code} created.`);return;}catch(err){lastErr=err;try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;if(err?.type==='unavailable-id')continue;break;}
+    try{await createInternetPeerHost(code);state.internet.active=true;state.internet.role='host';state.room={active:true,role:'host',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:''};setPath('Internet / WebRTC');setConn('Room ready',`Internet room ${code} is ready. Share the 6-digit code.`,'good');els.internetServicePill.textContent='PeerJS Cloud ready';els.internetServicePill.className='pill good';els.signalingPill.textContent='Internet signaling';renderPeers();toast(`Internet room ${code} created.`);return;}catch(err){lastErr=err;try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;if(err?.type==='unavailable-id')continue;break;}
   }
   els.internetServicePill.textContent='Unavailable';els.internetServicePill.className='pill bad';throw new Error(lastErr?.message||lastErr?.type||'Could not create an Internet room.');
 }
@@ -2009,10 +2031,10 @@ async function joinInternetRoomCode(code){
   peer.on('disconnected',()=>{setConn('Signaling disconnected','Existing WebRTC links may remain alive; new connections are unavailable until signaling reconnects.','warn');els.internetServicePill.textContent='Signaling disconnected';els.internetServicePill.className='pill warn';els.signalingPill.textContent='Signaling offline';});
   await new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('PeerJS signaling connection timed out.'));}},15000);const onOpen=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve();};const onError=err=>{if(settled)return;settled=true;clearTimeout(timer);reject(err||new Error('PeerJS signaling error.'));};peer.on('open',onOpen);peer.on('error',onError);});
   const conn=peer.connect(code,{label:'offline-p2p-room',metadata:{name:state.device,app:APP_VERSION},reliable:true,serialization:'binary'});
-  attachPeerJsDataConnection(conn);setPath('Internet / WebRTC');setConn('Connecting',`Joining Internet room ${code}…`,'warn');els.internetServicePill.textContent='PeerJS Cloud connected';els.internetServicePill.className='pill good';els.signalingPill.textContent='PeerJS signaling';renderPeers();
+  attachPeerJsDataConnection(conn);setPath('Internet / WebRTC');setConn('Connecting',`Joining Internet room ${code}…`,'warn');els.internetServicePill.textContent='PeerJS Cloud connected';els.internetServicePill.className='pill good';els.signalingPill.textContent='Internet signaling';renderPeers();
 }
 async function joinInternetRoom(){
-  showModal('Join Internet room',`<div class="modal-message">Enter the 6-digit room code shown on the host device.</div><div style="margin-top:10px"><input id="internetRoomCodeInput" class="input ltr-only" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456"></div>`,()=>{const code=$('internetRoomCodeInput')?.value?.trim()||'';if(!/^\d{6}$/.test(code)){$('internetRoomCodeInput')?.focus();return false;}joinInternetRoomCode(code).catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;});
+  showModal('Join Internet room',`<div class="modal-message">Enter the 6-digit room code, or paste a P2P Share room link.</div><div style="margin-top:10px"><input id="internetRoomCodeInput" class="input ltr-only" inputmode="text" autocomplete="one-time-code" placeholder="123456 or room link"></div>`,()=>{let raw=$('internetRoomCodeInput')?.value?.trim()||'';try{if(/^https?:\/\//i.test(raw)){const u=new URL(raw);raw=u.searchParams.get('room')||raw;}}catch{}const code=String(raw).replace(/\D/g,'').slice(0,6);if(!/^\d{6}$/.test(code)){$('internetRoomCodeInput')?.focus();return false;}joinInternetRoomCode(code).catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;});
 }
 
 function createRoom(){if(!els.lanOnly.checked){return createInternetRoom().catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));}return createLanRoom();}
@@ -2195,32 +2217,44 @@ async function selfTest(){
 }
 
 els.createOfferBtn.onclick=()=>createOffer(false);els.prepareAnswerBtn.onclick=()=>prepareAnswer(false);els.applyAnswerBtn.onclick=()=>applyAnswer(false);els.easyCreateBtn.onclick=()=>createRoom();els.easyJoinBtn.onclick=()=>{state.quickMode=true;switchRole('join');setQuickStatus('Scan the room invitation. The answer will be generated automatically.');scanRoomInvite();};els.pairQrBtn.onclick=()=>{if(state.room.active&&state.room.currentInviteText)showQr('Room invitation',state.room.currentInviteText,state.room.currentInviteCode);else if(state.offerText)showQr('Scan to join',state.offerText,state.pairCode);};els.copyOfferBtn.onclick=()=>copy(els.offerOut.value);els.showOfferQrBtn.onclick=()=>showQr('Offer QR',els.offerOut.value,state.pairCode);els.copyAnswerBtn.onclick=()=>copy(els.answerOut.value);els.showAnswerQrBtn.onclick=()=>showQr('Answer QR',els.answerOut.value);els.scanOfferQrBtn.onclick=()=>scanQrInto('offerIn',false);els.scanAnswerQrBtn.onclick=()=>scanQrInto('answerIn',true);els.saveOfferBtn.onclick=()=>saveSignal('offer',els.offerOut.value);els.saveAnswerBtn.onclick=()=>saveSignal('answer',els.answerOut.value);els.loadSignalBtn.onclick=importSignalFile;els.loadOfferFileBtn.onclick=importOfferFile;
-els.sixDigitInfoBtn.onclick=()=>showModal('6-digit-only pairing',`<div class="notice warn"><b>Not possible in the pure serverless build.</b><br><br>A six-digit value does not contain enough information to carry the WebRTC offer/answer. The browsers must exchange SDP/ICE signaling data somehow.</div><div class="notice good" style="margin-top:10px">We can add a tiny optional signaling service later. It would store only the short-lived pairing data; the actual file bytes would still travel directly between the devices over WebRTC.</div>`);els.createRoomBtn.onclick=createRoom;els.joinRoomBtn.onclick=()=>els.lanOnly.checked?scanRoomInvite():joinInternetRoom();els.inviteRoomBtn.onclick=()=>els.lanOnly.checked?createRoomInvite():toast('Internet mode uses the 6-digit room code; no per-device QR is required.');els.scanRoomAnswerBtn.onclick=scanRoomAnswer;els.leaveRoomBtn.onclick=leaveRoom;els.showRoomInviteBtn.onclick=()=>state.room.currentInviteText&&showQr('Room invitation',state.room.currentInviteText,state.room.currentInviteCode);els.selectAllPeersBtn.onclick=()=>{connectedPeers().filter(p=>p.authenticated).forEach(p=>state.selectedPeerIds.add(p.id));renderPeers();};els.clearPeersBtn.onclick=()=>{state.selectedPeerIds.clear();renderPeers();};
+els.createRoomBtn.onclick=createRoom;
+els.joinRoomBtn.onclick=()=>els.lanOnly.checked?scanRoomInvite():joinInternetRoom();
+els.copyRoomBtn.onclick=()=>{const code=els.roomCode?.textContent?.trim();if(!code||code==='------'){toast('Create or join a room first.');return;}navigator.clipboard?.writeText(code).then(()=>toast('Room code copied.')).catch(()=>toast(code));};
+els.shareRoomBtn.onclick=async()=>{const code=els.roomCode?.textContent?.trim();if(!code||code==='------'){toast('Create a room first.');return;}const u=new URL(location.href);u.searchParams.set('mode','internet');u.searchParams.set('room',code);const link=u.toString();if(!navigator.share){try{await navigator.clipboard.writeText(link);toast('Join link copied.')}catch{toast(link)}return;}try{await navigator.share({title:'P2P Share room',text:`Join my P2P Share room: ${code}`,url:link});}catch{}}
+els.inviteRoomBtn.onclick=()=>els.lanOnly.checked?createRoomInvite():toast('Internet mode uses the 6-digit room code; share the room code instead.');
+els.scanRoomAnswerBtn.onclick=scanRoomAnswer;els.leaveRoomBtn.onclick=leaveRoom;
+els.showRoomInviteBtn.onclick=()=>state.room.currentInviteText&&showQr('Room invitation',state.room.currentInviteText,state.room.currentInviteCode);
+els.chatSendBtn.onclick=async()=>{const v=els.chatInput.value.trim();if(!v)return;try{await sendChat(v,'chat');els.chatInput.value='';}catch(err){toast(err.message||'Message failed.');}};
+els.chatInput.addEventListener('keydown',async e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();els.chatSendBtn.click();}});
+els.chatClearBtn.onclick=clearChat;
+[els.chatReact1,els.chatReact2,els.chatReact3].forEach(b=>b.addEventListener('click',()=>sendChat(b.dataset.reaction,'chat').catch(()=>{})));
+els.announceChatBtn.onclick=async()=>{const v=await askText();if(v)sendChat(v,'announcement').catch(()=>{});};els.selectAllPeersBtn.onclick=()=>{connectedPeers().filter(p=>p.authenticated).forEach(p=>state.selectedPeerIds.add(p.id));renderPeers();};els.clearPeersBtn.onclick=()=>{state.selectedPeerIds.clear();renderPeers();};
 els.roleHost.onclick=()=>{state.quickMode=false;switchRole('host');setQuickStatus('Advanced host controls. For easier pairing, use Start pairing above.');};els.roleJoin.onclick=()=>{state.quickMode=false;switchRole('join');setQuickStatus('Advanced join controls. For easier pairing, use Join / Scan above.');};
 els.pickFilesBtn.onclick=()=>els.fileInput.click();els.pickFolderBtn.onclick=()=>els.folderInput.click();els.sendTextBtn.onclick=sendText;
 els.fileInput.onchange=()=>{addFiles(els.fileInput.files);sendFiles();els.fileInput.value='';};els.folderInput.onchange=()=>{addFiles(els.folderInput.files);sendFiles();els.folderInput.value='';};
 ['dragenter','dragover'].forEach(ev=>els.dropZone.addEventListener(ev,e=>{e.preventDefault();els.dropZone.classList.add('drag')}));['dragleave','drop'].forEach(ev=>els.dropZone.addEventListener(ev,e=>{e.preventDefault();els.dropZone.classList.remove('drag') }));els.dropZone.addEventListener('drop',e=>{addFiles(e.dataTransfer.files);sendFiles();});
-els.disconnectBtn.onclick=()=>{cleanupConnection();setConn('Disconnected','The peer connection has been closed.','warn');els.workSub.textContent='Start a secure peer connection, then transfer files directly.';};
+els.disconnectBtn.onclick=()=>{cleanupConnection();setConn('Disconnected','The peer connection has been closed.','warn');els.workSub.textContent=I18N[state.lang].defaultConnDetail;};
 els.selfTestBtn.onclick=selfTest;els.clearHistoryBtn.onclick=()=>{state.history=[];localStorage.removeItem('p2p-history');renderHistory();};
 els.diagRefreshBtn.onclick=()=>updateDiagnostics();
 function setNetworkMode(internet){
-  localStorage.setItem('p2p-network-mode',internet?'internet':'offline');els.lanOnly.checked=!internet;els.stunSettings?.classList.toggle('hidden',!internet);els.internetSettings?.classList.toggle('hidden',!internet);els.offlineModeBtn?.classList.toggle('active',!internet);els.internetModeBtn?.classList.toggle('active',internet);
-  if(internet){els.networkModeHint.textContent='Uses PeerJS Cloud for short-lived signaling plus multiple STUN providers for Internet NAT traversal. Files stay on WebRTC.';els.signalingPill.textContent='PeerJS signaling';els.signalingPill.className='pill';setPath('Internet / WebRTC');}
-  else{els.networkModeHint.textContent='No signaling/STUN/TURN services are used. Best for devices on the same Wi‑Fi/LAN.';els.signalingPill.textContent='No cloud';els.signalingPill.className='pill';setPath('LAN-only');}
+  localStorage.setItem('p2p-network-mode',internet?'internet':'offline');els.lanOnly.checked=!internet;els.internetSettings?.classList.toggle('hidden',!internet);els.offlineModeBtn?.classList.toggle('active',!internet);els.internetModeBtn?.classList.toggle('active',internet);const d=I18N[state.lang]||I18N.en;
+  if(internet){els.networkModeHint.textContent=d.internetDefaultHint;els.signalingPill.textContent='Internet signaling';els.signalingPill.className='pill';setPath('Internet / WebRTC');}
+  else{els.networkModeHint.textContent=d.offlineHint;els.signalingPill.textContent='No external service';els.signalingPill.className='pill';setPath('LAN-only');}
+  renderChat();
 }
 
 els.saveNameBtn.onclick=()=>{const v=els.deviceName.value.trim();if(v){state.device=v;localStorage.setItem('p2p-device',v);toast('Device name saved.');}};
 els.deviceName.value=state.device;
 els.offlineModeBtn.onclick=()=>setNetworkMode(false);els.internetModeBtn.onclick=()=>setNetworkMode(true);els.lanOnly.onchange=()=>setNetworkMode(!els.lanOnly.checked);els.passwordEnabled.onchange=()=>{els.passwordBox.classList.toggle('hidden',!els.passwordEnabled.checked);};
 els.langBtn.onclick=()=>{state.lang=state.lang==='en'?'ar':'en';localStorage.setItem('p2p-lang',state.lang);applyLang();};
-els.helpBtn.onclick=()=>showModal('How to use',`<div class="modal-message"><ol style="padding-left:18px;line-height:1.7"><li>For the best mobile experience, publish this HTML on GitHub Pages and open the HTTPS URL on both devices.</li><li>Choose <b>Offline / LAN</b> for a completely serverless local transfer, or <b>Internet / Hybrid</b> for 6-digit rooms using PeerJS Cloud signaling and multiple STUN providers.</li><li>On Device A click <b>Start pairing</b>. A QR appears with a 6-digit verification code.</li><li>On Device B click <b>Join / Scan</b> and scan that QR. The answer is generated automatically.</li><li>Device B shows a return QR. Device A scans it; the answer is applied automatically.</li><li>When connected, choose files and send. The file bytes travel directly through WebRTC DataChannel.</li></ol><div class="notice warn">The 6-digit number is only a verification fingerprint. In a true serverless browser build, the WebRTC offer/answer still has to be exchanged somehow; the QR carries that technical handshake.</div><div class="notice good" style="margin-top:9px">Advanced copy/paste controls remain available below for browsers without QR scanning support.</div></div>`);
-els.resetBtn.onclick=()=>{if(confirm('Reset this app? This clears local history and settings.')){localStorage.removeItem('p2p-history');localStorage.removeItem('p2p-device');localStorage.removeItem('p2p-lang');localStorage.removeItem('p2p-network-mode');location.reload();}};
+els.helpBtn.onclick=()=>showModal('How to use',`<div class="modal-message"><ol style="padding-left:18px;line-height:1.7"><li>Select <b>Internet / Hybrid</b> for the normal 6-digit room experience.</li><li>Choose <b>Create room</b> on the first device, then share the six-digit code.</li><li>Other devices choose <b>Join room</b> and enter the code.</li><li>Use <b>Room chat</b> for messages, quick reactions, or host announcements.</li><li>Use <b>Send files</b> to one or many connected devices.</li><li>Use <b>Offline / LAN</b> when you need a completely serverless local fallback.</li><li>Technical diagnostics, security settings, TURN settings and manual pairing are under <b>Advanced</b>.</li></ol></div>`);
+els.resetBtn.onclick=()=>{if(confirm('Reset this app? This clears local history and settings.')){localStorage.removeItem('p2p-history');localStorage.removeItem('p2p-device');localStorage.removeItem('p2p-lang');localStorage.removeItem('p2p-network-mode');localStorage.removeItem('p2p-network-mode-v160-defaulted');location.reload();}};
 els.modalClose.onclick=()=>{stopQrScan();closeModal()};els.modalOk.onclick=()=>{stopQrScan();closeModal()};els.modal.addEventListener('click',e=>{if(e.target===els.modal){stopQrScan();closeModal();}});
 
 window.addEventListener('beforeunload',()=>{stopQrScan();try{state.internet.peer?.destroy();state.dc?.close();state.pc?.close()}catch{}});
 
 defaultInit();
-function defaultInit(){applyLang();browserChecks();renderHistory();renderSendQueue();renderPeers();renderIncoming();setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');if(!localStorage.getItem('p2p-network-mode'))setNetworkMode(false);setConn('Not connected','Choose Offline / LAN or Internet / Hybrid, then create or join a room.','warn');showPairCode('', 'The other device should show the same code after scanning.');setQuickStatus('Offline mode is fully serverless. Internet mode uses short-lived signaling plus WebRTC.');}
+function defaultInit(){applyLang();browserChecks();renderHistory();renderSendQueue();renderPeers();renderIncoming();if(!localStorage.getItem('p2p-network-mode-v160-defaulted')){localStorage.setItem('p2p-network-mode-v160-defaulted','1');setNetworkMode(true);}else{setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');}try{const params=new URLSearchParams(location.search);const sharedRoom=params.get('room');if(params.get('mode')==='internet'&&/^\d{6}$/.test(sharedRoom||'')){setNetworkMode(true);setTimeout(()=>showModal('Join shared room',`<div class="modal-message">Room <b>${escapeHtml(sharedRoom)}</b> is ready to join.</div>`,()=>{joinInternetRoomCode(sharedRoom).catch(err=>showModal('Join failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;}),100);}}catch{}setConn('Not connected',I18N[state.lang].defaultConnDetail,'warn');showPairCode('', '');setQuickStatus(I18N[state.lang].internetDefaultHint,'good');renderChat();}
 
 })();
 </script>
