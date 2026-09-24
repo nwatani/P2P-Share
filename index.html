@@ -108,7 +108,7 @@ input[type=file]{display:none!important}
   .side,.work{min-height:0;height:auto!important;}
 }
 
-/* v1.7 collaboration + transfer center */
+/* v1.7.1 chat regression fix + collaboration + transfer center */
 .room-role{margin-left:6px}
 .chat-recipient-bar{display:flex;align-items:center;gap:7px;padding:8px 12px;border-top:1px solid var(--border);background:#0c1524}
 .chat-recipient-bar label{font-size:9px;color:var(--muted);font-weight:800;white-space:nowrap}
@@ -1564,7 +1564,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '1.7.0';
+const APP_VERSION = '1.7.1';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -2013,6 +2013,29 @@ async function sendText(){
 function askText(){return new Promise(resolve=>{showModal('Send text','<textarea id="modalText" class="textarea" placeholder="Type a message…"></textarea>',()=>{const v=$('modalText')?.value||'';resolve(v);return true;},()=>resolve(null));});}
 
 
+function addChatMessage(message){
+  if(!message||!message.id)return;
+  if(state.chat.seen.has(message.id))return;
+  state.chat.seen.add(message.id);
+  state.chat.messages.push({
+    id:message.id,
+    from:message.from||'Peer',
+    fromMemberId:message.fromMemberId||'',
+    toMemberId:message.toMemberId||'',
+    text:String(message.text||''),
+    at:Number(message.at||Date.now()),
+    kind:message.kind||'chat',
+    self:!!message.self,
+    private:!!message.private || !!message.toMemberId,
+    relay:!!message.relay
+  });
+  if(state.chat.messages.length>500){
+    const removed=state.chat.messages.splice(0,state.chat.messages.length-500);
+    for(const item of removed)state.chat.seen.delete(item.id);
+  }
+  renderChat();
+}
+
 function chatRecipients(){const peers=connectedPeers().filter(p=>p.authenticated&&p.room);if(!state.room.active)return targetPeerIds();if(state.room.role!=='host'){const host=peers.find(p=>p.roomRole==='Admin'||p.role==='internet'||p.role==='join')||peers[0];return host?[host.id]:[];}return peers.map(p=>p.id);}
 function renderChat(){
   if(!els.chatLog)return;
@@ -2048,7 +2071,7 @@ function renderChatRecipients(){
 }
 async function sendChat(text, kind='chat'){
   text=String(text||'').trim();if(!text)return;const target=state.chat.target||els.chatRecipientSelect?.value||'all';const ids=chatRecipients();if(!ids.length){toast('Create or join a room first.');return;}
-  const msg={t:'chat',id:uid(),from:state.device,fromMemberId:state.memberId,toMemberId:target==='all'?'':target,text,at:Date.now(),kind,relay:false};addChatMessage({...msg,self:true});
+  const msg={t:'chat',id:uid(),from:state.device,fromMemberId:state.memberId,toMemberId:target==='all'?'':target,text,at:Date.now(),kind,relay:false};addChatMessage({...msg,self:true,private:target!=='all'});
   if(state.room.active&&state.room.role!=='host')await sendJson(msg,ids[0]);
   else if(target==='all'){for(const id of ids)await sendJson(msg,id);}else{const targetMember=state.room.members.get(target);if(targetMember?.peerId)await sendJson(msg,targetMember.peerId);else toast('That member is no longer connected.');}
 }
