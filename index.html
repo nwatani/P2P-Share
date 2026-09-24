@@ -1,0 +1,2228 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0f1b">
+<meta name="description" content="Professional serverless P2P file sharing over WebRTC with GitHub Pages HTTPS QR pairing.">
+<title>P2P Share — Multi-Device WebRTC File Transfer</title>
+<style>
+:root{
+  --bg:#080d17;--panel:#0e1626;--panel2:#111b2d;--panel3:#0b1321;
+  --border:#23334e;--border2:#2f4363;--text:#eef4ff;--muted:#92a2ba;
+  --accent:#5b96ff;--accent2:#83adff;--good:#48d49a;--warn:#f2bd5c;--bad:#ff6c7b;
+  --shadow:0 24px 80px rgba(0,0,0,.32);--r:18px;--r2:12px;
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh;overflow-x:hidden;background:radial-gradient(1000px 560px at 0 -10%,rgba(91,150,255,.16),transparent 60%),radial-gradient(900px 600px at 100% 0,rgba(72,212,154,.10),transparent 62%),var(--bg)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.52}
+.hidden{display:none!important}.app{min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);background:rgba(8,13,23,.84);backdrop-filter:blur(18px)}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}.brand-logo{width:42px;height:42px;border:1px solid #38547d;background:#111d31;border-radius:13px;display:grid;place-items:center;box-shadow:0 10px 28px rgba(0,0,0,.24)}
+.brand-logo svg{width:23px;height:23px}.brand-text{min-width:0}.brand-title{font-size:14px;font-weight:850;letter-spacing:.1px}.brand-sub{font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.top-actions{display:flex;gap:7px;align-items:center}.icon-btn,.btn{border:1px solid var(--border);background:#111b2c;color:var(--text);border-radius:11px;min-height:38px;padding:8px 12px;font-size:11px;font-weight:780;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.18s ease}.icon-btn{width:38px;padding:0}.btn:hover,.icon-btn:hover{border-color:var(--border2);background:#162238}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}.btn.ghost{background:transparent}.btn.good{background:#103529;border-color:#23614b;color:#84ebbf}.btn.warn{background:#2a2111;border-color:#614b22;color:#f6cf82}.btn.danger{background:#2a1218;border-color:#612a35;color:#ff9da8}.btn.small{min-height:32px;padding:6px 9px;font-size:10.5px}
+.main{min-height:0;padding:14px;display:grid;grid-template-columns:330px minmax(0,1fr);gap:14px}.side,.work{border:1px solid var(--border);border-radius:var(--r);background:rgba(14,22,38,.90);box-shadow:var(--shadow)}
+.side{display:flex;flex-direction:column;overflow:auto}.section{padding:14px;border-bottom:1px solid var(--border)}.section:last-child{border-bottom:0}.section h2{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#aab7cc;margin:0 0 10px}.section h3{font-size:12px;margin:0}.row{display:flex;gap:8px;align-items:center}.row.wrap{flex-wrap:wrap}.grow{flex:1;min-width:0}.input,.textarea,.select{width:100%;border:1px solid var(--border);background:#0a1220;color:var(--text);outline:none;border-radius:10px;padding:10px 11px;font-size:11px}.textarea{min-height:105px;resize:vertical}.input:focus,.textarea:focus,.select:focus{border-color:#527dbd;box-shadow:0 0 0 3px rgba(91,150,255,.12)}
+.pillbar{display:flex;gap:6px;flex-wrap:wrap}.pill{border:1px solid var(--border);background:#0b1424;color:#9fb0c8;border-radius:999px;padding:5px 8px;font-size:9.5px;font-weight:800}.pill.good{color:#7de8b8;border-color:#245a47;background:#0f281f}.pill.warn{color:#f4cc7e;border-color:#5b4822;background:#211b0e}.pill.bad{color:#ff9ba6;border-color:#612732;background:#261117}
+.state{border:1px solid var(--border);background:#0b1422;border-radius:13px;padding:11px}.state-line{display:flex;align-items:center;justify-content:space-between;gap:8px}.state-name{font-size:12px;font-weight:850}.subtle{font-size:10px;color:var(--muted);line-height:1.55}.state .subtle{margin-top:7px}.dot{width:8px;height:8px;border-radius:50%;background:#60718b;display:inline-block}.dot.good{background:var(--good);box-shadow:0 0 0 4px rgba(72,212,154,.09)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+.checks{display:grid;gap:7px}.check{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #1e2c43;background:#0b1422;padding:8px 9px;border-radius:10px;font-size:10px}.check-left{display:flex;align-items:center;gap:7px}.check-status{color:#8fa0b8}
+.work{display:grid;grid-template-rows:auto 1fr;min-width:0;min-height:0;overflow:hidden}.work-head{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:12px 14px;border-bottom:1px solid var(--border)}.work-title{font-size:12px;font-weight:850}.work-sub{font-size:10px;color:var(--muted);margin-top:3px}.work-actions{display:flex;gap:7px}.work-body{min-height:0;overflow:auto;padding:14px;display:grid;grid-template-rows:auto auto auto;gap:12px}
+.connection{border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg,rgba(17,27,45,.96),rgba(12,20,34,.96));padding:14px}.connection-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.conn-id{font-size:11px;font-weight:800}.conn-note{font-size:10px;color:var(--muted);margin-top:5px}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.step{min-width:0;border:1px solid #1f2e46;background:#0a1322;border-radius:11px;padding:9px}.step .n{font-size:9px;color:#7790b0;font-weight:900;text-transform:uppercase}.step strong{display:block;font-size:10px;margin-top:3px}.step span{display:block;font-size:9px;color:var(--muted);line-height:1.45;margin-top:3px}
+.codebox{margin-top:12px;display:grid;gap:8px}.codebox textarea{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:9px;line-height:1.45;min-height:128px}.code-actions{display:flex;gap:7px;flex-wrap:wrap}.role-tabs{display:flex;gap:5px;margin-top:10px}.role-tab{flex:1}.role-tab.active{border-color:#476ea7;background:#13213a;color:#dbe7fb}
+.transfer-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:12px}.card{border:1px solid var(--border);background:rgba(11,19,33,.88);border-radius:16px;padding:13px;min-width:0}.card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.card-title{font-size:11px;font-weight:850}.drop{border:1px dashed #39516f;background:#0a1321;border-radius:15px;padding:24px 15px;text-align:center;transition:.16s}.drop.drag{border-color:var(--accent);background:#0e1d35}.drop svg{width:32px;height:32px;color:#8cbbff}.drop strong{display:block;font-size:12px;margin-top:7px}.drop span{display:block;color:var(--muted);font-size:10px;margin-top:4px}.file-actions{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:11px}.queue{display:grid;gap:7px;margin-top:11px;max-height:240px;overflow:auto}.file-row{border:1px solid #1c2a40;background:#0a1321;border-radius:11px;padding:9px}.file-main{display:flex;align-items:center;gap:8px}.file-icon{width:30px;height:30px;border-radius:9px;background:#15243b;display:grid;place-items:center;color:#9dc1ff;flex:0 0 auto}.file-name{font-size:10.5px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-meta{font-size:9px;color:var(--muted);margin-top:2px}.bar{height:6px;background:#172337;border-radius:999px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#8bb7ff);border-radius:999px;transition:width .12s linear}.file-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;font-size:9px;color:var(--muted)}
+.incoming{display:grid;gap:8px}.incoming-empty{padding:18px 10px;color:#66758c;text-align:center;font-size:10px;border:1px dashed #273750;border-radius:12px}.incoming-item{border:1px solid #283b57;background:#0b1524;border-radius:12px;padding:10px}.incoming-name{font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.incoming-meta{font-size:9px;color:var(--muted);margin-top:3px}.incoming-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.setting{border:1px solid #1d2b42;background:#0a1321;border-radius:11px;padding:10px}.setting label{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:10px;font-weight:750}.setting small{display:block;font-size:9px;color:var(--muted);line-height:1.45;margin-top:4px}.switch{position:relative;width:36px;height:20px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;border-radius:20px;background:#26364f;transition:.18s}.slider:before{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;border-radius:50%;background:#92a2ba;transition:.18s}.switch input:checked+.slider{background:#335d9a}.switch input:checked+.slider:before{transform:translateX(16px);background:#fff}
+.history{max-height:210px;overflow:auto;display:grid;gap:6px}.history-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #1c2a40;background:#0a1321;border-radius:10px;padding:8px 9px}.history-name{font-size:10px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.history-meta{font-size:8.5px;color:var(--muted);margin-top:2px}.history-empty{font-size:10px;color:#66758c;padding:12px;text-align:center;border:1px dashed #273750;border-radius:10px}
+
+.quickpair{margin-top:12px;border:1px solid #31517c;background:linear-gradient(180deg,#0e1b30,#0a1322);border-radius:15px;padding:13px;position:relative;overflow:hidden}
+.quickpair:before{content:"";position:absolute;inset:0;background:radial-gradient(500px 180px at 15% 0,rgba(91,150,255,.16),transparent 65%);pointer-events:none}
+.quickpair-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.quickpair-title{font-size:12px;font-weight:900}.quickpair-sub{font-size:9.5px;color:var(--muted);line-height:1.45;margin-top:3px}
+.quickpair-badge{padding:4px 7px;border-radius:999px;border:1px solid #275c49;background:#10271f;color:#7de8b8;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.quickpair-actions{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.pair-code-card{position:relative;margin-top:10px;border:1px solid #26446a;background:#0a1424;border-radius:12px;padding:10px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.pair-code-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:#7990af;font-weight:900}.pair-code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:26px;letter-spacing:.18em;font-weight:950;color:#f3f7ff;margin-top:2px}
+.pair-code-note{font-size:8.8px;color:var(--muted);line-height:1.45;margin-top:3px}.pair-qr-btn{min-width:88px;min-height:44px}
+.quick-status{position:relative;margin-top:9px;font-size:9.5px;color:#8ea2bd;line-height:1.5}
+@media(max-width:700px){.quickpair-actions{grid-template-columns:1fr}.pair-code-card{grid-template-columns:1fr}.pair-qr-btn{width:100%}}
+.footer{padding:4px 2px;font-size:9px;color:#6f7f97;line-height:1.6}.footer a{color:#91b7f7}
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(3,6,12,.72);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px}.overlay.show{display:flex}.modal{width:min(620px,100%);max-height:88vh;overflow:auto;background:#0d1626;border:1px solid var(--border);border-radius:18px;box-shadow:0 30px 100px rgba(0,0,0,.52)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px;border-bottom:1px solid var(--border)}.modal-title{font-size:13px;font-weight:850}.modal-body{padding:14px}.modal-foot{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--border)}.modal-message{font-size:11px;color:#cad5e7;line-height:1.65}.kv{display:grid;grid-template-columns:120px 1fr;gap:5px 10px;margin-top:10px;font-size:10px}.kv b{color:#8ca0bc}.kv span{color:#d7e1ef;word-break:break-word}.notice{border:1px solid #2b3b57;background:#0b1524;border-radius:12px;padding:10px;font-size:10px;color:#9eb0c8;line-height:1.55}.notice.good{border-color:#225a46;background:#0f241e;color:#9ee9c8}.notice.warn{border-color:#5d4a24;background:#211b10;color:#efd08b}.notice.bad{border-color:#612a35;background:#261117;color:#ffb0b8}
+#fileInput,#folderInput,#signalFileInput{display:none !important}.rtl .top,.rtl .work-head,.rtl .connection-top,.rtl .card-head,.rtl .history-item{direction:rtl}.rtl .file-foot{direction:rtl}.ltr-only{direction:ltr!important}
+@media (max-width:1050px){.main{grid-template-columns:290px 1fr}.transfer-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:780px){body{overflow:auto}.top{position:relative}.main{grid-template-columns:1fr;padding:10px}.side{overflow:visible}.work{min-height:850px}.steps{grid-template-columns:1fr 1fr}.brand-sub{display:none}.top-actions .hide-mobile{display:none}}
+@media (max-width:500px){.top{padding:10px}.brand-logo{width:38px;height:38px}.brand-title{font-size:13px}.main{gap:10px}.work-body{padding:10px}.steps{grid-template-columns:1fr}.connection{padding:11px}.codebox textarea{min-height:150px}.kv{grid-template-columns:105px 1fr}}
+
+.room-card{border:1px solid var(--border);background:linear-gradient(180deg,rgba(15,26,43,.96),rgba(10,18,31,.96));border-radius:16px;padding:13px}
+.room-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.room-title{font-size:11px;font-weight:900}.room-sub{font-size:9.5px;color:var(--muted);line-height:1.5;margin-top:4px}.room-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.room-code{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;padding:9px 10px;border:1px solid #243754;background:#0b1422;border-radius:12px}.room-code-label{font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:#7188a6;font-weight:900}.room-code-value{font:900 20px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em}.peer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}.peer-card{border:1px solid #1e2d44;background:#0a1321;border-radius:11px;padding:9px}.peer-top{display:flex;align-items:center;gap:8px}.peer-avatar{width:29px;height:29px;border-radius:9px;background:#15243b;display:grid;place-items:center;font-size:11px;font-weight:900;color:#bcd5ff;flex:0 0 auto}.peer-name{font-size:10.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.peer-meta{font-size:8.5px;color:var(--muted);margin-top:3px}.peer-controls{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:8px}.peer-target{display:flex;align-items:center;gap:5px;font-size:8.5px;color:#9eb0c9}.peer-target input{accent-color:var(--accent)}.peer-status{display:inline-flex;align-items:center;gap:5px;font-size:8.5px;color:#8fa0b8}.peer-status .dot{width:6px;height:6px}.target-bar{margin-top:10px;padding:9px 10px;border:1px solid #1d2b42;background:#0a1321;border-radius:11px}.target-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.target-title{font-size:9.5px;font-weight:850}.target-actions{display:flex;gap:5px;flex-wrap:wrap}.target-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.target-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid #273952;background:#0d1829;border-radius:999px;padding:5px 8px;font-size:8.5px;color:#b4c2d8}.target-chip input{accent-color:var(--accent)}
+@media(max-width:920px){.main{grid-template-columns:1fr}.side{max-height:none}.work-body{overflow:visible}.peer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.top{padding:10px 11px}.top-actions .btn:not(.primary){display:none}.main{padding:9px;gap:9px}.section,.connection,.card,.room-card{padding:11px}.steps{grid-template-columns:repeat(2,1fr)}.transfer-grid{grid-template-columns:1fr}.peer-grid{grid-template-columns:1fr}.mode-grid{grid-template-columns:1fr}.room-head{flex-direction:column}.room-actions .btn{flex:1}.code-actions .btn{flex:1}.file-actions .btn{flex:1}.work-head{align-items:flex-start}.work-actions{flex-wrap:wrap}.work-actions .btn{min-height:34px}.drop{padding:20px 11px}.settings-grid{grid-template-columns:1fr}}
+@media(max-width:420px){.brand-logo{width:38px;height:38px}.brand-title{font-size:13px}.brand-sub{display:none}.steps{grid-template-columns:1fr}.step{padding:8px}.connection-top{align-items:flex-start;flex-direction:column}.pair-code-value{font-size:18px}.room-code{align-items:flex-start;flex-direction:column}.room-code .btn{width:100%}}
+
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.mode-card{border:1px solid var(--border);background:#0b1423;color:var(--text);border-radius:13px;padding:10px;text-align:left;display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;gap:1px 8px;transition:.18s ease}.mode-card:hover{border-color:#35517a;background:#101b2d}.mode-card.active{border-color:#4e7fca;background:linear-gradient(180deg,#12223a,#0d1829);box-shadow:0 0 0 1px rgba(91,150,255,.14) inset}.mode-icon{grid-row:1/3;width:28px;height:28px;border-radius:9px;background:#16243a;display:grid;place-items:center;font-weight:900;color:#9fc0f8}.mode-main{font-size:10.5px;font-weight:900}.mode-sub{font-size:8.5px;color:var(--muted);line-height:1.35}.service-box{border:1px solid #1f314b;background:#0a1321;border-radius:12px;padding:10px}.service-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.service-head strong{font-size:10.5px}.service-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #16243a;font-size:8.5px;color:var(--muted)}.service-row:last-of-type{border-bottom:0}.service-row b{color:#c8d5e7;text-align:right;font-weight:700}.service-note{font-size:8.5px;line-height:1.55;color:#8496b0;margin-top:8px}
+
+
+/* Connection diagnostics */
+.diag-box{border:1px solid #1f314b;background:#0a1321;border-radius:12px;padding:10px}
+.diag-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.diag-head strong{font-size:10.5px}
+.diag-summary{display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 9px;border:1px solid #1c2d46;border-radius:10px;background:#0b1626}
+.diag-path{font-size:11px;font-weight:900}
+.diag-sub{font-size:8.5px;color:var(--muted);line-height:1.45}
+.diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.diag-row{padding:7px 8px;border:1px solid #17273d;border-radius:9px;background:#0b1423;min-width:0}
+.diag-row span{display:block;font-size:7.8px;color:#7d90ab;text-transform:uppercase;letter-spacing:.08em}
+.diag-row b{display:block;margin-top:2px;font-size:9.5px;color:#d6e1f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diag-peers{display:grid;gap:6px;margin-top:8px;max-height:180px;overflow:auto}
+.diag-peer{border:1px solid #17273d;border-radius:9px;padding:7px 8px;background:#0b1423}
+.diag-peer-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.diag-peer-name{font-size:9.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.diag-peer-path{font-size:8px;color:#9fb0c7;white-space:nowrap}
+.diag-peer-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;font-size:7.8px;color:#7689a5}
+.diag-legend{margin-top:7px;font-size:8.2px;line-height:1.5;color:#778aa5}
+.diag-legend b{color:#a8bad3}
+@media (max-width:560px){.diag-grid{grid-template-columns:1fr 1fr}.diag-peers{max-height:220px}}
+
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<header class="top">
+  <div class="brand">
+    <div class="brand-logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M8.3 8.3 5.8 10.8a4.15 4.15 0 0 0 0 5.87l1.55 1.55a4.15 4.15 0 0 0 5.87 0l2.5-2.5"/>
+        <path d="m15.7 15.7 2.5-2.5a4.15 4.15 0 0 0 0-5.87l-1.55-1.55a4.15 4.15 0 0 0-5.87 0l-2.5 2.5"/>
+        <path d="m9.2 14.8 5.6-5.6"/>
+      </svg>
+    </div>
+    <div class="brand-text"><div class="brand-title" data-i18n="appTitle">P2P Share</div><div class="brand-sub" data-i18n="appSub">One HTML file · multi-device rooms · no server · direct WebRTC transfer</div></div>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" id="langBtn" title="English / العربية">AR</button>
+    <button class="icon-btn" id="helpBtn" title="Help">?</button>
+    <button class="icon-btn" id="resetBtn" title="Reset">↻</button>
+  </div>
+</header>
+
+<main class="main">
+<aside class="side">
+  <section class="section">
+    <h2 data-i18n="connection">Connection</h2>
+    <div class="state">
+      <div class="state-line"><div class="row"><span class="dot" id="connDot"></span><span class="state-name" id="connState">Not connected</span></div><span class="pill warn" id="pathPill">LAN-only</span></div>
+      <div class="subtle" id="connDetail">Create a session or join an offer from another device.</div>
+    </div>
+    <div class="pillbar" style="margin-top:8px">
+      <span class="pill good">WebRTC</span><span class="pill good">DTLS</span><span class="pill" id="signalingPill">No cloud</span><span class="pill">No account</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 data-i18n="diagnostics">Connection diagnostics</h2>
+    <div class="diag-box">
+      <div class="diag-head"><strong id="diagPathTitle">Waiting for connection</strong><button class="btn small ghost" id="diagRefreshBtn" type="button" data-i18n="refresh">Refresh</button></div>
+      <div class="diag-summary"><span class="dot" id="diagDot"></span><div class="grow"><div class="diag-path" id="diagPath">No active WebRTC path</div><div class="diag-sub" id="diagHint">When connected, this panel reads the selected ICE candidate pair from the browser.</div></div></div>
+      <div class="diag-grid">
+        <div class="diag-row"><span data-i18n="candidatePair">Candidate pair</span><b id="diagCandidates">—</b></div>
+        <div class="diag-row"><span data-i18n="transport">Transport</span><b id="diagTransport">—</b></div>
+        <div class="diag-row"><span data-i18n="signaling">Signaling</span><b id="diagSignaling">—</b></div>
+        <div class="diag-row"><span data-i18n="iceServer">ICE server</span><b id="diagIceServer">—</b></div>
+        <div class="diag-row"><span data-i18n="bytesSent">Bytes sent</span><b id="diagSent">0 B</b></div>
+        <div class="diag-row"><span data-i18n="bytesReceived">Bytes received</span><b id="diagReceived">0 B</b></div>
+      </div>
+      <div class="diag-peers" id="diagPeers"></div>
+      <div class="diag-legend"><b>Direct LAN</b> = host/host with local/private candidates. <b>Direct Internet</b> = NAT-traversal candidate. <b>TURN relay</b> = a relay is carrying the WebRTC traffic.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 data-i18n="device">Device</h2>
+    <div class="row">
+      <input id="deviceName" class="input grow" maxlength="32" placeholder="Device name">
+      <button class="btn small" id="saveNameBtn">Save</button>
+    </div>
+    <div class="subtle" style="margin-top:6px" data-i18n="deviceHint">Your name is stored only in this browser.</div>
+  </section>
+
+  <section class="section">
+    <h2 data-i18n="checks">Browser checks</h2>
+    <div class="checks">
+      <div class="check"><div class="check-left"><span class="dot" id="dWebrtc"></span><span>RTCPeerConnection</span></div><span class="check-status" id="tWebrtc">Checking</span></div>
+      <div class="check"><div class="check-left"><span class="dot" id="dDc"></span><span>RTCDataChannel</span></div><span class="check-status" id="tDc">Checking</span></div>
+      <div class="check"><div class="check-left"><span class="dot" id="dCrypto"></span><span>Web Crypto</span></div><span class="check-status" id="tCrypto">Checking</span></div>
+      <div class="check"><div class="check-left"><span class="dot" id="dIdb"></span><span>IndexedDB</span></div><span class="check-status" id="tIdb">Checking</span></div>
+      <div class="check"><div class="check-left"><span class="dot" id="dFs"></span><span>Save-to-disk API</span></div><span class="check-status" id="tFs">Checking</span></div>
+      <div class="check"><div class="check-left"><span class="dot" id="dSecure"></span><span>HTTPS / secure context</span></div><span class="check-status" id="tSecure">Checking</span></div>
+      <div class="check"><div class="check-left"><span class="dot" id="dCamera"></span><span>Camera QR scanning</span></div><span class="check-status" id="tCamera">Checking</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 data-i18n="network">Network mode</h2>
+    <div class="mode-grid">
+      <button class="mode-card active" id="offlineModeBtn" type="button">
+        <span class="mode-icon">⌂</span><span class="mode-main">Offline / LAN</span><span class="mode-sub">No Internet services · same Wi‑Fi/LAN</span>
+      </button>
+      <button class="mode-card" id="internetModeBtn" type="button">
+        <span class="mode-icon">◎</span><span class="mode-main">Internet / Hybrid</span><span class="mode-sub">6-digit rooms · Internet NAT traversal</span>
+      </button>
+    </div>
+    <div class="setting" style="margin-top:8px">
+      <label><span>Serverless local mode</span><span class="switch"><input id="lanOnly" type="checkbox" checked><span class="slider"></span></span></label>
+      <small id="networkModeHint">No signaling/STUN/TURN services are used. Best for devices on the same Wi‑Fi/LAN.</small>
+    </div>
+    <div id="internetSettings" class="setting hidden" style="margin-top:8px">
+      <div class="service-box">
+        <div class="service-head"><strong>Internet connectivity</strong><span class="pill warn" id="internetServicePill">Not active</span></div>
+        <div class="service-row"><span>Signaling</span><b>PeerJS Cloud</b></div>
+        <div class="service-row"><span>ICE fallback</span><b>Google STUN · Cloudflare STUN · Twilio STUN</b></div>
+        <div class="service-row"><span>File path</span><b>Direct WebRTC whenever possible</b></div>
+        <div class="service-note">PeerJS is used only to broker the WebRTC handshake. The file data travels over WebRTC, and the Connection diagnostics panel shows the selected ICE path. If PeerJS is unavailable, the existing QR-based direct pairing remains the fallback; TURN credentials can be supplied in Advanced settings for restrictive networks.</div>
+      </div>
+      <details style="margin-top:8px"><summary>Advanced Internet settings</summary>
+        <label style="display:block;margin-top:9px"><span>Additional STUN server</span></label>
+        <input id="stunServer" class="input" style="margin-top:7px" placeholder="stun:example.example.com:3478">
+        <small>Optional. The built-in Google, Cloudflare and Twilio STUN entries remain enabled.</small>
+        <label style="display:block;margin-top:9px"><span>TURN URL(s)</span></label>
+        <input id="turnUrls" class="input" style="margin-top:7px" placeholder="turn:example.com:3478,turns:example.com:443">
+        <label style="display:block;margin-top:9px"><span>TURN username</span></label>
+        <input id="turnUsername" class="input" style="margin-top:7px" autocomplete="off">
+        <label style="display:block;margin-top:9px"><span>TURN credential</span></label>
+        <input id="turnCredential" class="input" type="password" style="margin-top:7px" autocomplete="off">
+        <small>Use short-lived TURN credentials from your provider. Do not put permanent account API keys into the HTML.</small>
+      </details>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 data-i18n="security">Transfer security</h2>
+    <div class="setting">
+      <label><span data-i18n="passwordProtect">Extra password protection</span><span class="switch"><input id="passwordEnabled" type="checkbox"><span class="slider"></span></span></label>
+      <small data-i18n="passwordHint">Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.</small>
+    </div>
+    <div id="passwordBox" class="hidden" style="margin-top:8px">
+      <input id="sessionPassword" class="input" type="password" autocomplete="new-password" minlength="8" placeholder="Password (8+ characters)">
+    </div>
+  </section>
+
+  <section class="section" style="margin-top:auto">
+    <h2 data-i18n="about">About this build</h2>
+    <div class="footer" data-i18n-html="aboutText">This is a new serverless WebRTC application inspired by the core idea behind PairDrop/ToffeeShare. It does not embed PairDrop code and does not require a PairDrop server. The bundled QR generator is used locally with no network call.</div>
+  </section>
+</aside>
+
+<section class="work">
+  <div class="work-head">
+    <div><div class="work-title" data-i18n="workspace">P2P workspace</div><div class="work-sub" id="workSub">Start a secure peer connection, then transfer files directly.</div></div>
+    <div class="work-actions"><button class="btn small ghost" id="selfTestBtn">Self-test</button><button class="btn small danger" id="disconnectBtn" disabled>Disconnect</button></div>
+  </div>
+  <div class="work-body">
+    <section class="connection">
+      <div class="connection-top"><div><div class="conn-id" data-i18n="pairing">Serverless pairing</div><div class="conn-note" id="pairingNote">GitHub Pages provides the HTTPS page and camera permission; the actual transfer remains direct WebRTC. No file data is sent through GitHub.</div></div><span class="pill" id="securityPill">DTLS encrypted</span></div>
+      <div class="steps">
+        <div class="step"><div class="n">Step 1</div><strong data-i18n="stepCreate">Create / join</strong><span data-i18n="stepCreate2">Choose your role below.</span></div>
+        <div class="step"><div class="n">Step 2</div><strong data-i18n="stepExchange">Scan pairing QR</strong><span data-i18n="stepExchange2">The long handshake moves through the QR, not through the file-transfer path.</span></div>
+        <div class="step"><div class="n">Step 3</div><strong data-i18n="stepConnect">Connect</strong><span data-i18n="stepConnect2">The browsers establish a direct WebRTC channel.</span></div>
+        <div class="step"><div class="n">Step 4</div><strong data-i18n="stepTransfer">Transfer</strong><span data-i18n="stepTransfer2">Files travel directly peer-to-peer.</span></div>
+      </div>
+      <div class="quickpair">
+        <div class="quickpair-head"><div><div class="quickpair-title">Easy pairing</div><div class="quickpair-sub">On GitHub Pages, HTTPS enables camera access. QR carries the WebRTC handshake; the 6-digit code verifies the peer.</div></div><span class="quickpair-badge">Recommended</span></div>
+        <div class="quickpair-actions"><button class="btn primary" id="easyCreateBtn">Start pairing</button><button class="btn" id="easyJoinBtn">Join / Scan</button></div>
+        <div id="pairCodeCard" class="pair-code-card hidden"><div><div class="pair-code-label">6-digit verification code</div><div class="pair-code" id="pairCode">------</div><div class="pair-code-note" id="pairCodeNote">The other device should show the same code after scanning.</div></div><button class="btn small pair-qr-btn" id="pairQrBtn">Show QR</button></div>
+        <div class="quick-status" id="quickStatus">Serverless room mode: one host can connect up to 8 devices directly. QR transports the technical WebRTC handshake; the 6-digit value is a verification fingerprint only.</div>
+        <div class="row wrap" style="margin-top:9px"><button class="btn small warn" id="sixDigitInfoBtn">6-digit only?</button><span class="subtle">Use this only with an optional signaling server.</span></div>
+      </div>
+      <details class="advanced-wrap">
+        <summary>Advanced pairing · copy/paste / .p2p files</summary>
+      <div class="role-tabs"><button class="btn role-tab active" id="roleHost">1 · Create session</button><button class="btn role-tab" id="roleJoin">2 · Join session</button></div>
+      <div id="hostPanel" class="codebox">
+        <div class="row wrap"><button class="btn primary" id="createOfferBtn">Create offer</button><button class="btn" id="copyOfferBtn" disabled>Copy offer</button><button class="btn" id="showOfferQrBtn" disabled>Show QR</button><button class="btn" id="saveOfferBtn" disabled>Save .p2p</button></div>
+        <textarea id="offerOut" class="textarea ltr-only" readonly placeholder="Your offer code will appear here…"></textarea>
+        <div class="subtle" data-i18n="hostHint">Send this offer to the other device. After it creates an answer, paste the answer below.</div>
+        <textarea id="answerIn" class="textarea ltr-only" placeholder="Paste the answer code here…"></textarea>
+        <div class="row wrap"><button class="btn good" id="applyAnswerBtn" disabled>Apply answer</button><button class="btn" id="scanAnswerQrBtn">Scan QR</button><button class="btn" id="loadSignalBtn">Import .p2p</button></div>
+      </div>
+      <div id="joinPanel" class="codebox hidden">
+        <div class="row wrap"><button class="btn primary" id="prepareAnswerBtn">Prepare answer</button><button class="btn" id="copyAnswerBtn" disabled>Copy answer</button><button class="btn" id="showAnswerQrBtn" disabled>Show QR</button><button class="btn" id="saveAnswerBtn" disabled>Save .p2p</button></div>
+        <textarea id="offerIn" class="textarea ltr-only" placeholder="Paste the offer code received from the other device…"></textarea>
+        <div class="row wrap"><button class="btn small" id="scanOfferQrBtn">Scan QR</button></div>
+        <textarea id="answerOut" class="textarea ltr-only" readonly placeholder="Your answer code will appear here…"></textarea>
+        <div class="subtle" data-i18n="joinHint">Send the answer back to the device that created the offer.</div>
+        <button class="btn" id="loadOfferFileBtn">Import offer .p2p</button>
+      </div>
+      </details>
+
+    </section>
+
+
+    <section class="room-card" id="roomCard">
+      <div class="room-head">
+        <div><div class="room-title">Multi-device room</div><div class="room-sub">Host a small private room and connect several devices directly. Each participant gets a separate WebRTC link to the host; no room server is required.</div></div>
+        <span class="pill" id="roomLimitPill">0 / 8 devices</span>
+      </div>
+      <div class="room-actions">
+        <button class="btn primary" id="createRoomBtn">Create room</button>
+        <button class="btn" id="joinRoomBtn">Join room / Scan</button>
+        <button class="btn" id="inviteRoomBtn" disabled>Invite device</button>
+        <button class="btn" id="scanRoomAnswerBtn" disabled>Scan answer</button>
+        <button class="btn danger" id="leaveRoomBtn" disabled>Leave room</button>
+      </div>
+      <div class="room-code hidden" id="roomCodeCard">
+        <div class="grow"><div class="room-code-label">Room verification</div><div class="room-code-value" id="roomCode">------</div><div class="room-sub" id="roomStatus">Create a room, then invite devices with QR.</div></div>
+        <button class="btn small" id="showRoomInviteBtn" disabled>Show current QR</button>
+      </div>
+      <div class="peer-grid" id="peerGrid"></div>
+    </section>
+
+    <section class="transfer-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-title" data-i18n="sendFiles">Send files</div><span class="pill" id="sendQueueCount">0 files</span></div>
+        <div id="dropZone" class="drop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
+          <strong data-i18n="dropTitle">Drop files here</strong><span data-i18n="dropSub">or use the buttons below. Nothing is uploaded to a server.</span>
+          <div class="file-actions"><button class="btn primary small" id="pickFilesBtn">Choose files</button><button class="btn small" id="pickFolderBtn">Choose folder</button><button class="btn small" id="sendTextBtn">Send text</button></div>
+        </div>
+        <div class="target-bar" id="targetBar">
+          <div class="target-head"><div class="target-title">Send to</div><div class="target-actions"><button class="btn small ghost" id="selectAllPeersBtn">All</button><button class="btn small ghost" id="clearPeersBtn">None</button></div></div>
+          <div class="target-list" id="targetList"><span class="subtle">Connect to a peer first.</span></div>
+        </div>
+        <div id="sendQueue" class="queue"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title" data-i18n="incoming">Incoming</div><span class="pill" id="incomingCount">0</span></div>
+        <div id="incomingList" class="incoming"><div class="incoming-empty" data-i18n="incomingEmpty">No incoming transfers yet.</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><div class="card-title" data-i18n="history">Transfer history</div><button class="btn small ghost" id="clearHistoryBtn">Clear</button></div>
+      <div id="historyList" class="history"><div class="history-empty" data-i18n="historyEmpty">Your history is stored locally in this browser.</div></div>
+    </section>
+  </div>
+</section>
+</main>
+</div>
+
+<textarea id="roomAnswerIn" class="hidden"></textarea>
+<input id="fileInput" type="file" multiple>
+<input id="folderInput" type="file" webkitdirectory multiple>
+<input id="signalFileInput" type="file" accept=".p2p,.json,application/json,text/plain">
+
+<div class="overlay" id="modal"><div class="modal">
+  <div class="modal-head"><div class="modal-title" id="modalTitle">Notice</div><button class="btn small ghost" id="modalClose">Close</button></div>
+  <div class="modal-body" id="modalBody"></div>
+  <div class="modal-foot" id="modalFoot"><button class="btn primary" id="modalOk">OK</button></div>
+</div></div>
+
+<script>
+(() => {
+'use strict';
+
+// Embedded QR generator: based on qrcode-terminal's vendored QRCode implementation.
+// Original QRCode implementation copyright (c) 2009 Kazuhiko Arase, MIT licensed.
+// qrcode-terminal is Apache-2.0 licensed. No network dependency is used.
+function __initEmbeddedQr(){
+// QRMode.js
+var QRMode = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+
+// QRErrorCorrectLevel.js
+var QRErrorCorrectLevel = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+
+
+// QRMaskPattern.js
+var QRMaskPattern = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+
+// QRMath.js
+var QRMath = {
+
+	glog : function(n) {
+	
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		
+		return QRMath.LOG_TABLE[n];
+	},
+	
+	gexp : function(n) {
+	
+		while (n < 0) {
+			n += 255;
+		}
+	
+		while (n >= 256) {
+			n -= 255;
+		}
+	
+		return QRMath.EXP_TABLE[n];
+	},
+	
+	EXP_TABLE : new Array(256),
+	
+	LOG_TABLE : new Array(256)
+
+};
+	
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+
+
+// QRPolynomial.js
+
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+	
+	getLength : function() {
+		return this.num.length;
+	},
+	
+	multiply : function(e) {
+	
+		var num = new Array(this.getLength() + e.getLength() - 1);
+	
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+	
+		return new QRPolynomial(num, 0);
+	},
+	
+	mod : function(e) {
+	
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+	
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+	
+		var num = new Array(this.getLength() );
+		
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+	
+		// recursive call
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+
+
+// QRRSBlock.js
+
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	// L
+	// M
+	// Q
+	// H
+
+	// 1
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	
+	// 2
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	// 3
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	// 4		
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	
+	// 5
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	
+	// 6
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	
+	// 7		
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	
+	// 8
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	
+	// 9
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+	
+	// 10		
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	// 11
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	// 12
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	// 13
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	// 14
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	// 15
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+
+	// 16
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	// 17
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	// 18
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	// 19
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	// 20
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	// 21
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	// 22
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	// 23
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	// 24
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	// 25
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	// 26
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	// 27
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	// 28
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	// 29
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	// 30
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	// 31
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	// 32
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	// 33
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	// 34
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	// 35
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	// 36
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	// 37
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	// 38
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	// 39
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	// 40
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+	
+	var list = [];
+	
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+
+
+// QRBitBuffer.js
+function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+
+QRBitBuffer.prototype = {
+
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+	},
+	
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+		}
+	},
+	
+	getLengthInBits : function() {
+		return this.length;
+	},
+	
+	putBit : function(bit) {
+	
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+	
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+	
+		this.length++;
+	}
+};
+
+
+// QR8bitByte.js
+
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function() {
+		return this.data.length;
+	},
+	
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			// not JIS ...
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+
+
+// QRUtil.js
+
+var QRUtil = {
+
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+
+    getBCHDigit : function(data) {
+
+        var digit = 0;
+
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+
+        return digit;
+    },
+
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+
+    getMask : function(maskPattern, i, j) {
+        
+        switch (maskPattern) {
+            
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+        case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+        case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+        case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+        case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+        case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+
+        default :
+            throw new Error("bad maskPattern:" + maskPattern);
+        }
+    },
+
+    getErrorCorrectPolynomial : function(errorCorrectLength) {
+
+        var a = new QRPolynomial([1], 0);
+
+        for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+        }
+
+        return a;
+    },
+
+    getLengthInBits : function(mode, type) {
+
+        if (1 <= type && type < 10) {
+
+            // 1 - 9
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 10;
+            case QRMode.MODE_ALPHA_NUM  : return 9;
+            case QRMode.MODE_8BIT_BYTE  : return 8;
+            case QRMode.MODE_KANJI      : return 8;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 27) {
+
+            // 10 - 26
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 12;
+            case QRMode.MODE_ALPHA_NUM  : return 11;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 10;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 41) {
+
+            // 27 - 40
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 14;
+            case QRMode.MODE_ALPHA_NUM  : return 13;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 12;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else {
+            throw new Error("type:" + type);
+        }
+    },
+
+    getLostPoint : function(qrCode) {
+        
+        var moduleCount = qrCode.getModuleCount();
+        var lostPoint = 0;
+        var row = 0; 
+        var col = 0;
+
+        
+        // LEVEL1
+        
+        for (row = 0; row < moduleCount; row++) {
+
+            for (col = 0; col < moduleCount; col++) {
+
+                var sameCount = 0;
+                var dark = qrCode.isDark(row, col);
+
+                for (var r = -1; r <= 1; r++) {
+
+                    if (row + r < 0 || moduleCount <= row + r) {
+                        continue;
+                    }
+
+                    for (var c = -1; c <= 1; c++) {
+
+                        if (col + c < 0 || moduleCount <= col + c) {
+                            continue;
+                        }
+
+                        if (r === 0 && c === 0) {
+                            continue;
+                        }
+
+                        if (dark === qrCode.isDark(row + r, col + c) ) {
+                            sameCount++;
+                        }
+                    }
+                }
+
+                if (sameCount > 5) {
+                    lostPoint += (3 + sameCount - 5);
+                }
+            }
+        }
+
+        // LEVEL2
+
+        for (row = 0; row < moduleCount - 1; row++) {
+            for (col = 0; col < moduleCount - 1; col++) {
+                var count = 0;
+                if (qrCode.isDark(row,     col    ) ) count++;
+                if (qrCode.isDark(row + 1, col    ) ) count++;
+                if (qrCode.isDark(row,     col + 1) ) count++;
+                if (qrCode.isDark(row + 1, col + 1) ) count++;
+                if (count === 0 || count === 4) {
+                    lostPoint += 3;
+                }
+            }
+        }
+
+        // LEVEL3
+
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount - 6; col++) {
+                if (qrCode.isDark(row, col) && 
+                        !qrCode.isDark(row, col + 1) && 
+                         qrCode.isDark(row, col + 2) && 
+                         qrCode.isDark(row, col + 3) && 
+                         qrCode.isDark(row, col + 4) && 
+                        !qrCode.isDark(row, col + 5) && 
+                         qrCode.isDark(row, col + 6) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount - 6; row++) {
+                if (qrCode.isDark(row, col) &&
+                        !qrCode.isDark(row + 1, col) &&
+                         qrCode.isDark(row + 2, col) &&
+                         qrCode.isDark(row + 3, col) &&
+                         qrCode.isDark(row + 4, col) &&
+                        !qrCode.isDark(row + 5, col) &&
+                         qrCode.isDark(row + 6, col) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        // LEVEL4
+        
+        var darkCount = 0;
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount; row++) {
+                if (qrCode.isDark(row, col) ) {
+                    darkCount++;
+                }
+            }
+        }
+        
+        var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+        lostPoint += ratio * 10;
+
+        return lostPoint;       
+    }
+
+};
+
+
+// index.js
+//---------------------------------------------------------------------
+// QRCode for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//   http://www.opensource.org/licenses/mit-license.php
+//
+// The word "QR Code" is registered trademark of 
+// DENSO WAVE INCORPORATED
+//   http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+// Modified to work in node for this project (and some refactoring)
+//---------------------------------------------------------------------
+
+
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+
+QRCode.prototype = {
+	
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	
+	make : function() {
+		// Calculate automatically typeNumber if provided is < 1
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	
+	makeImpl : function(test, maskPattern) {
+		
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		
+		for (var row = 0; row < this.moduleCount; row++) {
+			
+			this.modules[row] = new Array(this.moduleCount);
+			
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;//(col + row) % 3;
+			}
+		}
+	
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+	
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+	
+		this.mapData(this.dataCache, maskPattern);
+	},
+
+	setupPositionProbePattern : function(row, col)  {
+		
+		for (var r = -1; r <= 7; r++) {
+			
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			
+			for (var c = -1; c <= 7; c++) {
+				
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	
+	getBestMaskPattern : function() {
+	
+		var minLostPoint = 0;
+		var pattern = 0;
+	
+		for (var i = 0; i < 8; i++) {
+			
+			this.makeImpl(true, i);
+	
+			var lostPoint = QRUtil.getLostPoint(this);
+	
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+	
+		return pattern;
+	},
+	
+	createMovieClip : function(target_mc, instance_name, depth) {
+	
+		var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+		var cs = 1;
+	
+		this.make();
+
+		for (var row = 0; row < this.modules.length; row++) {
+			
+			var y = row * cs;
+			
+			for (var col = 0; col < this.modules[row].length; col++) {
+	
+				var x = col * cs;
+				var dark = this.modules[row][col];
+			
+				if (dark) {
+					qr_mc.beginFill(0, 100);
+					qr_mc.moveTo(x, y);
+					qr_mc.lineTo(x + cs, y);
+					qr_mc.lineTo(x + cs, y + cs);
+					qr_mc.lineTo(x, y + cs);
+					qr_mc.endFill();
+				}
+			}
+		}
+		
+		return qr_mc;
+	},
+
+	setupTimingPattern : function() {
+		
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+	
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	
+	setupPositionAdjustPattern : function() {
+	
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		
+		for (var i = 0; i < pos.length; i++) {
+		
+			for (var j = 0; j < pos.length; j++) {
+			
+				var row = pos[i];
+				var col = pos[j];
+				
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				
+				for (var r = -2; r <= 2; r++) {
+				
+					for (var c = -2; c <= 2; c++) {
+					
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	setupTypeNumber : function(test) {
+	
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+	
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+	
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	
+	setupTypeInfo : function(test, maskPattern) {
+	
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+	
+		// vertical		
+		for (var v = 0; v < 15; v++) {
+	
+			mod = (!test && ( (bits >> v) & 1) === 1);
+	
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+	
+		// horizontal
+		for (var h = 0; h < 15; h++) {
+	
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+	
+		// fixed module
+		this.modules[this.moduleCount - 8][8] = (!test);
+	
+	},
+	
+	mapData : function(data, maskPattern) {
+		
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+	
+			if (col === 6) col--;
+	
+			while (true) {
+	
+				for (var c = 0; c < 2; c++) {
+					
+					if (this.modules[row][col - c] === null) {
+						
+						var dark = false;
+	
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+	
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+	
+						if (mask) {
+							dark = !dark;
+						}
+						
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+	
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+								
+				row += inc;
+	
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+		
+	}
+
+};
+
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	
+	var buffer = new QRBitBuffer();
+	
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+
+	// calc num max data.
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+
+	// end code
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+
+	// padding
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+
+	// padding
+	while (true) {
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+
+QRCode.createBytes = function(buffer, rsBlocks) {
+
+	var offset = 0;
+	
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	
+	for (var r = 0; r < rsBlocks.length; r++) {
+
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		
+		dcdata[r] = new Array(dcCount);
+		
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+
+	}
+	
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+
+	var data = new Array(totalCodeCount);
+	var index = 0;
+
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+
+	return data;
+
+};
+
+
+return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
+}
+const QR = __initEmbeddedQr();
+
+const APP_VERSION = '1.5.0';
+const DB_NAME = 'offline-p2p-share';
+const DB_VERSION = 1;
+const CHUNK_DEFAULT = 64 * 1024;
+const HIGH_WATER = 4 * 1024 * 1024;
+const LOW_WATER = 1024 * 1024;
+const PBKDF2_ITERS = 120000;
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+const $ = (id) => document.getElementById(id);
+const els = {
+  app:$('app'), langBtn:$('langBtn'), helpBtn:$('helpBtn'), resetBtn:$('resetBtn'),
+  deviceName:$('deviceName'), saveNameBtn:$('saveNameBtn'),
+  connDot:$('connDot'), connState:$('connState'), connDetail:$('connDetail'), pathPill:$('pathPill'),
+  signalingPill:$('signalingPill'),
+  diagPathTitle:$('diagPathTitle'), diagRefreshBtn:$('diagRefreshBtn'), diagDot:$('diagDot'), diagPath:$('diagPath'), diagHint:$('diagHint'), diagCandidates:$('diagCandidates'), diagTransport:$('diagTransport'), diagSignaling:$('diagSignaling'), diagIceServer:$('diagIceServer'), diagSent:$('diagSent'), diagReceived:$('diagReceived'), diagPeers:$('diagPeers'),
+  dWebrtc:$('dWebrtc'), tWebrtc:$('tWebrtc'), dDc:$('dDc'), tDc:$('tDc'), dCrypto:$('dCrypto'), tCrypto:$('tCrypto'), dIdb:$('dIdb'), tIdb:$('tIdb'), dFs:$('dFs'), tFs:$('tFs'), dSecure:$('dSecure'), tSecure:$('tSecure'), dCamera:$('dCamera'), tCamera:$('tCamera'),
+  lanOnly:$('lanOnly'), offlineModeBtn:$('offlineModeBtn'), internetModeBtn:$('internetModeBtn'), internetSettings:$('internetSettings'), internetServicePill:$('internetServicePill'), networkModeHint:$('networkModeHint'), stunServer:$('stunServer'), turnUrls:$('turnUrls'), turnUsername:$('turnUsername'), turnCredential:$('turnCredential'), passwordEnabled:$('passwordEnabled'), passwordBox:$('passwordBox'), sessionPassword:$('sessionPassword'),
+  workSub:$('workSub'), selfTestBtn:$('selfTestBtn'), disconnectBtn:$('disconnectBtn'),
+  roleHost:$('roleHost'), roleJoin:$('roleJoin'), easyCreateBtn:$('easyCreateBtn'), easyJoinBtn:$('easyJoinBtn'), pairCodeCard:$('pairCodeCard'), pairCode:$('pairCode'), pairCodeNote:$('pairCodeNote'), pairQrBtn:$('pairQrBtn'), sixDigitInfoBtn:$('sixDigitInfoBtn'), quickStatus:$('quickStatus'), hostPanel:$('hostPanel'), joinPanel:$('joinPanel'), createOfferBtn:$('createOfferBtn'), copyOfferBtn:$('copyOfferBtn'), showOfferQrBtn:$('showOfferQrBtn'), saveOfferBtn:$('saveOfferBtn'), offerOut:$('offerOut'), answerIn:$('answerIn'), applyAnswerBtn:$('applyAnswerBtn'), loadSignalBtn:$('loadSignalBtn'),
+  prepareAnswerBtn:$('prepareAnswerBtn'), copyAnswerBtn:$('copyAnswerBtn'), showAnswerQrBtn:$('showAnswerQrBtn'), saveAnswerBtn:$('saveAnswerBtn'), offerIn:$('offerIn'), answerOut:$('answerOut'), loadOfferFileBtn:$('loadOfferFileBtn'),
+  scanOfferQrBtn:$('scanOfferQrBtn'), scanAnswerQrBtn:$('scanAnswerQrBtn'), dropZone:$('dropZone'), pickFilesBtn:$('pickFilesBtn'), pickFolderBtn:$('pickFolderBtn'), sendTextBtn:$('sendTextBtn'), fileInput:$('fileInput'), folderInput:$('folderInput'), sendQueue:$('sendQueue'), sendQueueCount:$('sendQueueCount'), incomingList:$('incomingList'), incomingCount:$('incomingCount'), historyList:$('historyList'), clearHistoryBtn:$('clearHistoryBtn'),
+  signalFileInput:$('signalFileInput'), modal:$('modal'), modalTitle:$('modalTitle'), modalBody:$('modalBody'), modalFoot:$('modalFoot'), modalClose:$('modalClose'), modalOk:$('modalOk'),
+  createRoomBtn:$('createRoomBtn'), joinRoomBtn:$('joinRoomBtn'), inviteRoomBtn:$('inviteRoomBtn'), scanRoomAnswerBtn:$('scanRoomAnswerBtn'), leaveRoomBtn:$('leaveRoomBtn'), roomCodeCard:$('roomCodeCard'), roomCode:$('roomCode'), roomStatus:$('roomStatus'), showRoomInviteBtn:$('showRoomInviteBtn'), roomLimitPill:$('roomLimitPill'), peerGrid:$('peerGrid'), roomAnswerIn:$('roomAnswerIn'), selectAllPeersBtn:$('selectAllPeersBtn'), clearPeersBtn:$('clearPeersBtn'), targetList:$('targetList')
+};
+
+const state = {
+  lang: localStorage.getItem('p2p-lang') || 'en',
+  device: localStorage.getItem('p2p-device') || `${navigator.platform || 'Browser'} device`,
+  pc: null, dc: null, role: 'host', connected:false, selfTest:false,
+  offerObj:null, answerObj:null, offerText:'', answerText:'',
+  sendQueue:[], sending:false, currentSend:null,
+  incoming:new Map(),
+  history: JSON.parse(localStorage.getItem('p2p-history') || '[]'),
+  db:null,
+  sessionSalt:null, sessionChallenge:null, sessionKeys:null, authenticated:false, passwordEnabled:false, sessionPassword:'',
+  icePath:'Unknown', statsTimer:null, qrStream:null, qrTimer:null, pairCode:'', quickMode:false,
+  diagSamples:new Map(), diagLast:null,
+  peers:new Map(), primaryPeerId:null, selectedPeerIds:new Set(),
+  room:{active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:''}, roomMaxPeers:8, roomAnswerBuffer:'', internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false},
+};
+
+const I18N = {
+  en:{
+    appTitle:'P2P Share', appSub:'One HTML file · offline LAN + Internet rooms · direct WebRTC transfer', diagnostics:'Connection diagnostics', refresh:'Refresh', candidatePair:'Candidate pair', transport:'Transport', signaling:'Signaling', iceServer:'ICE server', bytesSent:'Bytes sent', bytesReceived:'Bytes received', connection:'Connection', device:'Device', deviceHint:'Your name is stored only in this browser.', checks:'Browser checks', network:'Network mode', offlineMode:'Offline / LAN-only mode', offlineHint:'No STUN/TURN servers are used. Best for devices on the same Wi-Fi/LAN.', stunLabel:'Optional STUN server', stunHint:'Turn LAN-only off only when you intentionally want Internet/NAT traversal.', security:'Transfer security', passwordProtect:'Extra password protection', passwordHint:'Adds application-level PBKDF2 + AES-GCM protection on top of WebRTC encryption.', about:'About this build', workspace:'P2P workspace', pairing:'Serverless pairing', stepCreate:'Create / join', stepCreate2:'Choose your role below.', stepExchange:'Exchange code', stepExchange2:'Copy the signaling code between devices.', stepConnect:'Connect', stepConnect2:'The browsers establish a direct WebRTC channel.', stepTransfer:'Transfer', stepTransfer2:'Files travel directly peer-to-peer.', sendFiles:'Send files', dropTitle:'Drop files here', dropSub:'or use the buttons below. Nothing is uploaded to a server.', incoming:'Incoming', incomingEmpty:'No incoming transfers yet.', history:'Transfer history', historyEmpty:'Your history is stored locally in this browser.', aboutText:'This is a new serverless WebRTC application inspired by the core idea behind PairDrop/ToffeeShare. It does not embed PairDrop code and does not require a PairDrop server.', hostHint:'Send this offer to the other device. After it creates an answer, paste the answer below.', joinHint:'Send the answer back to the device that created the offer.'
+  },
+  ar:{
+    appTitle:'مشاركة P2P', appSub:'ملف HTML واحد · وضع محلي بدون إنترنت + غرف عبر الإنترنت · نقل WebRTC مباشر', diagnostics:'تشخيص الاتصال', refresh:'تحديث', candidatePair:'زوج المرشحين', transport:'النقل', signaling:'الإشارة', iceServer:'خادم ICE', bytesSent:'البيانات المرسلة', bytesReceived:'البيانات المستلمة', connection:'الاتصال', device:'الجهاز', deviceHint:'يتم حفظ اسمك في هذا المتصفح فقط.', checks:'فحوصات المتصفح', network:'وضع الشبكة', offlineMode:'وضع الشبكة المحلية بدون إنترنت', offlineHint:'لا يتم استخدام STUN/TURN. مناسب للأجهزة على نفس شبكة Wi‑Fi/LAN.', stunLabel:'خادم STUN اختياري', stunHint:'أوقف وضع الشبكة المحلية فقط عندما تريد اتصال الإنترنت/اجتياز NAT.', security:'أمان النقل', passwordProtect:'حماية إضافية بكلمة مرور', passwordHint:'يضيف PBKDF2 + AES-GCM على مستوى التطبيق فوق تشفير WebRTC.', about:'حول هذا الإصدار', workspace:'مساحة P2P', pairing:'اقتران بدون خادم', stepCreate:'إنشاء / انضمام', stepCreate2:'اختر دورك أدناه.', stepExchange:'تبادل الرمز', stepExchange2:'انسخ رمز الإشارة بين الجهازين.', stepConnect:'الاتصال', stepConnect2:'ينشئ المتصفحان قناة WebRTC مباشرة.', stepTransfer:'النقل', stepTransfer2:'تنتقل الملفات مباشرة بين الجهازين.', sendFiles:'إرسال الملفات', dropTitle:'أسقط الملفات هنا', dropSub:'أو استخدم الأزرار أدناه. لا يتم رفع أي ملف إلى خادم.', incoming:'الوارد', incomingEmpty:'لا توجد عمليات نقل واردة.', history:'سجل النقل', historyEmpty:'يتم حفظ السجل محليًا في هذا المتصفح.', aboutText:'هذا تطبيق WebRTC جديد بدون خادم، مستوحى من الفكرة الأساسية في PairDrop/ToffeeShare. لا يضم كود PairDrop ولا يحتاج إلى خادم PairDrop.', hostHint:'أرسل العرض إلى الجهاز الآخر. بعد إنشاء الإجابة، الصقها هنا.', joinHint:'أرسل الإجابة مرة أخرى إلى الجهاز الذي أنشأ العرض.'
+  }
+};
+
+function applyLang(){
+  const dict=I18N[state.lang];
+  document.documentElement.lang=state.lang;
+  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
+  els.app.classList.toggle('rtl',state.lang==='ar');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.dataset.i18n; if(dict[k]) el.textContent=dict[k]; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const k=el.dataset.i18nHtml; if(dict[k]) el.innerHTML=dict[k]; });
+  els.langBtn.textContent=state.lang==='ar'?'EN':'AR';
+}
+
+function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtBytes(n){ if(!Number.isFinite(n)) return '—'; const u=['B','KB','MB','GB','TB']; let i=0; let x=n; while(x>=1024 && i<u.length-1){x/=1024;i++;} return `${x.toFixed(i?2:0)} ${u[i]}`; }
+function fmtTime(sec){ if(!Number.isFinite(sec)||sec<0) return '—'; if(sec<60)return `${Math.round(sec)}s`; if(sec<3600)return `${Math.floor(sec/60)}m ${Math.round(sec%60)}s`; return `${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`; }
+function fmtSpeed(bps){ return `${fmtBytes(bps)}/s`; }
+function now(){return Date.now();}
+function uid(){return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;}
+function setDot(dot,text,ok,kind='good'){ dot.className='dot '+(ok?kind:'bad'); text.textContent=ok?'Available':'Unavailable'; }
+function setConn(stateName, detail, kind='warn'){ els.connState.textContent=stateName; els.connDetail.textContent=detail; els.connDot.className='dot '+kind; }
+function setPath(path){state.icePath=path; els.pathPill.textContent=path; els.pathPill.className='pill '+(path==='Direct LAN'||path==='Direct host'?'good':path==='TURN relay'?'warn':path==='Direct Internet'?'good':''); if(els.diagPath) els.diagPath.textContent=path;}
+
+function browserChecks(){
+  setDot(els.dWebrtc,els.tWebrtc,'RTCPeerConnection' in window); els.tWebrtc.textContent=('RTCPeerConnection' in window)?'Available':'Missing';
+  setDot(els.dDc,els.tDc,'RTCDataChannel' in window); els.tDc.textContent=('RTCDataChannel' in window)?'Available':'Missing';
+  setDot(els.dCrypto,els.tCrypto,!!crypto?.subtle); els.tCrypto.textContent=crypto?.subtle?'Available':'Missing';
+  setDot(els.dIdb,els.tIdb,'indexedDB' in window); els.tIdb.textContent=('indexedDB' in window)?'Available':'Missing';
+  setDot(els.dFs,els.tFs,'showSaveFilePicker' in window); els.tFs.textContent=('showSaveFilePicker' in window)?'Available':'Fallback';
+  const secure=!!window.isSecureContext;
+  setDot(els.dSecure,els.tSecure,secure);
+  els.tSecure.textContent=secure ? (location.hostname.endsWith('.github.io')?'HTTPS · GitHub Pages':'HTTPS · secure') : 'Not secure';
+  const cam=secure && !!navigator.mediaDevices?.getUserMedia;
+  setDot(els.dCamera,els.tCamera,cam);
+  els.tCamera.textContent=cam ? (('BarcodeDetector' in window)?'Camera + QR ready':'Camera ready · QR decoder limited') : 'Unavailable';
+}
+
+function getDb(){
+  if(state.db) return Promise.resolve(state.db);
+  return new Promise((resolve,reject)=>{
+    if(!('indexedDB' in window)) return reject(new Error('IndexedDB unavailable'));
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains('chunks')){
+        const s=db.createObjectStore('chunks',{keyPath:['id','index']});
+        s.createIndex('byId','id',{unique:false});
+      }
+    };
+    req.onsuccess=()=>{state.db=req.result;resolve(state.db)};
+    req.onerror=()=>reject(req.error || new Error('IndexedDB open failed'));
+  });
+}
+function idbPut(id,index,blob){ return getDb().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction('chunks','readwrite');tx.objectStore('chunks').put({id,index,blob});tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})); }
+function idbGetAll(id){ return getDb().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction('chunks','readonly');const idx=tx.objectStore('chunks').index('byId');const req=idx.getAll(IDBKeyRange.only(id));req.onsuccess=()=>resolve(req.result.sort((a,b)=>a.index-b.index));req.onerror=()=>reject(req.error)})); }
+function idbDelete(id){ return getDb().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction('chunks','readwrite');const idx=tx.objectStore('chunks').index('byId');const req=idx.getAllKeys(IDBKeyRange.only(id));req.onsuccess=()=>{const s=tx.objectStore('chunks');req.result.forEach(k=>s.delete(k));};tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})); }
+
+function toB64(bytes){ let bin=''; const arr=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes); const step=0x8000; for(let i=0;i<arr.length;i+=step) bin+=String.fromCharCode(...arr.subarray(i,i+step)); return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function fromB64(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4)s+='='; const bin=atob(s); const out=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i); return out; }
+function encodeSignal(obj){ return toB64(enc.encode(JSON.stringify(obj))); }
+function decodeSignal(text){ const bytes=fromB64(String(text).trim()); return JSON.parse(dec.decode(bytes)); }
+function downloadText(filename,text,mime='application/octet-stream'){ const blob=new Blob([text],{type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},0); }
+async function readTextFile(file){return await file.text();}
+
+async function streamBytes(stream){const reader=stream.getReader();const parts=[];while(true){const {done,value}=await reader.read();if(done)break;parts.push(value);}const len=parts.reduce((n,a)=>n+a.byteLength,0);const out=new Uint8Array(len);let o=0;for(const a of parts){out.set(a,o);o+=a.byteLength;}return out;}
+async function encodeSignalAsync(obj){
+  // Mobile-first pairing: keep the critical offer/answer exchange dependency-free.
+  // Plain UTF-8/Base64 works across browsers without CompressionStream support.
+  return 'R1:'+toB64(enc.encode(JSON.stringify(obj)));
+}
+async function decodeSignalAsync(text){
+  const value=String(text||'').trim();
+  if(value.startsWith('G1:') || value.startsWith('C1:')){
+    const kind=value.slice(0,2), bytes=fromB64(value.slice(3));
+    if('DecompressionStream' in window){
+      const formats=kind==='G1'?['gzip']:['deflate-raw','deflate'];
+      for(const fmt of formats){
+        try{
+          const ds=new DecompressionStream(fmt);
+          const out=await streamBytes(new Blob([bytes]).stream().pipeThrough(ds));
+          return JSON.parse(dec.decode(out));
+        }catch{}
+      }
+    }
+    throw new Error('This browser cannot decompress the compact pairing code. Use Copy/Paste or the .p2p file instead.');
+  }
+  if(value.startsWith('R1:'))return JSON.parse(dec.decode(fromB64(value.slice(3))));
+  // Legacy/raw base64 support for early builds
+  return JSON.parse(dec.decode(fromB64(value)));
+}
+async function makeVerificationCode(text){
+  const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(String(text))));
+  const n=((digest[0]<<16)|(digest[1]<<8)|digest[2])%1000000;
+  return String(n).padStart(6,'0').replace(/(\d{3})(\d{3})/,'$1 $2');
+}
+function showPairCode(code,note){state.pairCode=code||'';els.pairCode.textContent=code||'------';els.pairCodeNote.textContent=note||'The other device should show the same code after scanning.';els.pairCodeCard.classList.toggle('hidden',!code);}
+function setQuickStatus(text,kind=''){els.quickStatus.textContent=text;els.quickStatus.style.color=kind==='good'?'#7de8b8':kind==='bad'?'#ff9ba6':'';}
+function drawQr(text,canvasId='qrCanvas'){
+  const canvas=$(canvasId); if(!canvas) return;
+  const qr=new QR.QRCode(0,QR.QRErrorCorrectLevel.L); qr.addData(text); qr.make();
+  const count=qr.getModuleCount(); const quiet=4; const scale=Math.max(4,Math.floor(420/(count+quiet*2))); const size=(count+quiet*2)*scale; canvas.width=size;canvas.height=size;
+  const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.fillStyle='#fff';ctx.fillRect(0,0,size,size);ctx.fillStyle='#000';
+  for(let r=0;r<count;r++)for(let c=0;c<count;c++)if(qr.isDark(r,c))ctx.fillRect((c+quiet)*scale,(r+quiet)*scale,scale,scale);
+  const info=$('qrInfo'); if(info)info.textContent=`QR version ${qr.typeNumber} · ${count}×${count} modules · ${text.length} characters`;
+}
+async function showQr(title,text,verifyCode=''){
+  try{
+    const compressed=text.startsWith('C1:')||text.startsWith('G1:')||text.startsWith('R1:')?text:await encodeSignalAsync(decodeSignal(text));
+    const code=verifyCode||await makeVerificationCode(text);
+    showModal(title,`<div class="notice good"><b>Scan this QR</b> on the other device. No Internet or QR service is used.</div><div style="display:grid;place-items:center;background:#fff;border-radius:12px;margin-top:12px;padding:12px"><canvas id="qrCanvas" style="max-width:100%;height:auto"></canvas></div><div style="text-align:center;margin-top:8px"><div style="font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:#7188a6;font-weight:900">6-digit verification code</div><div style="font:950 28px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em;margin-top:2px">${escapeHtml(code)}</div></div><div id="qrInfo" class="subtle" style="text-align:center;margin-top:8px"></div><div class="notice warn" style="margin-top:10px">The QR contains the long WebRTC handshake. The number is only a human-readable fingerprint; it is not sufficient by itself to establish the connection.</div>`,null,()=>{});
+    setTimeout(()=>{try{drawQr(compressed)}catch(err){showModal('QR too large',`<div class="notice bad">${escapeHtml(err.message||String(err))}<br><br>Use Advanced copy/paste or the .p2p signaling file instead.</div>`)}},0);
+  }catch(err){showModal('QR unavailable',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}
+}
+function stopQrScan(){if(state.qrTimer){clearTimeout(state.qrTimer);state.qrTimer=null;}if(state.qrStream){state.qrStream.getTracks().forEach(t=>t.stop());state.qrStream=null;}}
+async function scanQrInto(fieldId,autoProcess=false){
+  if(!window.isSecureContext){showModal('Camera access unavailable','<div class="notice warn"><b>HTTPS is required for camera scanning.</b><br><br>Publish this file on GitHub Pages (or another HTTPS host) and open that address on the phone.</div>');return;}
+  if(!navigator.mediaDevices?.getUserMedia){showModal('Camera unavailable','<div class="notice bad">This browser does not expose camera access.</div>');return;}
+  if(!('BarcodeDetector' in window)){showModal('QR scanner unavailable','<div class="notice warn">This browser can access the camera but does not expose the built-in QR decoder used by this one-file build.<br><br>For the smoothest GitHub Pages test, use a recent Chrome, Edge, or Samsung Internet browser on the phone. Otherwise use Advanced copy/paste.</div>');return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});state.qrStream=stream;
+    const detector=new BarcodeDetector({formats:['qr_code']});
+    showModal('Scan pairing QR',`<div style="background:#000;border-radius:14px;overflow:hidden"><video id="qrVideo" autoplay playsinline style="display:block;width:100%;height:auto"></video></div><div class="subtle" style="margin-top:9px">Point the camera at the QR code from the other device.</div>`,null,()=>stopQrScan());
+    const video=$('qrVideo');video.srcObject=stream;await video.play();
+    const loop=async()=>{try{const codes=await detector.detect(video);if(codes?.[0]?.rawValue){$(fieldId).value=codes[0].rawValue;stopQrScan();closeModal();toast('QR pairing data imported.');if(autoProcess){if(fieldId==='offerIn'){let obj=null;try{obj=await decodeSignalAsync($(fieldId).value.trim())}catch{};if(obj?.room)await joinRoomFromOffer($(fieldId).value.trim());else{switchRole('join');await prepareAnswer(true);}}else if(fieldId==='answerIn'){switchRole('host');await applyAnswer(true);}else if(fieldId==='roomAnswerIn'){await applyRoomAnswer($(fieldId).value.trim());$(fieldId).value='';}}return;}}catch{}state.qrTimer=setTimeout(loop,220)};loop();
+  }catch(err){stopQrScan();showModal('Camera error',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}
+}
+function bytesRandom(n){const b=new Uint8Array(n);const max=65536;for(let o=0;o<n;o+=max){const len=Math.min(max,n-o);crypto.getRandomValues(b.subarray(o,o+len));}return b;}
+async function deriveKeys(password,salt){
+  const material=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:PBKDF2_ITERS,hash:'SHA-256'},material,512);
+  const b=new Uint8Array(bits); const aes=await crypto.subtle.importKey('raw',b.slice(0,32),{name:'AES-GCM'},false,['encrypt','decrypt']); const hmac=await crypto.subtle.importKey('raw',b.slice(32),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']); return {aes,hmac};
+}
+async function proofFor(keys,challenge){return new Uint8Array(await crypto.subtle.sign('HMAC',keys.hmac,challenge));}
+function equalBytes(a,b){if(a.length!==b.length)return false;let x=0;for(let i=0;i<a.length;i++)x|=a[i]^b[i];return x===0;}
+async function encryptChunk(keys,plain){const iv=bytesRandom(12);const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},keys.aes,plain));const out=new Uint8Array(12+cipher.length);out.set(iv,0);out.set(cipher,12);return out;}
+async function decryptChunk(keys,cipher){const u=new Uint8Array(cipher);if(u.length<13)throw new Error('Encrypted chunk is too small');return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:u.slice(0,12)},keys.aes,u.slice(12)));}
+
+function buildIceServers(){
+  const servers=[];
+  if(els.lanOnly.checked)return servers;
+  servers.push({urls:'stun:stun.l.google.com:19302'});
+  servers.push({urls:'stun:stun.cloudflare.com:3478'});
+  servers.push({urls:'stun:global.stun.twilio.com:3478'});
+  const custom=els.stunServer?.value?.trim();if(custom)servers.push({urls:custom});
+  const turnUrls=(els.turnUrls?.value||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const username=els.turnUsername?.value?.trim()||'';const credential=els.turnCredential?.value||'';
+  if(turnUrls.length&&username&&credential)servers.push({urls:turnUrls,username,credential});
+  return servers;
+}
+function rtcConfig(){
+  const cfg={iceServers:buildIceServers(),sdpSemantics:'unified-plan'};
+  return cfg;
+}
+function waitIceComplete(pc){
+  return new Promise(resolve=>{if(pc.iceGatheringState==='complete')return resolve();const timer=setTimeout(resolve,12000);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve();}})});
+}
+
+function syncPrimary(peerId=null){
+  if(peerId && state.peers.has(peerId)) state.primaryPeerId=peerId;
+  const p=state.primaryPeerId?state.peers.get(state.primaryPeerId):null;
+  state.pc=p?.pc||null; state.dc=p?.dc||null; state.connected=!!(p?.connected && p?.dc?.readyState==='open');
+  state.authenticated=!!p?.authenticated; state.sessionKeys=p?.sessionKeys||null;
+  els.disconnectBtn.disabled=state.peers.size===0;
+}
+function getPeer(peerId=null){
+  const id=peerId||state.primaryPeerId;
+  return id?state.peers.get(id)||null:null;
+}
+function peerLabel(peer){return peer?.name || (peer?.id?`Device ${peer.id.slice(0,4)}`:'Peer');}
+function avatarFor(name){return String(name||'P').trim().slice(0,1).toUpperCase();}
+function dcIsOpen(dc){return !!dc && (dc.readyState==='open' || dc.open===true);}
+function connectedPeers(){return [...state.peers.values()].filter(p=>p.connected&&dcIsOpen(p.dc));}
+function selectedPeers(){
+  const ids=[...state.selectedPeerIds].filter(id=>{const p=state.peers.get(id);return p?.connected&&p?.authenticated&&dcIsOpen(p?.dc);});
+  if(ids.length)return ids;
+  const first=connectedPeers().filter(p=>p.authenticated)[0];
+  return first?[first.id]:[];
+}
+function renderPeers(){
+  const peers=[...state.peers.values()];
+  const roomCount=(state.room.active?1:0)+peers.filter(p=>!p.connected&&p.pending).length+peers.filter(p=>p.connected).length;
+  els.roomLimitPill.textContent=`${Math.min(roomCount,state.roomMaxPeers)} / ${state.roomMaxPeers} devices`;
+  els.peerGrid.innerHTML='';
+  if(!peers.length){els.peerGrid.innerHTML='<div class="subtle" style="grid-column:1/-1;padding:8px 2px">No connected devices yet. Create a room or start a direct pair.</div>';}
+  for(const p of peers){
+    const checked=state.selectedPeerIds.has(p.id);
+    const div=document.createElement('div');div.className='peer-card';
+    div.innerHTML=`<div class="peer-top"><div class="peer-avatar">${escapeHtml(avatarFor(p.name))}</div><div class="grow"><div class="peer-name" title="${escapeHtml(peerLabel(p))}">${escapeHtml(peerLabel(p))}</div><div class="peer-meta">${p.connected?'Direct WebRTC':'Waiting for answer'}${p.room?' · Room':' · Direct'}</div></div></div><div class="peer-controls"><label class="peer-target"><input type="checkbox" data-peer-select="${escapeHtml(p.id)}" ${checked?'checked':''} ${p.connected&&p.authenticated?'':'disabled'}> Send target</label><span class="peer-status"><span class="dot ${p.connected?'good':'warn'}"></span>${p.connected?'Connected':'Pending'}</span></div>`;
+    els.peerGrid.appendChild(div);
+  }
+  els.peerGrid.querySelectorAll('[data-peer-select]').forEach(ch=>ch.addEventListener('change',()=>{const id=ch.dataset.peerSelect;if(ch.checked)state.selectedPeerIds.add(id);else state.selectedPeerIds.delete(id);renderPeers();}));
+  renderTargets();
+  const active=state.room.active;
+  els.inviteRoomBtn.disabled=!active||state.room.role!=='host'||peers.filter(p=>p.room&&p.connected).length>=state.roomMaxPeers;
+  els.scanRoomAnswerBtn.disabled=!active||state.room.role!=='host'||!state.room.pendingPeerId;
+  els.leaveRoomBtn.disabled=!active;
+  els.showRoomInviteBtn.disabled=!state.room.currentInviteText;
+  if(active){els.roomCodeCard.classList.remove('hidden');els.roomCode.textContent=state.room.id||'------';els.roomStatus.textContent=state.room.role==='host'?(state.room.pendingPeerId?'Invite displayed · waiting for answer':'Room ready · invite another device'):'Connected to host · wait for host confirmation';}
+  else els.roomCodeCard.classList.add('hidden');
+}
+function renderTargets(){
+  const peers=connectedPeers().filter(p=>p.authenticated);els.targetList.innerHTML='';
+  if(!peers.length){els.targetList.innerHTML='<span class="subtle">Connect to a peer first.</span>';return;}
+  for(const p of peers){const label=document.createElement('label');label.className='target-chip';label.innerHTML=`<input type="checkbox" data-target-id="${escapeHtml(p.id)}" ${state.selectedPeerIds.has(p.id)?'checked':''}> ${escapeHtml(peerLabel(p))}`;els.targetList.appendChild(label);}
+  els.targetList.querySelectorAll('[data-target-id]').forEach(ch=>ch.addEventListener('change',()=>{const id=ch.dataset.targetId;if(ch.checked)state.selectedPeerIds.add(id);else state.selectedPeerIds.delete(id);renderPeers();}));
+}
+function createPeerConnection(peerId,role,{room=false,name='Peer'}={}){
+  if(state.peers.has(peerId)){try{state.peers.get(peerId).pc.close()}catch{}}
+  const pc=new RTCPeerConnection(rtcConfig());
+  const peer={id:peerId,pc,dc:null,name,role,room,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null};
+  state.peers.set(peerId,peer);
+  pc.oniceconnectionstatechange=()=>{
+    const s=pc.iceConnectionState;
+    if(s==='connected'||s==='completed'){peer.connected=true;renderPeers();setPrimaryIfNeeded(peerId);setConn('Connected',`Direct WebRTC link to ${peerLabel(peer)}.`,'good');}
+    else if(s==='checking'){setConn('Connecting','Negotiating a direct network path…','warn');}
+    else if(['failed','disconnected','closed'].includes(s)){peer.connected=false;peer.pending=false;renderPeers();}
+  };
+  pc.onconnectionstatechange=()=>{
+    const s=pc.connectionState;
+    if(s==='connected'){peer.connected=true;peer.pending=false;setPrimaryIfNeeded(peerId);syncPrimary();renderPeers();startStats();}
+    if(['failed','closed'].includes(s)){peer.connected=false;peer.pending=false;syncPrimary();renderPeers();}
+  };
+  pc.ondatachannel=e=>attachDataChannel(peerId,e.channel);
+  if(role==='host') attachDataChannel(peerId,pc.createDataChannel('p2p-transfer',{ordered:true}));
+  return pc;
+}
+function setPrimaryIfNeeded(peerId){if(!state.primaryPeerId||!state.peers.get(state.primaryPeerId)?.connected){state.primaryPeerId=peerId;syncPrimary(peerId);}}
+function cleanupPeer(peerId){const p=state.peers.get(peerId);if(!p)return;try{p.dc?.close()}catch{}try{p.pc?.close()}catch{}state.peers.delete(peerId);state.selectedPeerIds.delete(peerId);if(state.primaryPeerId===peerId)state.primaryPeerId=null;syncPrimary();renderPeers();}
+function cleanupConnection(){if(state.internet?.peer){try{state.internet.peer.destroy()}catch{ }state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';}if(state.statsTimer){clearInterval(state.statsTimer);state.statsTimer=null;}for(const id of [...state.peers.keys()])cleanupPeer(id);state.pc=null;state.dc=null;state.connected=false;state.authenticated=false;state.sessionKeys=null;state.currentSend=null;state.sending=false;state.diagSamples.clear();state.diagLast=null;state.room.active=false;state.room.role=null;state.room.pendingPeerId=null;state.room.currentInviteText='';state.room.currentInviteCode='';updateSendUi();renderPeers();renderDiagnostics([]);}
+function setupPeerConnection(role){cleanupConnection();const pc=createPeerConnection('primary',role,{room:false,name:'Peer'});setPrimaryIfNeeded('primary');return pc;}
+function attachDataChannel(peerId,dc){
+  const peer=state.peers.get(peerId);if(!peer)return;peer.dc=dc;dc.binaryType='arraybuffer';dc.bufferedAmountLowThreshold=LOW_WATER;
+  dc.onopen=async()=>{peer.connected=true;peer.pending=false;state.selectedPeerIds.add(peerId);setPrimaryIfNeeded(peerId);syncPrimary(peerId);renderPeers();setConn('Connected',`Data channel open · ${peerLabel(peer)}.`,'good');await sendHello(peerId);};
+  dc.onclose=()=>{peer.connected=false;peer.pending=false;syncPrimary();renderPeers();if(!state.selfTest&&!connectedPeers().length)setConn('Disconnected','All peer data channels are closed.','warn');};
+  dc.onerror=e=>setConn('Channel error',e?.message||'A data channel error occurred.','bad');
+  dc.onmessage=e=>handleMessage(e.data,peerId).catch(err=>showModal('Transfer error',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));
+}
+function getPeerForSend(peerId=null){const p=getPeer(peerId);if(!p||!dcIsOpen(p.dc))throw new Error('The selected peer data channel is not open.');return p;}
+async function sendJson(obj,peerId=null){const p=getPeerForSend(peerId);p.dc.send(JSON.stringify(obj));}
+function waitBackpressure(peerId=null){return new Promise(resolve=>{const p=getPeer(peerId);if(!p?.dc||!dcIsOpen(p.dc))return resolve();const buffered=()=>Number(p.dc.bufferedAmount??p.dc.bufferSize??0);if(buffered()<=HIGH_WATER)return resolve();if(typeof p.dc.addEventListener==='function'){const h=()=>{p.dc?.removeEventListener('bufferedamountlow',h);resolve()};p.dc.addEventListener('bufferedamountlow',h);return;}const timer=setInterval(()=>{if(!p.dc||!dcIsOpen(p.dc)||buffered()<=LOW_WATER){clearInterval(timer);resolve();}},30);});}
+
+async function sendHello(peerId=null){
+  const p=getPeer(peerId);if(!p)return;
+  const enabled=els.passwordEnabled.checked;p.passwordEnabled=enabled;
+  if(enabled){
+    const pwd=els.sessionPassword.value;
+    if(pwd.length<8){showModal('Password required','<div class="notice warn">Enable password protection only after entering a password of at least 8 characters.</div>');return;}
+    p.sessionSalt=bytesRandom(16);p.sessionChallenge=bytesRandom(32);p.sessionKeys=await deriveKeys(pwd,p.sessionSalt);
+    const proof=await proofFor(p.sessionKeys,p.sessionChallenge);
+    await sendJson({t:'hello',v:APP_VERSION,name:state.device,protected:true,salt:toB64(p.sessionSalt),challenge:toB64(p.sessionChallenge),proof:toB64(proof)},peerId);
+    setConn('Awaiting password',`The other device must verify the shared password for ${peerLabel(p)}.`,'warn');
+  }else{
+    await sendJson({t:'hello',v:APP_VERSION,name:state.device,protected:false},peerId);p.authenticated=true;syncPrimary();renderPeers();
+  }
+}
+
+async function handleMessage(data,peerId){
+  const p=getPeer(peerId);if(!p)return;
+  if(typeof data==='string'){
+    let m;try{m=JSON.parse(data)}catch{return;}
+    if(m.t==='hello')return handleHello(m,peerId);
+    if(m.t==='auth-ok'){p.authenticated=true;p.name=m.name||p.name;p.pending=false;state.selectedPeerIds.add(peerId);syncPrimary();renderPeers();setConn('Connected',`Secure channel ready · peer: ${peerLabel(p)}`,'good');return;}
+    if(m.t==='auth-fail'){p.authenticated=false;setConn('Authentication failed',`The shared password did not match for ${peerLabel(p)}.`,'bad');return;}
+    if(m.t==='file-start')return handleFileStart(m,peerId);
+    if(m.t==='file-accept'||m.t==='file-reject'||m.t==='file-done'||m.t==='file-cancel')return dispatchFileControl(m,peerId);
+    if(m.t==='file-end')return handleFileEnd(m,peerId);
+    if(m.t==='text')return receiveText(m,peerId);
+    if(m.t==='ping'){await sendJson({t:'pong',at:m.at},peerId);return;}
+    return;
+  }
+  return receiveChunk(data,peerId);
+}
+
+async function handleHello(m,peerId){
+  const p=getPeer(peerId);if(!p)return;
+  p.name=m.name||p.name;renderPeers();
+  if(m.protected){
+    const salt=fromB64(m.salt),challenge=fromB64(m.challenge),expected=fromB64(m.proof);const pwd=await askPassword();
+    if(pwd===null){await sendJson({t:'auth-fail',reason:'cancelled'},peerId);return;}
+    try{const keys=await deriveKeys(pwd,salt);const proof=await proofFor(keys,challenge);if(!equalBytes(proof,expected)){await sendJson({t:'auth-fail'},peerId);setConn('Authentication failed','Wrong password.','bad');return;}p.sessionKeys=keys;p.sessionSalt=salt;p.sessionChallenge=challenge;p.passwordEnabled=true;p.sessionPassword=pwd;p.authenticated=true;p.pending=false;state.selectedPeerIds.add(peerId);await sendJson({t:'auth-ok',name:state.device},peerId);syncPrimary(peerId);renderPeers();setConn('Connected',`Secure channel ready · peer: ${peerLabel(p)}`,'good');}
+    catch(err){await sendJson({t:'auth-fail'},peerId);throw err;}
+  }else{p.authenticated=true;p.pending=false;await sendJson({t:'auth-ok',name:state.device},peerId);syncPrimary(peerId);renderPeers();setConn('Connected',`Secure channel ready · peer: ${peerLabel(p)}`,'good');}
+}
+
+function askPassword(){
+  return new Promise(resolve=>{
+    showModal('Shared password',`<div class="modal-message">The other device enabled extra password protection. Enter the same password to unlock the session.</div><div style="margin-top:10px"><input id="modalPassword" class="input" type="password" minlength="8" autocomplete="off" placeholder="Password"></div>`,()=>{
+      const v=$('modalPassword')?.value||''; if(v.length<8){$('modalPassword')?.focus();return false;} resolve(v); return true;
+    },()=>resolve(null));
+  });
+}
+
+function requireConnected(peerId=null){const p=peerId?getPeer(peerId):getPeer(selectedPeers()[0]);if(!p||!p.connected||!p.authenticated||p.dc?.readyState!=='open'){toast('Connect to at least one authenticated peer first.');return false;}return true;}
+function targetPeerIds(){const ids=selectedPeers();return ids.filter(id=>getPeer(id)?.authenticated);}
+function addFiles(files){if(!files?.length)return;for(const file of files){state.sendQueue.push(file)}renderSendQueue();}
+function renderSendQueue(){
+  els.sendQueueCount.textContent=`${state.sendQueue.length} file${state.sendQueue.length===1?'':'s'}`;els.sendQueue.innerHTML='';
+  state.sendQueue.forEach((file,i)=>{const row=document.createElement('div');row.className='file-row';row.innerHTML=`<div class="file-main"><div class="file-icon">▣</div><div class="grow"><div class="file-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div><div class="file-meta">${fmtBytes(file.size)} · ${file.type||'unknown type'}</div></div><button class="btn small danger" data-remove="${i}">Remove</button></div><div class="bar"><i id="qbar-${i}"></i></div><div class="file-foot"><span id="qstatus-${i}">Queued</span><span id="qspeed-${i}">—</span></div>`;els.sendQueue.appendChild(row);});
+  els.sendQueue.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.remove);if(!state.sending){state.sendQueue.splice(i,1);renderSendQueue();}});
+}
+function updateSendUi(){state.sendQueue.forEach((_,i)=>{const b=$(`qbar-${i}`);if(b&&!state.sending)b.style.width='0%';});}
+async function sendFiles(){
+  const ids=targetPeerIds();if(!ids.length||!state.sendQueue.length||state.sending){if(!ids.length)toast('Select or connect a device first.');return;}
+  state.sending=true;const files=state.sendQueue.slice();
+  try{
+    for(let fi=0;fi<files.length;fi++){for(const pid of ids){const p=getPeer(pid);if(!p)continue;await sendOneFile(files[fi],pid,fi);}}
+    state.sendQueue=[];renderSendQueue();toast(`Sent ${files.length} file${files.length===1?'':'s'} to ${ids.length} device${ids.length===1?'':'s'}.`);
+  }catch(err){showModal('Send stopped',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}finally{state.sending=false;renderSendQueue();}
+}
+async function sendOneFile(file,peerId,rowIndex=0){
+  const p=getPeerForSend(peerId);const id=uid();const encrypted=!!p.sessionKeys;const maxMessage=p.pc?.sctp?.maxMessageSize||CHUNK_DEFAULT;const chunkSize=Math.max(16*1024,Math.min(CHUNK_DEFAULT,maxMessage));
+  await sendJson({t:'file-start',id,name:file.name,size:file.size,type:file.type||'application/octet-stream',lastModified:file.lastModified,chunkSize,encrypted,relativePath:file.webkitRelativePath||'',from:state.device},peerId);
+  let accepted=false;setQueueProgress(rowIndex,0,performance.now(),0);const qstatus=$(`qstatus-${rowIndex}`);if(qstatus)qstatus.textContent=`Waiting for ${peerLabel(p)}…`;
+  await waitForFileControl(id,'accept',()=>{accepted=true;const qs=$(`qstatus-${rowIndex}`);if(qs)qs.textContent=`Sending to ${peerLabel(p)}…`;},120000,peerId);if(!accepted)throw new Error('Transfer rejected by receiver.');
+  let offset=0,idx=0;const started=performance.now();
+  while(offset<file.size){const slice=file.slice(offset,Math.min(file.size,offset+chunkSize));const plain=new Uint8Array(await slice.arrayBuffer());const payload=encrypted?await encryptChunk(p.sessionKeys,plain):plain;await waitBackpressure(peerId);p.dc.send(payload);offset+=plain.length;idx++;const pct=file.size?offset/file.size*100:100;setQueueProgress(rowIndex,pct,started,offset);}
+  await sendJson({t:'file-end',id,chunks:idx},peerId);await waitForFileControl(id,'done',()=>{},120000,peerId);addHistory(file.name,file.size,'sent');
+}
+function setQueueProgress(i,pct,started,bytes){const b=$(`qbar-${i}`);if(b)b.style.width=`${Math.min(100,pct)}%`;const s=$(`qstatus-${i}`);if(s)s.textContent=`${pct.toFixed(1)}%`;const sp=$(`qspeed-${i}`);if(sp){const elapsed=(performance.now()-started)/1000;sp.textContent=elapsed>0?fmtSpeed(bytes/elapsed):'—';}}
+function waitForFileControl(id,event,callback=()=>{},timeoutMs=120000,peerId=null){return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{document.removeEventListener('p2p-file-control',handler);reject(new Error(`Timed out waiting for receiver (${event}).`));},timeoutMs);const handler=e=>{const m=e.detail;if(m?.id!==id||m?.peerId!==peerId)return;const type=m.t||m.type;if(type===`file-${event}`){clearTimeout(timer);document.removeEventListener('p2p-file-control',handler);callback(m);resolve(m);return;}if(type==='file-reject'){clearTimeout(timer);document.removeEventListener('p2p-file-control',handler);reject(new Error(`Receiver ${peerLabel(getPeer(peerId))} rejected the transfer.`));}};document.addEventListener('p2p-file-control',handler);});}
+function dispatchFileControl(m,peerId){document.dispatchEvent(new CustomEvent('p2p-file-control',{detail:{...m,peerId}}));}
+
+async function handleFileStart(m,peerId){if(state.incoming.has(m.id))return;const p=getPeer(peerId);const item={id:m.id,peerId,peerName:peerLabel(p),name:m.name,size:m.size,type:m.type,lastModified:m.lastModified,chunkSize:m.chunkSize||CHUNK_DEFAULT,chunks:[],received:0,index:0,started:performance.now(),encrypted:m.encrypted,accepted:false,sink:null,writer:null};state.incoming.set(m.id,item);renderIncoming();}
+async function acceptIncoming(id){const item=state.incoming.get(id);if(!item)return;if(item.accepted)return;const p=getPeer(item.peerId);if(!p)return;if(item.encrypted&&!p.sessionKeys){showModal('Secure transfer','<div class="notice warn">This transfer is protected by the session password. The connection must be authenticated first.</div>');return;}try{if('showSaveFilePicker' in window){const handle=await window.showSaveFilePicker({suggestedName:item.name,types:[{description:'Received file',accept:{[item.type||'application/octet-stream']:[getExtension(item.name)||'.bin']}}]});item.writer=await handle.createWritable();item.handle=handle;}item.accepted=true;item.started=performance.now();renderIncoming();await sendJson({t:'file-accept',id},item.peerId);}catch(err){if(err?.name==='AbortError')return;item.writer=null;item.handle=null;item.accepted=false;showModal('Save setup failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}}
+function rejectIncoming(id){const item=state.incoming.get(id);if(!item)return;state.incoming.delete(id);sendJson({t:'file-reject',id},item.peerId).catch(()=>{});renderIncoming();}
+function getExtension(name){const m=String(name).match(/(\.[^.]+)$/);return m?m[1]:'.bin';}
+async function receiveChunk(data,peerId){const item=[...state.incoming.values()].find(x=>x.accepted&&!x.complete&&x.peerId===peerId);if(!item)return;const p=getPeer(peerId);let payload=new Uint8Array(data);if(item.encrypted)payload=await decryptChunk(p.sessionKeys,payload);item.received+=payload.length;if(!item.writer&&!('indexedDB' in window))item.chunks.push(payload.buffer.slice(payload.byteOffset,payload.byteOffset+payload.byteLength));item.index++;if(item.writer)await item.writer.write(payload);else if('indexedDB' in window)await idbPut(item.id,item.index-1,new Blob([payload]));renderIncoming();}
+async function handleFileEnd(m,peerId){const item=state.incoming.get(m.id);if(!item)return;item.complete=true;item.completedAt=performance.now();if(item.writer)await item.writer.close();const ok=item.received===item.size;if(!ok){showModal('Integrity check failed',`<div class="notice bad">Received ${fmtBytes(item.received)} but expected ${fmtBytes(item.size)}.</div>`);return;}if(!item.writer)item.readyToDownload=true;await sendJson({t:'file-done',id:item.id},peerId);addHistory(item.name,item.size,'received');renderIncoming();}
+function handleFileCancel(m){if(m.id){state.incoming.delete(m.id);renderIncoming();}}
+async function downloadIncoming(id){const item=state.incoming.get(id);if(!item||!item.complete)return;let blob;if(item.chunks.length)blob=new Blob(item.chunks,{type:item.type||'application/octet-stream'});else{const recs=await idbGetAll(id);blob=new Blob(recs.map(x=>x.blob),{type:item.type||'application/octet-stream'});}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=item.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},0);await idbDelete(id).catch(()=>{});state.incoming.delete(id);renderIncoming();}
+async function receiveText(m,peerId){const p=getPeer(peerId);showModal(`Received text · ${escapeHtml(peerLabel(p))}`,`<div class="notice good">Text received from ${escapeHtml(peerLabel(p))}</div><div style="margin-top:10px"><textarea class="textarea" readonly>${escapeHtml(m.text||'')}</textarea></div>`,null,()=>{});addHistory('Text message',new Blob([m.text||'']).size,'received');}
+function renderIncoming(){const items=[...state.incoming.values()];els.incomingCount.textContent=String(items.length);els.incomingList.innerHTML='';if(!items.length){els.incomingList.innerHTML='<div class="incoming-empty">No incoming transfers yet.</div>';return;}for(const item of items){const pct=item.size?item.received/item.size*100:0;const speed=(item.received/Math.max(.001,(performance.now()-item.started)/1000));const div=document.createElement('div');div.className='incoming-item';div.innerHTML=`<div class="incoming-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div><div class="incoming-meta">From ${escapeHtml(item.peerName||'peer')} · ${fmtBytes(item.size)} · ${item.accepted?(item.complete?'Complete':`${pct.toFixed(1)}% · ${fmtSpeed(speed)}`):'Waiting for approval'}</div><div class="bar" style="margin-top:8px"><i style="width:${Math.min(100,pct)}%"></i></div><div class="incoming-actions"></div>`;const actions=div.querySelector('.incoming-actions');if(!item.accepted){const a=document.createElement('button');a.className='btn small good';a.textContent='Accept & save';a.onclick=()=>acceptIncoming(item.id);actions.appendChild(a);const r=document.createElement('button');r.className='btn small danger';r.textContent='Reject';r.onclick=()=>rejectIncoming(item.id);actions.appendChild(r);}else if(item.complete&&!item.writer){const d=document.createElement('button');d.className='btn small primary';d.textContent='Download';d.onclick=()=>downloadIncoming(item.id);actions.appendChild(d);const x=document.createElement('button');x.className='btn small ghost';x.textContent='Remove';x.onclick=()=>{idbDelete(item.id).catch(()=>{});state.incoming.delete(item.id);renderIncoming();};actions.appendChild(x);}els.incomingList.appendChild(div);}}
+
+async function sendText(){const ids=targetPeerIds();if(!ids.length){toast('Select or connect to a device first.');return;}const text=await askText();if(text===null||!text)return;for(const id of ids)await sendJson({t:'text',from:state.device,text},id);addHistory('Text message',new Blob([text]).size,'sent');toast(`Text sent to ${ids.length} device${ids.length===1?'':'s'}.`);}
+function askText(){return new Promise(resolve=>{showModal('Send text','<textarea id="modalText" class="textarea" placeholder="Type a message…"></textarea>',()=>{const v=$('modalText')?.value||'';resolve(v);return true;},()=>resolve(null));});}
+
+function addHistory(name,size,direction){state.history.unshift({id:uid(),name,size,direction,at:Date.now()});state.history=state.history.slice(0,60);localStorage.setItem('p2p-history',JSON.stringify(state.history));renderHistory();}
+function renderHistory(){els.historyList.innerHTML='';if(!state.history.length){els.historyList.innerHTML='<div class="history-empty">Your history is stored locally in this browser.</div>';return;}for(const h of state.history){const d=document.createElement('div');d.className='history-item';d.innerHTML=`<div class="grow"><div class="history-name" title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</div><div class="history-meta">${h.direction==='sent'?'Sent':'Received'} · ${fmtBytes(h.size)} · ${new Date(h.at).toLocaleString()}</div></div><span class="pill ${h.direction==='sent'?'':'good'}">${h.direction==='sent'?'↑':'↓'}</span>`;els.historyList.appendChild(d);}}
+
+async function sendText(){
+  if(!requireConnected())return;const text=await askText();if(text===null||!text)return;await sendJson({t:'text',from:state.device,text});addHistory('Text message',new Blob([text]).size,'sent');toast('Text sent.');
+}
+function askText(){return new Promise(resolve=>{showModal('Send text','<textarea id="modalText" class="textarea" placeholder="Type a message…"></textarea>',()=>{const v=$('modalText')?.value||'';resolve(v);return true;},()=>resolve(null));});}
+
+function showModal(title,body,onOk=null,onCancel=null){
+  els.modalTitle.textContent=title;els.modalBody.innerHTML=body;els.modalFoot.innerHTML='';
+  if(onCancel){const c=document.createElement('button');c.className='btn';c.textContent='Cancel';c.onclick=()=>{stopQrScan();els.modal.classList.remove('show');onCancel();};els.modalFoot.appendChild(c);}
+  const ok=document.createElement('button');ok.className='btn primary';ok.textContent=onOk?'Continue':'Close';ok.onclick=()=>{if(!onOk){els.modal.classList.remove('show');return;}const keep=onOk();if(keep!==false)els.modal.classList.remove('show');};els.modalFoot.appendChild(ok);
+  els.modal.classList.add('show');setTimeout(()=>els.modalBody.querySelector('input,textarea')?.focus(),0);
+}
+function closeModal(){els.modal.classList.remove('show');}
+function toast(msg){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';Object.assign(t.style,{position:'fixed',right:'16px',bottom:'16px',zIndex:80,padding:'11px 13px',border:'1px solid #314667',background:'#101a2b',borderRadius:'12px',fontSize:'11px',boxShadow:'0 16px 45px rgba(0,0,0,.34)',opacity:0,transform:'translateY(8px)',transition:'.2s'});document.body.appendChild(t);}t.textContent=msg;t.style.opacity=1;t.style.transform='none';clearTimeout(t._tm);t._tm=setTimeout(()=>{t.style.opacity=0;t.style.transform='translateY(8px)'},2200);}
+
+
+function randomRoomCode(){let n='';while(n.length<6)n+=Math.floor(Math.random()*10);return n;}
+async function loadExternalScript(url){return new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src=url;sc.async=true;sc.crossOrigin='anonymous';sc.onload=()=>resolve();sc.onerror=()=>reject(new Error('Unable to load '+url));document.head.appendChild(sc);});}
+async function ensurePeerJs(){
+  if(window.Peer)return true;
+  if(location.protocol==='file:'){throw new Error('Internet mode requires the HTTPS GitHub Pages version or another web origin. The standalone file remains fully functional in Offline/LAN mode.');}
+  if(!state.internet.loaded){
+    const urls=['https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js','https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js','https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js'];
+    let last=null;for(const url of urls){try{await loadExternalScript(url);if(window.Peer){state.internet.loaded=true;return true;}}catch(err){last=err;}}
+    throw last||new Error('PeerJS could not be loaded.');
+  }
+  return true;
+}
+function peerJsConfig(){return {host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0,config:rtcConfig()};}
+function cleanupInternet(){try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';state.internet.provider='peerjs-cloud';}
+function attachPeerJsDataConnection(conn){
+  const peerId='internet:'+conn.peer;
+  if(state.peers.has(peerId))cleanupPeer(peerId);
+  const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS'};
+  state.peers.set(peerId,peer);
+  const opened=async()=>{peer.connected=true;peer.pending=false;setPrimaryIfNeeded(peerId);state.selectedPeerIds.add(peerId);renderPeers();setConn('Connected',`Internet WebRTC link · ${peerLabel(peer)}.`,'good');if(peer.pc?.getStats)startStats();await sendHello(peerId);};
+  conn.on('open',opened);
+  conn.on('data',data=>handleMessage(data,peerId).catch(err=>showModal('Transfer error',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`)));
+  conn.on('close',()=>{peer.connected=false;peer.pending=false;renderPeers();if(!connectedPeers().length)setConn('Disconnected','The Internet peer connection closed.','warn');});
+  conn.on('error',err=>{peer.connected=false;renderPeers();setConn('Channel error',err?.message||'PeerJS data connection error.','bad');});
+  if(conn.open)opened();
+}
+function createInternetPeerHost(code){
+  return new Promise((resolve,reject)=>{
+    const peer=new Peer(code,peerJsConfig());state.internet.peer=peer;state.internet.role='host';state.internet.roomCode=code;
+    peer.on('open',()=>resolve(peer));
+    peer.on('connection',conn=>attachPeerJsDataConnection(conn));
+    peer.on('disconnected',()=>{setConn('Signaling disconnected','The PeerJS signaling connection dropped. Existing WebRTC links may remain alive.','warn');els.internetServicePill.textContent='Signaling disconnected';els.internetServicePill.className='pill warn';els.signalingPill.textContent='Signaling offline';});
+    peer.on('error',err=>reject(err));
+  });
+}
+async function createInternetRoom(){
+  await ensurePeerJs();cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
+  let lastErr=null;
+  for(let i=0;i<7;i++){
+    const code=randomRoomCode();
+    try{await createInternetPeerHost(code);state.internet.active=true;state.internet.role='host';state.room={active:true,role:'host',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:''};setPath('Internet / WebRTC');setConn('Room ready',`Internet room ${code} is ready. Share the 6-digit code.`,'good');els.internetServicePill.textContent='PeerJS Cloud ready';els.internetServicePill.className='pill good';els.signalingPill.textContent='PeerJS signaling';renderPeers();toast(`Internet room ${code} created.`);return;}catch(err){lastErr=err;try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;if(err?.type==='unavailable-id')continue;break;}
+  }
+  els.internetServicePill.textContent='Unavailable';els.internetServicePill.className='pill bad';throw new Error(lastErr?.message||lastErr?.type||'Could not create an Internet room.');
+}
+async function joinInternetRoomCode(code){
+  code=String(code||'').replace(/\D/g,'').slice(0,6);if(!/^\d{6}$/.test(code))throw new Error('Enter a 6-digit room code.');
+  await ensurePeerJs();cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
+  state.internet.active=true;state.internet.role='join';state.internet.roomCode=code;state.room={active:true,role:'join',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:''};
+  const peer=new Peer(undefined,peerJsConfig());state.internet.peer=peer;
+  peer.on('error',err=>{if(err?.type==='peer-unavailable'){setConn('Room not found',`No active Internet room is using ${code}.`,'bad');toast('Room not found.');}else{setConn('Internet error',err?.message||err?.type||'PeerJS error.','bad');}});
+  peer.on('disconnected',()=>{setConn('Signaling disconnected','Existing WebRTC links may remain alive; new connections are unavailable until signaling reconnects.','warn');els.internetServicePill.textContent='Signaling disconnected';els.internetServicePill.className='pill warn';els.signalingPill.textContent='Signaling offline';});
+  await new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('PeerJS signaling connection timed out.'));}},15000);const onOpen=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve();};const onError=err=>{if(settled)return;settled=true;clearTimeout(timer);reject(err||new Error('PeerJS signaling error.'));};peer.on('open',onOpen);peer.on('error',onError);});
+  const conn=peer.connect(code,{label:'offline-p2p-room',metadata:{name:state.device,app:APP_VERSION},reliable:true,serialization:'binary'});
+  attachPeerJsDataConnection(conn);setPath('Internet / WebRTC');setConn('Connecting',`Joining Internet room ${code}…`,'warn');els.internetServicePill.textContent='PeerJS Cloud connected';els.internetServicePill.className='pill good';els.signalingPill.textContent='PeerJS signaling';renderPeers();
+}
+async function joinInternetRoom(){
+  showModal('Join Internet room',`<div class="modal-message">Enter the 6-digit room code shown on the host device.</div><div style="margin-top:10px"><input id="internetRoomCodeInput" class="input ltr-only" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456"></div>`,()=>{const code=$('internetRoomCodeInput')?.value?.trim()||'';if(!/^\d{6}$/.test(code)){$('internetRoomCodeInput')?.focus();return false;}joinInternetRoomCode(code).catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;});
+}
+
+function createRoom(){if(!els.lanOnly.checked){return createInternetRoom().catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));}return createLanRoom();}
+function createLanRoom(){
+
+  cleanupConnection();state.room={active:true,role:'host',id:randomRoomCode(),pendingPeerId:null,currentInviteText:'',currentInviteCode:''};state.selectedPeerIds.clear();setConn('Room ready',`Room ${state.room.id} is ready. Invite a device.`,'good');renderPeers();toast('Room created. Invite a device.');createRoomInvite();}
+
+async function createRoomInvite(){
+  if(!state.room.active||state.room.role!=='host'){toast('Create a room first.');return;}
+  const connected=connectedPeers().filter(p=>p.room).length;const pending=[...state.peers.values()].filter(p=>p.room&&!p.connected).length;if(connected+pending>=state.roomMaxPeers){toast(`The room limit is ${state.roomMaxPeers} devices.`);return;}
+  if(state.room.pendingPeerId){showQr('Current room invitation',state.room.currentInviteText,state.room.currentInviteCode);return;}
+  const peerId=uid();const pc=createPeerConnection(peerId,'host',{room:true,name:'Joining device'});state.room.pendingPeerId=peerId;
+  const offer=await pc.createOffer();await pc.setLocalDescription(offer);await waitIceComplete(pc);const obj={kind:'offer',v:APP_VERSION,room:true,roomId:state.room.id,peerId,from:state.device,created:Date.now(),description:pc.localDescription};const text=await encodeSignalAsync(obj);const code=await makeVerificationCode(text);state.room.currentInviteText=text;state.room.currentInviteCode=code;renderPeers();await showQr('Invite a device',text,code);}
+async function joinRoomFromOffer(text){
+  let obj;try{obj=await decodeSignalAsync(text)}catch(err){showModal('Invalid room invitation',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);return;}
+  if(obj.kind!=='offer'||!obj.room||!obj.roomId||!obj.peerId||!obj.description?.sdp){showModal('Invalid room invitation','<div class="notice bad">This QR is not a valid P2P Share room invitation.</div>');return;}
+  cleanupConnection();state.room={active:true,role:'join',id:String(obj.roomId),pendingPeerId:null,currentInviteText:'',currentInviteCode:''};
+  const pc=createPeerConnection(`room:${obj.peerId}`,'join',{room:true,name:'Room host'});await pc.setRemoteDescription(obj.description);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);await waitIceComplete(pc);const answerObj={kind:'answer',v:APP_VERSION,room:true,roomId:obj.roomId,peerId:obj.peerId,from:state.device,created:Date.now(),description:pc.localDescription};const textAns=await encodeSignalAsync(answerObj);const code=await makeVerificationCode(textAns);state.room.currentInviteText=textAns;state.room.currentInviteCode=code;renderPeers();setConn('Answer ready',`Show the return QR to the room host. Verification ${code}.`,'good');await showQr('Return QR to room host',textAns,code);}
+async function applyRoomAnswer(text){
+  let obj;try{obj=await decodeSignalAsync(text)}catch(err){showModal('Invalid room answer',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);return;}
+  if(obj.kind!=='answer'||!obj.room||obj.roomId!==state.room.id||!obj.peerId){showModal('Invalid room answer','<div class="notice bad">This answer does not belong to the current room invitation.</div>');return;}
+  const peer=state.peers.get(obj.peerId);if(!peer){toast('That invitation is no longer pending.');return;}try{await peer.pc.setRemoteDescription(obj.description);peer.pending=false;state.room.pendingPeerId=null;state.room.currentInviteText='';state.room.currentInviteCode='';renderPeers();setConn('Connecting',`Connecting ${peerLabel(peer)} to the room…`,'warn');toast('Room answer accepted.');}catch(err){showModal('Answer rejected',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}
+}
+async function scanRoomInvite(){await scanQrInto('offerIn',true);}
+async function scanRoomAnswer(){if(!state.room.pendingPeerId){toast('No pending invitation.');return;}await scanQrInto('roomAnswerIn',true);}
+function leaveRoom(){for(const id of [...state.peers.keys()])cleanupPeer(id);state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:''};state.selectedPeerIds.clear();setConn('Disconnected','The room has been closed.','warn');renderPeers();toast('Left room.');}
+
+async function createOffer(quick=false){
+  if(!('RTCPeerConnection' in window)){showModal('WebRTC unavailable','<div class="notice bad">This browser does not expose RTCPeerConnection.</div>');return;}
+  state.quickMode=!!quick;switchRole('host');
+  const pc=setupPeerConnection('host');state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:''};renderPeers();setConn('Creating offer','Preparing a direct LAN connection…','warn');els.createOfferBtn.disabled=true;els.easyCreateBtn.disabled=true;
+  try{const offer=await pc.createOffer();await pc.setLocalDescription(offer);await waitIceComplete(pc);const obj={kind:'offer',v:APP_VERSION,from:state.device,created:Date.now(),description:pc.localDescription};state.offerObj=obj;state.offerText=await encodeSignalAsync(obj);els.offerOut.value=state.offerText;els.copyOfferBtn.disabled=false;els.showOfferQrBtn.disabled=false;els.saveOfferBtn.disabled=false;els.applyAnswerBtn.disabled=false;const code=await makeVerificationCode(state.offerText);showPairCode(code,'The phone should show this same code after scanning.');setQuickStatus('Offer ready. Show the QR to the phone; it will create the answer automatically when scanned.','good');setConn('Ready to pair',`Verification code: ${code}. Scan the QR to continue.`,'good');toast('Pairing ready.');if(quick)await showQr('Scan to join',state.offerText,code);}
+  catch(err){setQuickStatus('Could not create the pairing offer.','bad');showModal('Offer failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}
+  finally{els.createOfferBtn.disabled=false;els.easyCreateBtn.disabled=false;}
+}
+async function prepareAnswer(auto=false){
+  const text=els.offerIn.value.trim();
+  if(!text){toast('Paste or scan an offer first.');return;}
+  let obj;
+  try{
+    setConn('Reading offer','Decoding pairing information on this device…','warn');
+    obj=await decodeSignalAsync(text);
+  }catch(err){
+    setConn('Offer unreadable',err.message||'The offer could not be decoded.','bad');
+    showModal('Offer could not be read',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div><div class="subtle" style="margin-top:8px">Use a fresh offer generated by the latest build. Mobile-safe pairing codes start with <b>R1:</b>.</div>`);
+    return;
+  }
+  if(obj.kind!=='offer'||!obj.description?.sdp){
+    setConn('Invalid offer','The received code is not a valid WebRTC offer.','bad');
+    showModal('Invalid offer','<div class="notice bad">This code is not a valid offer for this application.</div>');
+    return;
+  }
+  const offerCode=await makeVerificationCode(text);
+  showPairCode(offerCode,'Check that this matches the 6-digit code shown on the PC.');
+  setQuickStatus(`Offer verified: ${offerCode}. Creating the answer…`,'good');
+  const pc=setupPeerConnection('join');
+  setConn('Preparing answer','Applying the remote offer…','warn');
+  els.prepareAnswerBtn.disabled=true;
+  try{
+    await pc.setRemoteDescription(obj.description);
+    setConn('Creating answer','The mobile browser accepted the offer and is creating its answer…','warn');
+    const answer=await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    setConn('Gathering connection info','The answer was created; finishing LAN candidate gathering…','warn');
+    await waitIceComplete(pc);
+    const ans={kind:'answer',v:APP_VERSION,from:state.device,created:Date.now(),description:pc.localDescription};
+    state.answerObj=ans;
+    state.answerText=await encodeSignalAsync(ans);
+    els.answerOut.value=state.answerText;
+    els.copyAnswerBtn.disabled=false;
+    els.showAnswerQrBtn.disabled=false;
+    els.saveAnswerBtn.disabled=false;
+    const code=await makeVerificationCode(state.answerText);setQuickStatus(`Answer ready. Verification code: ${code}. Show the QR to the other device.`,'good');setConn('Answer ready',`Verification code: ${code}. Show the QR to the offer creator.`,'good');toast('Answer created successfully.');if(auto||state.quickMode)await showQr('Return this QR to the PC',state.answerText,code);
+  }catch(err){
+    setConn('Answer failed',err.message||'The mobile browser could not create the answer.','bad');
+    showModal('Answer failed',`<div class="notice bad"><b>${escapeHtml(err.name||'WebRTC error')}</b><br>${escapeHtml(err.message||String(err))}</div><div class="subtle" style="margin-top:8px">No file data has been sent. The failure occurred during WebRTC pairing.</div>`);
+  }finally{els.prepareAnswerBtn.disabled=false;}
+}
+async function applyAnswer(auto=false){
+  if(!state.pc){toast('Create an offer first.');return;}const text=els.answerIn.value.trim();if(!text){toast('Paste an answer first.');return;}let obj;try{obj=await decodeSignalAsync(text)}catch{showModal('Invalid answer','<div class="notice bad">The answer code could not be decoded.</div>');return;}if(obj.kind!=='answer'||!obj.description?.sdp){showModal('Invalid answer','<div class="notice bad">This code is not a valid answer.</div>');return;}try{const answerCode=await makeVerificationCode(text);showPairCode(answerCode,'Answer fingerprint received from the phone.');await state.pc.setRemoteDescription(obj.description);setConn('Connecting','Waiting for the direct WebRTC data channel…','warn');setQuickStatus(`Answer verified: ${answerCode}. Establishing the direct connection…`,'good');if(auto)toast('Answer accepted.');}catch(err){showModal('Answer rejected',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}}
+
+function copy(text){navigator.clipboard?.writeText(text).then(()=>toast('Copied.')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Copied.');});}
+function saveSignal(kind,text){downloadText(`p2p-share-${kind}-${new Date().toISOString().replace(/[:.]/g,'-')}.p2p`,JSON.stringify({format:'naser-p2p-signal',kind,text},null,2),'application/json');toast('Signaling file saved.');}
+async function importSignalFile(){els.signalFileInput.click();}
+els.signalFileInput.addEventListener('change',async()=>{const f=els.signalFileInput.files?.[0];if(!f)return;try{const j=JSON.parse(await readTextFile(f));if(j.kind==='offer'){els.offerIn.value=j.text;switchRole('join');}else if(j.kind==='answer'){els.answerIn.value=j.text;switchRole('host');}else throw new Error('Unknown signal file.');toast('Signal imported.');}catch(err){showModal('Import failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}finally{els.signalFileInput.value='';}});
+async function importOfferFile(){els.signalFileInput.value='';els.signalFileInput.click();}
+
+function switchRole(role){state.role=role;const host=role==='host';els.roleHost.classList.toggle('active',host);els.roleJoin.classList.toggle('active',!host);els.hostPanel.classList.toggle('hidden',!host);els.joinPanel.classList.toggle('hidden',host);}
+
+function isPrivateOrLocalAddress(address){
+  const a=String(address||'').toLowerCase().trim();
+  if(!a) return false;
+  if(a.endsWith('.local')) return true;
+  if(a==='localhost') return true;
+  if(a.includes(':')){
+    return a==='::1' || a.startsWith('fc') || a.startsWith('fd') || a.startsWith('fe8') || a.startsWith('fe9') || a.startsWith('fea') || a.startsWith('feb');
+  }
+  const m=a.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/); if(!m) return false;
+  const o=m.slice(1).map(Number); const n=(o[0]<<24)|(o[1]<<16)|(o[2]<<8)|o[3];
+  return o[0]===10 || (o[0]===172&&o[1]>=16&&o[1]<=31) || (o[0]===192&&o[1]===168) || (o[0]===169&&o[1]===254) || (o[0]===127);
+}
+function classifyCandidatePath(local,remote){
+  const lt=local?.candidateType||''; const rt=remote?.candidateType||'';
+  if(lt==='relay'||rt==='relay') return 'TURN relay';
+  if(lt==='srflx'||rt==='srflx'||lt==='prflx'||rt==='prflx') return 'Direct Internet';
+  if(lt==='host'&&rt==='host'){
+    const localLocal=isPrivateOrLocalAddress(local?.address); const remoteLocal=isPrivateOrLocalAddress(remote?.address);
+    if(localLocal&&remoteLocal) return 'Direct LAN';
+    return 'Direct host';
+  }
+  return 'Unknown';
+}
+async function readConnectionStats(pc){
+  if(!pc?.getStats) return null;
+  const stats=await pc.getStats(); let selected=null; let selectedTransport=null;
+  stats.forEach(r=>{if(r.type==='transport'&&r.selectedCandidatePairId){const p=stats.get(r.selectedCandidatePairId);if(p){selected=p;selectedTransport=r;}}});
+  if(!selected){
+    const candidates=[];
+    stats.forEach(r=>{if(r.type==='candidate-pair'&&r.state==='succeeded')candidates.push(r);});
+    candidates.sort((a,b)=>Number(!!b.nominated)-Number(!!a.nominated) || ((b.bytesSent||0)+(b.bytesReceived||0))-((a.bytesSent||0)+(a.bytesReceived||0)));
+    selected=candidates[0]||null;
+  }
+  if(!selected) return {path:'Connecting',candidates:'—',transport:'—',server:'—',bytesSent:0,bytesReceived:0,connected:false};
+  const local=stats.get(selected.localCandidateId); const remote=stats.get(selected.remoteCandidateId);
+  if(!selectedTransport){stats.forEach(r=>{if(r.type==='transport'&&!selectedTransport)selectedTransport=r;});}
+  const transport=selectedTransport||{};
+  const path=classifyCandidatePath(local,remote);
+  const protocol=local?.protocol||remote?.protocol||'—';
+  const server=local?.url||remote?.url||'none';
+  const cipher=transport.dtlsCipher||'DTLS';
+  const bytesSent=Number(transport.bytesSent ?? selected.bytesSent ?? 0);
+  const bytesReceived=Number(transport.bytesReceived ?? selected.bytesReceived ?? 0);
+  return {path,candidates:`${local?.candidateType||'—'} ↔ ${remote?.candidateType||'—'}`,transport:`${protocol.toUpperCase()} · ${cipher}`,server,bytesSent,bytesReceived,connected:true,localAddress:local?.address||'',remoteAddress:remote?.address||''};
+}
+function diagnosticConnections(){
+  const out=[]; const seen=new Set();
+  for(const p of state.peers.values()){
+    if(seen.has(p.id))continue; seen.add(p.id); out.push(p);
+  }
+  return out;
+}
+function signalingLabel(){
+  if(state.internet.active) return 'PeerJS Cloud · signaling only';
+  if(state.room.active) return 'None · manual/QR signaling';
+  return 'None';
+}
+function renderDiagnostics(results){
+  const active=results.filter(x=>x.info?.connected); const primary=active.find(x=>x.id===state.primaryPeerId)||active[0];
+  els.diagSignaling.textContent=signalingLabel();
+  if(!primary){
+    els.diagDot.className='dot'; els.diagPath.textContent='No active WebRTC path'; els.diagPathTitle.textContent='Waiting for connection'; els.diagHint.textContent='When connected, this panel reads the selected ICE candidate pair from the browser.';
+    els.diagCandidates.textContent='—'; els.diagTransport.textContent='—'; els.diagIceServer.textContent='—'; els.diagSent.textContent='0 B'; els.diagReceived.textContent='0 B'; els.diagPeers.innerHTML=''; return;
+  }
+  const i=primary.info; els.diagDot.className='dot good'; els.diagPath.textContent=i.path; els.diagPathTitle.textContent=`${active.length} active ${active.length===1?'connection':'connections'}`;
+  els.diagHint.textContent=i.path==='Direct LAN'?'The selected file path is direct host-to-host on local/private candidates.':i.path==='Direct Internet'?'The selected path uses NAT-traversal candidates; the data is not using a TURN relay.':i.path==='TURN relay'?'A TURN relay is carrying the WebRTC traffic.':'WebRTC is connected but the selected ICE path is not yet classified.';
+  els.diagCandidates.textContent=i.candidates; els.diagTransport.textContent=i.transport; els.diagIceServer.textContent=i.server||'none'; els.diagSent.textContent=fmtBytes(i.bytesSent||0); els.diagReceived.textContent=fmtBytes(i.bytesReceived||0);
+  setPath(i.path);
+  els.diagPeers.innerHTML='';
+  for(const r of active){const div=document.createElement('div');div.className='diag-peer';const p=r.peer;div.innerHTML=`<div class="diag-peer-top"><div class="diag-peer-name">${escapeHtml(peerLabel(p))}</div><div class="diag-peer-path">${escapeHtml(r.info.path)}</div></div><div class="diag-peer-meta"><span>${escapeHtml(r.info.candidates)}</span><span>${escapeHtml(r.info.transport)}</span><span>↑ ${fmtBytes(r.info.bytesSent||0)}</span><span>↓ ${fmtBytes(r.info.bytesReceived||0)}</span></div>`;els.diagPeers.appendChild(div);}
+}
+async function updateDiagnostics(){
+  const peers=diagnosticConnections(); const results=[];
+  for(const peer of peers){
+    try{const info=await readConnectionStats(peer.pc);if(info)results.push({id:peer.id,peer,info});}catch{}
+  }
+  renderDiagnostics(results);
+}
+function startStats(){
+  if(state.statsTimer)clearInterval(state.statsTimer);
+  updateDiagnostics();
+  state.statsTimer=setInterval(()=>updateDiagnostics(),1800);
+}
+
+async function selfTest(){
+  if(state.selfTest)return;state.selfTest=true;cleanupConnection();setConn('Self-test','Creating two local WebRTC peers inside this browser…','warn');
+  const a=new RTCPeerConnection({iceServers:[]}),b=new RTCPeerConnection({iceServers:[]});let da;
+  const channelPromise=new Promise((resolve,reject)=>{b.ondatachannel=e=>{e.channel.onopen=()=>resolve(e.channel);e.channel.onerror=reject;};});
+  try{da=a.createDataChannel('self-test');const offer=await a.createOffer();await a.setLocalDescription(offer);await waitIceComplete(a);await b.setRemoteDescription(a.localDescription);const ans=await b.createAnswer();await b.setLocalDescription(ans);await waitIceComplete(b);await a.setRemoteDescription(b.localDescription);const db=await channelPromise;await new Promise(r=>da.readyState==='open'?r():da.addEventListener('open',r,{once:true}));const payload=bytesRandom(128*1024);const received=[];db.onmessage=e=>received.push(new Uint8Array(e.data));da.send(payload);await new Promise((resolve,reject)=>{const until=Date.now()+5000;const t=setInterval(()=>{const n=received.reduce((x,y)=>x+y.length,0);if(n>=payload.length){clearInterval(t);resolve();}else if(Date.now()>until){clearInterval(t);reject(new Error('Self-test timeout'));}},20);});const ok=received[0]?.length===payload.length;showModal('Self-test passed',`<div class="notice good">The browser successfully created a WebRTC DataChannel and transferred ${fmtBytes(payload.length)} directly between two local peer objects.</div>`);}
+  catch(err){showModal('Self-test failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}finally{try{a.close()}catch{}try{b.close()}catch{}state.selfTest=false;setConn('Not connected','Create a session or join an offer from another device.','warn');}
+}
+
+els.createOfferBtn.onclick=()=>createOffer(false);els.prepareAnswerBtn.onclick=()=>prepareAnswer(false);els.applyAnswerBtn.onclick=()=>applyAnswer(false);els.easyCreateBtn.onclick=()=>createRoom();els.easyJoinBtn.onclick=()=>{state.quickMode=true;switchRole('join');setQuickStatus('Scan the room invitation. The answer will be generated automatically.');scanRoomInvite();};els.pairQrBtn.onclick=()=>{if(state.room.active&&state.room.currentInviteText)showQr('Room invitation',state.room.currentInviteText,state.room.currentInviteCode);else if(state.offerText)showQr('Scan to join',state.offerText,state.pairCode);};els.copyOfferBtn.onclick=()=>copy(els.offerOut.value);els.showOfferQrBtn.onclick=()=>showQr('Offer QR',els.offerOut.value,state.pairCode);els.copyAnswerBtn.onclick=()=>copy(els.answerOut.value);els.showAnswerQrBtn.onclick=()=>showQr('Answer QR',els.answerOut.value);els.scanOfferQrBtn.onclick=()=>scanQrInto('offerIn',false);els.scanAnswerQrBtn.onclick=()=>scanQrInto('answerIn',true);els.saveOfferBtn.onclick=()=>saveSignal('offer',els.offerOut.value);els.saveAnswerBtn.onclick=()=>saveSignal('answer',els.answerOut.value);els.loadSignalBtn.onclick=importSignalFile;els.loadOfferFileBtn.onclick=importOfferFile;
+els.sixDigitInfoBtn.onclick=()=>showModal('6-digit-only pairing',`<div class="notice warn"><b>Not possible in the pure serverless build.</b><br><br>A six-digit value does not contain enough information to carry the WebRTC offer/answer. The browsers must exchange SDP/ICE signaling data somehow.</div><div class="notice good" style="margin-top:10px">We can add a tiny optional signaling service later. It would store only the short-lived pairing data; the actual file bytes would still travel directly between the devices over WebRTC.</div>`);els.createRoomBtn.onclick=createRoom;els.joinRoomBtn.onclick=()=>els.lanOnly.checked?scanRoomInvite():joinInternetRoom();els.inviteRoomBtn.onclick=()=>els.lanOnly.checked?createRoomInvite():toast('Internet mode uses the 6-digit room code; no per-device QR is required.');els.scanRoomAnswerBtn.onclick=scanRoomAnswer;els.leaveRoomBtn.onclick=leaveRoom;els.showRoomInviteBtn.onclick=()=>state.room.currentInviteText&&showQr('Room invitation',state.room.currentInviteText,state.room.currentInviteCode);els.selectAllPeersBtn.onclick=()=>{connectedPeers().filter(p=>p.authenticated).forEach(p=>state.selectedPeerIds.add(p.id));renderPeers();};els.clearPeersBtn.onclick=()=>{state.selectedPeerIds.clear();renderPeers();};
+els.roleHost.onclick=()=>{state.quickMode=false;switchRole('host');setQuickStatus('Advanced host controls. For easier pairing, use Start pairing above.');};els.roleJoin.onclick=()=>{state.quickMode=false;switchRole('join');setQuickStatus('Advanced join controls. For easier pairing, use Join / Scan above.');};
+els.pickFilesBtn.onclick=()=>els.fileInput.click();els.pickFolderBtn.onclick=()=>els.folderInput.click();els.sendTextBtn.onclick=sendText;
+els.fileInput.onchange=()=>{addFiles(els.fileInput.files);sendFiles();els.fileInput.value='';};els.folderInput.onchange=()=>{addFiles(els.folderInput.files);sendFiles();els.folderInput.value='';};
+['dragenter','dragover'].forEach(ev=>els.dropZone.addEventListener(ev,e=>{e.preventDefault();els.dropZone.classList.add('drag')}));['dragleave','drop'].forEach(ev=>els.dropZone.addEventListener(ev,e=>{e.preventDefault();els.dropZone.classList.remove('drag') }));els.dropZone.addEventListener('drop',e=>{addFiles(e.dataTransfer.files);sendFiles();});
+els.disconnectBtn.onclick=()=>{cleanupConnection();setConn('Disconnected','The peer connection has been closed.','warn');els.workSub.textContent='Start a secure peer connection, then transfer files directly.';};
+els.selfTestBtn.onclick=selfTest;els.clearHistoryBtn.onclick=()=>{state.history=[];localStorage.removeItem('p2p-history');renderHistory();};
+els.diagRefreshBtn.onclick=()=>updateDiagnostics();
+function setNetworkMode(internet){
+  localStorage.setItem('p2p-network-mode',internet?'internet':'offline');els.lanOnly.checked=!internet;els.stunSettings?.classList.toggle('hidden',!internet);els.internetSettings?.classList.toggle('hidden',!internet);els.offlineModeBtn?.classList.toggle('active',!internet);els.internetModeBtn?.classList.toggle('active',internet);
+  if(internet){els.networkModeHint.textContent='Uses PeerJS Cloud for short-lived signaling plus multiple STUN providers for Internet NAT traversal. Files stay on WebRTC.';els.signalingPill.textContent='PeerJS signaling';els.signalingPill.className='pill';setPath('Internet / WebRTC');}
+  else{els.networkModeHint.textContent='No signaling/STUN/TURN services are used. Best for devices on the same Wi‑Fi/LAN.';els.signalingPill.textContent='No cloud';els.signalingPill.className='pill';setPath('LAN-only');}
+}
+
+els.saveNameBtn.onclick=()=>{const v=els.deviceName.value.trim();if(v){state.device=v;localStorage.setItem('p2p-device',v);toast('Device name saved.');}};
+els.deviceName.value=state.device;
+els.offlineModeBtn.onclick=()=>setNetworkMode(false);els.internetModeBtn.onclick=()=>setNetworkMode(true);els.lanOnly.onchange=()=>setNetworkMode(!els.lanOnly.checked);els.passwordEnabled.onchange=()=>{els.passwordBox.classList.toggle('hidden',!els.passwordEnabled.checked);};
+els.langBtn.onclick=()=>{state.lang=state.lang==='en'?'ar':'en';localStorage.setItem('p2p-lang',state.lang);applyLang();};
+els.helpBtn.onclick=()=>showModal('How to use',`<div class="modal-message"><ol style="padding-left:18px;line-height:1.7"><li>For the best mobile experience, publish this HTML on GitHub Pages and open the HTTPS URL on both devices.</li><li>Choose <b>Offline / LAN</b> for a completely serverless local transfer, or <b>Internet / Hybrid</b> for 6-digit rooms using PeerJS Cloud signaling and multiple STUN providers.</li><li>On Device A click <b>Start pairing</b>. A QR appears with a 6-digit verification code.</li><li>On Device B click <b>Join / Scan</b> and scan that QR. The answer is generated automatically.</li><li>Device B shows a return QR. Device A scans it; the answer is applied automatically.</li><li>When connected, choose files and send. The file bytes travel directly through WebRTC DataChannel.</li></ol><div class="notice warn">The 6-digit number is only a verification fingerprint. In a true serverless browser build, the WebRTC offer/answer still has to be exchanged somehow; the QR carries that technical handshake.</div><div class="notice good" style="margin-top:9px">Advanced copy/paste controls remain available below for browsers without QR scanning support.</div></div>`);
+els.resetBtn.onclick=()=>{if(confirm('Reset this app? This clears local history and settings.')){localStorage.removeItem('p2p-history');localStorage.removeItem('p2p-device');localStorage.removeItem('p2p-lang');localStorage.removeItem('p2p-network-mode');location.reload();}};
+els.modalClose.onclick=()=>{stopQrScan();closeModal()};els.modalOk.onclick=()=>{stopQrScan();closeModal()};els.modal.addEventListener('click',e=>{if(e.target===els.modal){stopQrScan();closeModal();}});
+
+window.addEventListener('beforeunload',()=>{stopQrScan();try{state.internet.peer?.destroy();state.dc?.close();state.pc?.close()}catch{}});
+
+defaultInit();
+function defaultInit(){applyLang();browserChecks();renderHistory();renderSendQueue();renderPeers();renderIncoming();setNetworkMode(localStorage.getItem('p2p-network-mode')==='internet');if(!localStorage.getItem('p2p-network-mode'))setNetworkMode(false);setConn('Not connected','Choose Offline / LAN or Internet / Hybrid, then create or join a room.','warn');showPairCode('', 'The other device should show the same code after scanning.');setQuickStatus('Offline mode is fully serverless. Internet mode uses short-lived signaling plus WebRTC.');}
+
+})();
+</script>
+</body>
+</html>
