@@ -1564,7 +1564,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '1.7.2';
+const APP_VERSION = '1.7.3';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1591,10 +1591,16 @@ const els = {
   createRoomBtn:$('createRoomBtn'), joinRoomBtn:$('joinRoomBtn'), copyRoomBtn:$('copyRoomBtn'), shareRoomBtn:$('shareRoomBtn'), inviteRoomBtn:$('inviteRoomBtn'), scanRoomAnswerBtn:$('scanRoomAnswerBtn'), leaveRoomBtn:$('leaveRoomBtn'), roomRolePill:$('roomRolePill'), roomCodeCard:$('roomCodeCard'), roomCodeLabel:$('roomCodeLabel'), roomCode:$('roomCode'), roomStatus:$('roomStatus'), showRoomInviteBtn:$('showRoomInviteBtn'), roomLimitPill:$('roomLimitPill'), peerGrid:$('peerGrid'), roomAnswerIn:$('roomAnswerIn'), selectAllPeersBtn:$('selectAllPeersBtn'), clearPeersBtn:$('clearPeersBtn'), targetList:$('targetList'), chatRecipientSelect:$('chatRecipientSelect'), chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatInput:$('chatInput'), chatSendBtn:$('chatSendBtn'), chatClearBtn:$('chatClearBtn'), chatReact1:$('chatReact1'), chatReact2:$('chatReact2'), chatReact3:$('chatReact3'), announceChatBtn:$('announceChatBtn'), chatCount:$('chatCount'), transferCenterList:$('transferCenterList'), transferActiveCount:$('transferActiveCount'), transferVerifiedCount:$('transferVerifiedCount')
 };
 
+const persistedMemberId = localStorage.getItem('p2p-member-id') || sessionStorage.getItem('p2p-member-id') || uid();
+try{localStorage.setItem('p2p-member-id', persistedMemberId)}catch{}
+try{sessionStorage.setItem('p2p-member-id', persistedMemberId)}catch{}
+const connectionInstanceId = uid();
+
 const state = {
   lang: localStorage.getItem('p2p-lang') || 'en',
   device: localStorage.getItem('p2p-device') || `${navigator.platform || 'Browser'} device`,
-  memberId: sessionStorage.getItem('p2p-member-id') || uid(),
+  memberId: persistedMemberId,
+  connectionInstanceId,
   pc: null, dc: null, role: 'host', connected:false, selfTest:false,
   offerObj:null, answerObj:null, offerText:'', answerText:'',
   sendQueue:[], sending:false, currentSend:null,
@@ -1608,6 +1614,7 @@ const state = {
   room:{active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()}, roomMaxPeers:30, roomAnswerBuffer:'', relayTransfers:new Map(), transferJobs:new Map(), pausedTransfers:new Set(), cancelledTransfers:new Set(), internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false},
 };
 
+try{localStorage.setItem('p2p-member-id',state.memberId)}catch{}
 try{sessionStorage.setItem('p2p-member-id',state.memberId)}catch{}
 
 const I18N = {
@@ -1834,7 +1841,7 @@ function renderTargets(){
 function createPeerConnection(peerId,role,{room=false,name='Peer'}={}){
   if(state.peers.has(peerId)){try{state.peers.get(peerId).pc.close()}catch{}}
   const pc=new RTCPeerConnection(rtcConfig());
-  const peer={id:peerId,pc,dc:null,name,role,room,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,memberId:'',roomRole:role==='host'?'Admin':'Member'};
+  const peer={id:peerId,pc,dc:null,name,role,room,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,memberId:'',instanceId:'',roomRole:role==='host'?'Admin':'Member'};
   state.peers.set(peerId,peer);
   pc.oniceconnectionstatechange=()=>{
     const s=pc.iceConnectionState;
@@ -1874,10 +1881,10 @@ async function sendHello(peerId=null){
     if(pwd.length<8){showModal('Password required','<div class="notice warn">Enable password protection only after entering a password of at least 8 characters.</div>');return;}
     p.sessionSalt=bytesRandom(16);p.sessionChallenge=bytesRandom(32);p.sessionKeys=await deriveKeys(pwd,p.sessionSalt);
     const proof=await proofFor(p.sessionKeys,p.sessionChallenge);
-    await sendJson({t:'hello',v:APP_VERSION,name:state.device,memberId:state.memberId,role:state.room.active&&state.room.role==='host'?'Admin':'Member',protected:true,salt:toB64(p.sessionSalt),challenge:toB64(p.sessionChallenge),proof:toB64(proof)},peerId);
+    await sendJson({t:'hello',v:APP_VERSION,name:state.device,memberId:state.memberId,instanceId:state.connectionInstanceId,role:state.room.active&&state.room.role==='host'?'Admin':'Member',protected:true,salt:toB64(p.sessionSalt),challenge:toB64(p.sessionChallenge),proof:toB64(proof)},peerId);
     setConn('Awaiting password',`The other device must verify the shared password for ${peerLabel(p)}.`,'warn');
   }else{
-    await sendJson({t:'hello',v:APP_VERSION,name:state.device,memberId:state.memberId,role:state.room.active&&state.room.role==='host'?'Admin':'Member',protected:false},peerId);p.authenticated=true;syncPrimary();renderPeers();
+    await sendJson({t:'hello',v:APP_VERSION,name:state.device,memberId:state.memberId,instanceId:state.connectionInstanceId,role:state.room.active&&state.room.role==='host'?'Admin':'Member',protected:false},peerId);p.authenticated=true;syncPrimary();renderPeers();
   }
 }
 
@@ -1890,6 +1897,7 @@ async function handleMessage(data,peerId){
     if(m.t==='auth-fail'){p.authenticated=false;setConn('Authentication failed',`The shared password did not match for ${peerLabel(p)}.`,'bad');return;}
     if(m.t==='room-roster')return handleRoomRoster(m,peerId);
     if(m.t==='room-end')return handleRoomEnd(m);
+    if(m.t==='room-replaced'){setConn('Session replaced','This member identity is already connected from a newer page session.','warn');cleanupConnection();toast('This session was replaced by the newer connection.');return;}
     if(m.t==='room-leave')return handleRoomLeave(m,peerId);
     if(m.t==='file-start')return handleFileStart(m,peerId);
     if(m.t==='file-accept'||m.t==='file-reject'||m.t==='file-done'||m.t==='file-cancel'||m.t==='file-resume'||m.t==='file-pause'){if(state.room.role==='host'&&m.routeToMemberId){const target=state.room.members.get(m.routeToMemberId);if(target?.peerId){await sendJson({...m,routeToMemberId:'',routeFromMemberId:m.fromMemberId||roomMemberIdForPeer(peerId)},target.peerId);}return;}return dispatchFileControl(m,peerId);}
@@ -1904,7 +1912,12 @@ async function handleMessage(data,peerId){
 
 async function handleHello(m,peerId){
   const p=getPeer(peerId);if(!p)return;
-  p.name=m.name||p.name;p.memberId=m.memberId||p.id;p.roomRole=m.role||'Member';renderPeers();if(state.room.active&&state.room.role==='host'){syncRoomRoster();sendRoomRoster();}
+  p.name=m.name||p.name;p.memberId=m.memberId||p.memberId||p.id;p.instanceId=m.instanceId||p.instanceId||'';p.roomRole=m.role||'Member';
+  if(state.room.active&&state.room.role==='host'&&p.room&&p.memberId){
+    const duplicate=[...state.peers.values()].find(x=>x.id!==peerId&&x.room&&x.memberId&&x.memberId===p.memberId&&x.connected);
+    if(duplicate){try{await sendJson({t:'room-replaced',memberId:p.memberId,reason:'A newer connection for this member was detected.'},duplicate.id)}catch{}cleanupPeer(duplicate.id);}
+  }
+  renderPeers();if(state.room.active&&state.room.role==='host'){syncRoomRoster();sendRoomRoster();}
   if(m.protected){
     const salt=fromB64(m.salt),challenge=fromB64(m.challenge),expected=fromB64(m.proof);const pwd=await askPassword();
     if(pwd===null){await sendJson({t:'auth-fail',reason:'cancelled'},peerId);return;}
@@ -1970,7 +1983,7 @@ async function sendRoomRoster(){
   }
 }
 function handleRoomRoster(m,peerId){if(!state.room.active)return;state.room.adminId=m.adminId||'';const map=new Map();for(const x of (m.roster||[])){map.set(x.memberId,{...x,self:x.memberId===state.memberId,peerId:[...state.peers.values()].find(p=>p.memberId===x.memberId)?.id||undefined});}state.room.members=map;for(const p of state.peers.values()){const mm=map.get(p.memberId);if(mm){p.name=mm.name||p.name;p.roomRole=mm.role||'Member';}}renderPeers();}
-function handleRoomEnd(m){showModal('Room ended',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].roomEnded)}</div>`);for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended',m.reason||I18N[state.lang].roomEnded,'warn');}
+function handleRoomEnd(m){showModal('Room ended',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].roomEnded)}</div>`);for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended',m.reason||I18N[state.lang].roomEnded,'warn');}
 function handleRoomLeave(m,peerId){if(state.room.role!=='host')return;cleanupPeer(peerId);syncRoomRoster();sendRoomRoster();}
 
 async function handleFileStart(m,peerId){
@@ -2111,6 +2124,9 @@ function toast(msg){let t=document.querySelector('.toast');if(!t){t=document.cre
 
 
 function randomRoomCode(){let n='';while(n.length<6)n+=Math.floor(Math.random()*10);return n;}
+function rememberRoomSession(mode,code,role='member'){try{localStorage.setItem('p2p-last-room',JSON.stringify({mode,code:String(code||''),role,memberId:state.memberId,name:state.device,at:Date.now()}))}catch{}}
+function forgetRoomSession(){try{localStorage.removeItem('p2p-last-room')}catch{}}
+function getLastRoomSession(){try{const x=JSON.parse(localStorage.getItem('p2p-last-room')||'null');return x&&/^\d{6}$/.test(String(x.code||''))?x:null}catch{return null}}
 async function loadExternalScript(url){return new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src=url;sc.async=true;sc.crossOrigin='anonymous';sc.onload=()=>resolve();sc.onerror=()=>reject(new Error('Unable to load '+url));document.head.appendChild(sc);});}
 async function ensurePeerJs(){
   if(window.Peer)return true;
@@ -2127,7 +2143,7 @@ function cleanupInternet(){try{state.internet.peer?.destroy()}catch{}state.inter
 function attachPeerJsDataConnection(conn){
   const peerId='internet:'+conn.peer;
   if(state.peers.has(peerId))cleanupPeer(peerId);
-  const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS',memberId:'',roomRole:'Member'};
+  const peer={id:peerId,pc:conn.peerConnection||null,dc:conn,name:conn.metadata?.name||`Device ${String(conn.peer).slice(0,4)}`,role:'internet',room:true,pending:true,connected:false,authenticated:false,sessionKeys:null,sessionSalt:null,sessionChallenge:null,passwordEnabled:false,transport:'PeerJS',memberId:conn.metadata?.memberId||'',instanceId:conn.metadata?.instanceId||'',roomRole:'Member'};
   state.peers.set(peerId,peer);
   const opened=async()=>{peer.connected=true;peer.pending=false;setPrimaryIfNeeded(peerId);state.selectedPeerIds.add(peerId);renderPeers();setConn('Connected',`Internet WebRTC link · ${peerLabel(peer)}.`,'good');if(peer.pc?.getStats)startStats();await sendHello(peerId);if(state.room.role==='host')sendRoomRoster();else syncRoomRoster();renderChat();};
   conn.on('open',opened);
@@ -2150,19 +2166,19 @@ async function createInternetRoom(){
   let lastErr=null;
   for(let i=0;i<7;i++){
     const code=randomRoomCode();
-    try{await createInternetPeerHost(code);state.internet.active=true;state.internet.role='host';state.room={active:true,role:'host',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};syncRoomRoster();setPath('Internet / WebRTC');setConn('Room ready',`Internet room ${code} is ready. Share the 6-digit code.`,'good');els.internetServicePill.textContent='PeerJS Cloud ready';els.internetServicePill.className='pill good';els.signalingPill.textContent='Internet signaling';renderPeers();toast(`Internet room ${code} created.`);return;}catch(err){lastErr=err;try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;if(err?.type==='unavailable-id')continue;break;}
+    try{await createInternetPeerHost(code);state.internet.active=true;state.internet.role='host';state.room={active:true,role:'host',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};rememberRoomSession('internet',code,'admin');syncRoomRoster();setPath('Internet / WebRTC');setConn('Room ready',`Internet room ${code} is ready. Share the 6-digit code.`,'good');els.internetServicePill.textContent='PeerJS Cloud ready';els.internetServicePill.className='pill good';els.signalingPill.textContent='Internet signaling';renderPeers();toast(`Internet room ${code} created.`);return;}catch(err){lastErr=err;try{state.internet.peer?.destroy()}catch{}state.internet.peer=null;if(err?.type==='unavailable-id')continue;break;}
   }
   els.internetServicePill.textContent='Unavailable';els.internetServicePill.className='pill bad';throw new Error(lastErr?.message||lastErr?.type||'Could not create an Internet room.');
 }
 async function joinInternetRoomCode(code){
   code=String(code||'').replace(/\D/g,'').slice(0,6);if(!/^\d{6}$/.test(code))throw new Error('Enter a 6-digit room code.');
   await ensurePeerJs();cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
-  state.internet.active=true;state.internet.role='join';state.internet.roomCode=code;state.room={active:true,role:'join',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};
+  state.internet.active=true;state.internet.role='join';state.internet.roomCode=code;state.room={active:true,role:'join',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};rememberRoomSession('internet',code,'member');
   const peer=new Peer(undefined,peerJsConfig());state.internet.peer=peer;
   peer.on('error',err=>{if(err?.type==='peer-unavailable'){setConn('Room not found',`No active Internet room is using ${code}.`,'bad');toast('Room not found.');}else{setConn('Internet error',err?.message||err?.type||'PeerJS error.','bad');}});
   peer.on('disconnected',()=>{setConn('Signaling disconnected','Existing WebRTC links may remain alive; new connections are unavailable until signaling reconnects.','warn');els.internetServicePill.textContent='Signaling disconnected';els.internetServicePill.className='pill warn';els.signalingPill.textContent='Signaling offline';});
   await new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('PeerJS signaling connection timed out.'));}},15000);const onOpen=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve();};const onError=err=>{if(settled)return;settled=true;clearTimeout(timer);reject(err||new Error('PeerJS signaling error.'));};peer.on('open',onOpen);peer.on('error',onError);});
-  const conn=peer.connect(code,{label:'offline-p2p-room',metadata:{name:state.device,app:APP_VERSION},reliable:true,serialization:'binary'});
+  const conn=peer.connect(code,{label:'offline-p2p-room',metadata:{name:state.device,memberId:state.memberId,instanceId:state.connectionInstanceId,app:APP_VERSION},reliable:true,serialization:'binary'});
   attachPeerJsDataConnection(conn);setPath('Internet / WebRTC');setConn('Connecting',`Joining Internet room ${code}…`,'warn');els.internetServicePill.textContent='PeerJS Cloud connected';els.internetServicePill.className='pill good';els.signalingPill.textContent='Internet signaling';renderPeers();
 }
 async function joinInternetRoom(){showModal('Join Internet room',`<div class="modal-message">Enter the 6-digit room code. The connection starts automatically when all six digits are entered.</div><div style="margin-top:10px"><input id="internetRoomCodeInput" class="input ltr-only" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456"></div>`,()=>{let raw=$('internetRoomCodeInput')?.value?.trim()||'';const code=String(raw).replace(/\D/g,'').slice(0,6);if(!/^\d{6}$/.test(code)){$('internetRoomCodeInput')?.focus();return false;}joinInternetRoomCode(code).catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));return true;});setTimeout(()=>{const i=$('internetRoomCodeInput');if(!i)return;i.focus();i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'').slice(0,6);if(i.value.length===6)document.querySelector('#modalOk')?.click();});},50);}
@@ -2170,7 +2186,7 @@ async function joinInternetRoom(){showModal('Join Internet room',`<div class="mo
 function createRoom(){if(!els.lanOnly.checked){return createInternetRoom().catch(err=>showModal('Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`));}return createLanRoom();}
 function createLanRoom(){
 
-  cleanupConnection();state.room={active:true,role:'host',id:randomRoomCode(),pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};state.selectedPeerIds.clear();syncRoomRoster();setConn('Room ready',`Room ${state.room.id} is ready. Invite a device.`,'good');renderPeers();toast('Room created. Invite a device.');createRoomInvite();}
+  cleanupConnection();state.room={active:true,role:'host',id:randomRoomCode(),pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};rememberRoomSession('offline',state.room.id,'admin');state.selectedPeerIds.clear();syncRoomRoster();setConn('Room ready',`Room ${state.room.id} is ready. Invite a device.`,'good');renderPeers();toast('Room created. Invite a device.');createRoomInvite();}
 
 async function createRoomInvite(){
   if(!state.room.active||state.room.role!=='host'){toast('Create a room first.');return;}
@@ -2181,7 +2197,7 @@ async function createRoomInvite(){
 async function joinRoomFromOffer(text){
   let obj;try{obj=await decodeSignalAsync(text)}catch(err){showModal('Invalid room invitation',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);return;}
   if(obj.kind!=='offer'||!obj.room||!obj.roomId||!obj.peerId||!obj.description?.sdp){showModal('Invalid room invitation','<div class="notice bad">This QR is not a valid P2P Share room invitation.</div>');return;}
-  cleanupConnection();state.room={active:true,role:'join',id:String(obj.roomId),pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};
+  cleanupConnection();state.room={active:true,role:'join',id:String(obj.roomId),pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};rememberRoomSession('offline',obj.roomId,'member');
   const pc=createPeerConnection(`room:${obj.peerId}`,'join',{room:true,name:'Room host'});await pc.setRemoteDescription(obj.description);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);await waitIceComplete(pc);const answerObj={kind:'answer',v:APP_VERSION,room:true,roomId:obj.roomId,peerId:obj.peerId,from:state.device,created:Date.now(),description:pc.localDescription};const textAns=await encodeSignalAsync(answerObj);const code=await makeVerificationCode(textAns);state.room.currentInviteText=textAns;state.room.currentInviteCode=code;renderPeers();setConn('Answer ready',`Show the return QR to the room host. Verification ${code}.`,'good');await showQr('Return QR to room host',textAns,code);}
 async function applyRoomAnswer(text){
   let obj;try{obj=await decodeSignalAsync(text)}catch(err){showModal('Invalid room answer',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);return;}
@@ -2190,7 +2206,7 @@ async function applyRoomAnswer(text){
 }
 async function scanRoomInvite(){await scanQrInto('offerIn',true);}
 async function scanRoomAnswer(){if(!state.room.pendingPeerId){toast('No pending invitation.');return;}await scanQrInto('roomAnswerIn',true);}
-async function endOrLeaveRoom(){if(!state.room.active)return;if(state.room.role==='host'){if(!confirm(I18N[state.lang].endRoomConfirm))return;for(const p of connectedPeers().filter(x=>x.room&&x.authenticated))try{await sendJson({t:'room-end',reason:I18N[state.lang].roomEnded},p.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended','The room has been ended for everyone.','warn');toast('Room ended.');}else{const host=connectedPeers().find(p=>p.room&&(p.roomRole==='Admin'||p.role==='internet'||p.role==='join'))||connectedPeers()[0];if(host)try{await sendJson({t:'room-leave',memberId:state.memberId,name:state.device},host.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Left room','You left the room.','warn');toast('Left room.');}}
+async function endOrLeaveRoom(){if(!state.room.active)return;if(state.room.role==='host'){if(!confirm(I18N[state.lang].endRoomConfirm))return;for(const p of connectedPeers().filter(x=>x.room&&x.authenticated))try{await sendJson({t:'room-end',reason:I18N[state.lang].roomEnded},p.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended','The room has been ended for everyone.','warn');toast('Room ended.');}else{const host=connectedPeers().find(p=>p.room&&(p.roomRole==='Admin'||p.role==='internet'||p.role==='join'))||connectedPeers()[0];if(host)try{await sendJson({t:'room-leave',memberId:state.memberId,name:state.device},host.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Left room','You left the room.','warn');toast('Left room.');}}
 
 async function createOffer(quick=false){
   if(!('RTCPeerConnection' in window)){showModal('WebRTC unavailable','<div class="notice bad">This browser does not expose RTCPeerConnection.</div>');return;}
@@ -2378,7 +2394,7 @@ els.deviceName.value=state.device;
 els.offlineModeBtn.onclick=()=>setNetworkMode(false);els.internetModeBtn.onclick=()=>setNetworkMode(true);els.lanOnly.onchange=()=>setNetworkMode(!els.lanOnly.checked);els.passwordEnabled.onchange=()=>{els.passwordBox.classList.toggle('hidden',!els.passwordEnabled.checked);};
 els.langBtn.onclick=()=>{state.lang=state.lang==='en'?'ar':'en';localStorage.setItem('p2p-lang',state.lang);applyLang();};
 els.helpBtn.onclick=()=>showModal('How to use',`<div class="modal-message"><ol style="padding-left:18px;line-height:1.7"><li>Select <b>Internet / Hybrid</b> for the normal 6-digit room experience.</li><li>Choose <b>Create room</b> on the first device, then share the six-digit code.</li><li>Other devices choose <b>Join room</b> and enter the code.</li><li>Use <b>Room chat</b> for messages, quick reactions, or host announcements.</li><li>Use <b>Send files</b> to one or many connected devices.</li><li>Use <b>Offline / LAN</b> when you need a completely serverless local fallback.</li><li>Technical diagnostics, security settings, TURN settings and manual pairing are under <b>Advanced</b>.</li></ol></div>`);
-els.resetBtn.onclick=()=>{if(confirm('Reset this app? This clears local history and settings.')){localStorage.removeItem('p2p-history');localStorage.removeItem('p2p-device');localStorage.removeItem('p2p-lang');localStorage.removeItem('p2p-network-mode');localStorage.removeItem('p2p-network-mode-v160-defaulted');location.reload();}};
+els.resetBtn.onclick=()=>{if(confirm('Reset this app? This clears local history and settings.')){localStorage.removeItem('p2p-history');localStorage.removeItem('p2p-device');localStorage.removeItem('p2p-lang');localStorage.removeItem('p2p-network-mode');localStorage.removeItem('p2p-network-mode-v160-defaulted');localStorage.removeItem('p2p-member-id');sessionStorage.removeItem('p2p-member-id');localStorage.removeItem('p2p-last-room');location.reload();}};
 els.modalClose.onclick=()=>{stopQrScan();closeModal()};els.modalOk.onclick=()=>{stopQrScan();closeModal()};els.modal.addEventListener('click',e=>{if(e.target===els.modal){stopQrScan();closeModal();}});
 
 window.addEventListener('beforeunload',()=>{stopQrScan();try{state.internet.peer?.destroy();state.dc?.close();state.pc?.close()}catch{}});
