@@ -1912,7 +1912,7 @@ async function requestNotifications(){
     toast(`Notification setup failed${err?.message?` · ${err.message}`:''}`);
   }
 }
-function isP2PShareActive(){return document.visibilityState==='visible' && document.hasFocus();}
+function isP2PShareActive(){return document.visibilityState==='visible';}
 function maybeNotify(title,body='',opts={}){
   if(!state.notifications.enabled||typeof Notification==='undefined'||Notification.permission!=='granted')return;
   if(isP2PShareActive())return;
