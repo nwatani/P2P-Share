@@ -166,7 +166,7 @@ input[type=file]{display:none!important}
 .media-note{font-size:11px;color:var(--muted);line-height:1.45}
 .media-hands{display:flex;flex-wrap:wrap;gap:6px}
 .media-hand-item{display:inline-flex;gap:6px;align-items:center;padding:6px 8px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);font-size:11px}
-.call-btn{min-width:40px}
+.call-btn{min-width:40px}.media-remote-audio{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 @media(max-width:760px){.media-stage{grid-template-columns:1fr}.media-local-wrap video{width:128px;max-width:48vw}}
 
 </style>
@@ -2198,15 +2198,37 @@ function mediaHasActiveLocalTrack(kind){
   return mediaCallList().some(c=>c.active && c.localStream && [...c.localStream.getTracks()].some(t=>t.kind===(kind==='video'?'video':'audio')));
 }
 async function mediaUnlockAudio(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;if(!state.media.audioCtx)state.media.audioCtx=new C();if(state.media.audioCtx.state==='suspended')await state.media.audioCtx.resume();state.media.audioUnlocked=state.media.audioCtx.state==='running';return state.media.audioUnlocked;}catch{return false;}}
-function mediaAttachRemoteAudio(call,stream){if(!call||!stream||!(call.kind==='audio'||call.kind==='video'))return false;try{if(!state.media.audioCtx||!state.media.audioUnlocked)return false;if(call.audioSource&&call.audioStream===stream)return true;try{call.audioSource?.disconnect()}catch{}try{call.audioGain?.disconnect()}catch{}const source=state.media.audioCtx.createMediaStreamSource(stream);const gain=state.media.audioCtx.createGain();gain.gain.value=1;source.connect(gain);gain.connect(state.media.audioCtx.destination);call.audioSource=source;call.audioGain=gain;call.audioStream=stream;call.audioUnlocked=true;return true;}catch{return false;}}
-function mediaGetLocalStream(kind){
+function mediaAttachRemoteAudio(call,stream){
+  if(!call||!stream||!(call.kind==='audio'||call.kind==='video'))return false;
+  try{
+    if(!call.audioEl){
+      const a=document.createElement('audio');
+      a.className='media-remote-audio';
+      a.autoplay=true;a.playsInline=true;a.controls=false;
+      a.setAttribute('aria-hidden','true');
+      document.body.appendChild(a);call.audioEl=a;
+    }
+    if(call.audioEl.srcObject!==stream)call.audioEl.srcObject=stream;
+    call.audioEl.muted=false;call.audioEl.volume=1;
+    const p=call.audioEl.play?.();if(p&&typeof p.catch==='function')p.catch(()=>{});
+    call.audioStream=stream;call.audioUnlocked=true;return true;
+  }catch{return false;}
+}
+async function mediaGetLocalStream(kind){
   const wantsVideo=kind==='video';
-  if(wantsVideo && state.media.localAV && state.media.localAV.getTracks().some(t=>t.readyState==='live'))return Promise.resolve(state.media.localAV);
-  if(!wantsVideo && state.media.localAV && state.media.localAV.getAudioTracks().some(t=>t.readyState==='live'))return Promise.resolve(state.media.localAV);
-  if(!wantsVideo && state.media.localAudio && state.media.localAudio.getTracks().some(t=>t.readyState==='live'))return Promise.resolve(state.media.localAudio);
+  const live=s=>s&&s.getTracks().some(t=>t.readyState==='live');
+  if(wantsVideo&&live(state.media.localAV))return state.media.localAV;
+  if(!wantsVideo&&live(state.media.localAV)&&state.media.localAV.getAudioTracks().some(t=>t.readyState==='live'))return state.media.localAV;
+  if(!wantsVideo&&live(state.media.localAudio)&&state.media.localAudio.getAudioTracks().some(t=>t.readyState==='live'))return state.media.localAudio;
   if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera and microphone access is unavailable in this browser.');
-  const constraints=wantsVideo?{audio:true,video:{facingMode:'user'}}:{audio:true,video:false};
-  return navigator.mediaDevices.getUserMedia(constraints).then(stream=>{if(wantsVideo)state.media.localAV=stream;else state.media.localAudio=stream;return stream;});
+  if(state.media.getUserMediaPromise)return state.media.getUserMediaPromise;
+  const constraints=wantsVideo
+    ?{audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:{facingMode:'user',width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}}}
+    :{audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false};
+  state.media.getUserMediaPromise=navigator.mediaDevices.getUserMedia(constraints).then(stream=>{
+    if(wantsVideo)state.media.localAV=stream;else state.media.localAudio=stream;return stream;
+  }).finally(()=>{state.media.getUserMediaPromise=null;});
+  return state.media.getUserMediaPromise;
 }
 function mediaSendSignal(targetMemberId,msg){
   const targetId=String(targetMemberId||'');
@@ -2244,7 +2266,14 @@ async function mediaCreatePeer(call,localStream){
   const pc=new RTCPeerConnection(rtcConfig());
   call.pc=pc;
   pc.onicecandidate=e=>{if(e.candidate)mediaSendSignal(call.peerMemberId,{t:'media-ice',callId:call.id,candidate:e.candidate.toJSON?e.candidate.toJSON():e.candidate}).catch(()=>{});};
-  pc.ontrack=e=>{const st=e.streams?.[0]||null;if(st){call.remoteStream=st;if(st.getAudioTracks?.().length)mediaAttachRemoteAudio(call,st);renderMedia();}};
+  pc.ontrack=e=>{
+  let st=e.streams?.[0]||call.remoteStream;
+  if(!st)st=new MediaStream();
+  if(e.track&&!st.getTracks().some(t=>t.id===e.track.id))st.addTrack(e.track);
+  call.remoteStream=st;
+  if(st.getAudioTracks?.().length)mediaAttachRemoteAudio(call,st);
+  renderMedia();
+};
   pc.onicecandidateerror=e=>{call.iceError=`${e.errorCode||''}${e.errorText?` · ${e.errorText}`:''}`.trim();renderMedia();};
   pc.oniceconnectionstatechange=()=>{call.iceState=pc.iceConnectionState;renderMedia();if(pc.iceConnectionState==='failed'){const hasTurn=buildIceServers().some(s=>s.urls.some(u=>/^turns?:/i.test(u)));setConn('Media ICE failed',hasTurn?'No usable media candidate pair was found. One ICE restart will be attempted.':'Direct media path failed. No TURN relay is configured for this browser/network.','bad');if(!call.iceRestartTried){mediaRestartIce(call).then(ok=>{if(!ok&&state.media.calls.has(call.id))setTimeout(()=>mediaEndCall(call.id,false),1200);});}else setTimeout(()=>{if(state.media.calls.has(call.id))mediaEndCall(call.id,false);},1200);}};
   pc.onconnectionstatechange=()=>{
@@ -2315,7 +2344,10 @@ async function mediaFlushPendingIce(call){
 function mediaEndCall(callId,notify=true){
   const call=state.media.calls.get(String(callId));if(!call)return;
   if(notify)mediaSendSignal(call.peerMemberId,{t:'media-end',callId:call.id}).catch(()=>{});
-  try{call.audioSource?.disconnect()}catch{};try{call.audioGain?.disconnect()}catch{};try{call.pc?.close()}catch{}
+  try{call.audioSource?.disconnect()}catch{};
+  try{call.audioGain?.disconnect()}catch{};
+  try{if(call.audioEl){call.audioEl.pause();call.audioEl.srcObject=null;call.audioEl.remove();}}catch{}
+  try{call.pc?.close()}catch{}
   state.media.calls.delete(call.id);
   renderMedia();
   if(!state.media.calls.size)mediaStopLocalIfIdle();
