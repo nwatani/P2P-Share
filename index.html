@@ -1546,7 +1546,7 @@ return {QRCode:QRCode,QRErrorCorrectLevel:QRErrorCorrectLevel};
 }
 const QR = __initEmbeddedQr();
 
-const APP_VERSION = '1.8.0';
+const APP_VERSION = '1.8.1';
 const DB_NAME = 'offline-p2p-share';
 const DB_VERSION = 1;
 const CHUNK_DEFAULT = 64 * 1024;
@@ -1593,7 +1593,7 @@ const state = {
   icePath:'Unknown', statsTimer:null, qrStream:null, qrTimer:null, pairCode:'', quickMode:false,
   diagSamples:new Map(), diagLast:null,
   peers:new Map(), primaryPeerId:null, selectedPeerIds:new Set(), chat:{messages:[],seen:new Set(),target:'all'},
-  room:{active:false,role:null,id:'',name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()}, roomMaxPeers:30, roomAnswerBuffer:'', relayTransfers:new Map(), transferJobs:new Map(), pausedTransfers:new Set(), cancelledTransfers:new Set(), transferQueue:[], activeTransferPeers:new Set(), maxConcurrentTransfers:3, reconnectTimer:null, reconnectAttempts:0, internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false},
+  room:{active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()}, roomMaxPeers:30, roomAnswerBuffer:'', relayTransfers:new Map(), transferJobs:new Map(), pausedTransfers:new Set(), cancelledTransfers:new Set(), transferQueue:[], activeTransferPeers:new Set(), maxConcurrentTransfers:3, reconnectTimer:null, reconnectAttempts:0, internet:{active:false,role:null,roomCode:'',peer:null,provider:'peerjs-cloud',loaded:false},
 };
 
 try{localStorage.setItem('p2p-member-id',state.memberId)}catch{}
@@ -1855,7 +1855,7 @@ function createPeerConnection(peerId,role,{room=false,name='Peer'}={}){
 }
 function setPrimaryIfNeeded(peerId){if(!state.primaryPeerId||!state.peers.get(state.primaryPeerId)?.connected){state.primaryPeerId=peerId;syncPrimary(peerId);}}
 function cleanupPeer(peerId){const p=state.peers.get(peerId);if(!p)return;try{p.dc?.close()}catch{}try{p.pc?.close()}catch{}state.peers.delete(peerId);state.selectedPeerIds.delete(peerId);if(state.primaryPeerId===peerId)state.primaryPeerId=null;syncPrimary();renderPeers();renderChat();}
-function cleanupConnection(){if(state.reconnectTimer){clearTimeout(state.reconnectTimer);state.reconnectTimer=null;}if(state.internet?.peer){try{state.internet.peer.destroy()}catch{ }state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';}if(state.statsTimer){clearInterval(state.statsTimer);state.statsTimer=null;}for(const id of [...state.peers.keys()])cleanupPeer(id);state.pc=null;state.dc=null;state.connected=false;state.authenticated=false;state.sessionKeys=null;state.currentSend=null;state.sending=false;state.diagSamples.clear();state.diagLast=null;state.room.active=false;state.room.role=null;state.room.pendingPeerId=null;state.room.currentInviteText='';state.room.currentInviteCode='';state.room.adminId='';state.room.members=new Map();updateSendUi();renderPeers();renderDiagnostics([]);}
+function cleanupConnection(){if(state.reconnectTimer){clearTimeout(state.reconnectTimer);state.reconnectTimer=null;}if(state.internet?.peer){try{state.internet.peer.destroy()}catch{ }state.internet.peer=null;state.internet.active=false;state.internet.role=null;state.internet.roomCode='';}if(state.statsTimer){clearInterval(state.statsTimer);state.statsTimer=null;}for(const id of [...state.peers.keys()])cleanupPeer(id);state.pc=null;state.dc=null;state.connected=false;state.authenticated=false;state.sessionKeys=null;state.currentSend=null;state.sending=false;state.diagSamples.clear();state.diagLast=null;state.room.active=false;state.room.role=null;state.room.id='';state.room.name='P2P Room';state.room.sessionId='';state.room.pendingPeerId=null;state.room.currentInviteText='';state.room.currentInviteCode='';state.room.adminId='';state.room.members=new Map();updateSendUi();renderPeers();renderDiagnostics([]);}
 function setupPeerConnection(role){cleanupConnection();const pc=createPeerConnection('primary',role,{room:false,name:'Peer'});setPrimaryIfNeeded('primary');return pc;}
 function attachDataChannel(peerId,dc){
   const peer=state.peers.get(peerId);if(!peer)return;peer.dc=dc;dc.binaryType='arraybuffer';dc.bufferedAmountLowThreshold=LOW_WATER;
@@ -1986,14 +1986,39 @@ async function sendRoomRoster(){
   if(!state.room.active||state.room.role!=='host')return;
   syncRoomRoster();
   const roster=[...state.room.members.values()].map(m=>({memberId:m.memberId,name:m.name,role:m.role,connected:!!m.connected,lastSeen:m.lastSeen||Date.now()}));
+  const chatHistory=publicChatHistory();
   for(const p of connectedPeers().filter(x=>x.room&&x.authenticated)){
-    try{await sendJson({t:'room-roster',roomId:state.room.id,roomName:state.room.name||'P2P Room',adminId:state.memberId,roster},p.id);}catch{}
+    try{await sendJson({t:'room-roster',roomId:state.room.id,roomSessionId:state.room.sessionId||'',roomName:state.room.name||'P2P Room',adminId:state.memberId,roster,chatHistory},p.id);}catch{}
   }
 }
-function handleRoomRoster(m,peerId){if(!state.room.active)return;state.room.adminId=m.adminId||'';if(m.roomName)state.room.name=String(m.roomName);const map=new Map();for(const x of (m.roster||[])){map.set(x.memberId,{...x,self:x.memberId===state.memberId,peerId:[...state.peers.values()].find(p=>p.memberId===x.memberId)?.id||undefined});}state.room.members=map;for(const p of state.peers.values()){const mm=map.get(p.memberId);if(mm){p.name=mm.name||p.name;p.roomRole=mm.role||'Member';}}renderPeers();}
-function handleRoomEnd(m){showModal('Room ended',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].roomEnded)}</div>`);for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended',m.reason||I18N[state.lang].roomEnded,'warn');}
+
+function handleRoomRoster(m,peerId){
+  if(!state.room.active)return;
+  state.room.adminId=m.adminId||'';
+  if(m.roomName)state.room.name=String(m.roomName);
+  const incomingSession=String(m.roomSessionId||'');
+  if(incomingSession&&incomingSession!==String(state.room.sessionId||'')){
+    state.room.sessionId=incomingSession;
+    resetRoomChat(incomingSession,true);
+  }else if(incomingSession&&!state.chat.messages.length){
+    state.room.sessionId=incomingSession;
+    resetRoomChat(incomingSession,true);
+  }
+  const map=new Map();
+  for(const x of (m.roster||[])){
+    map.set(x.memberId,{...x,self:x.memberId===state.memberId,peerId:[...state.peers.values()].find(p=>p.memberId===x.memberId)?.id||undefined});
+  }
+  state.room.members=map;
+  for(const p of state.peers.values()){const mm=map.get(p.memberId);if(mm){p.name=mm.name||p.name;p.roomRole=mm.role||'Member';}}
+  // Merge public room history supplied by the Admin. Private messages remain local to the sender/recipient.
+  mergeRoomChat(m.chatHistory||[]);
+  rememberRoomSession('internet',state.room.id,state.room.role==='host'?'admin':'member');
+  renderPeers();
+}
+
+function handleRoomEnd(m){showModal('Room ended',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].roomEnded)}</div>`);for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended',m.reason||I18N[state.lang].roomEnded,'warn');}
 function handleRoomLeave(m,peerId){if(state.room.role!=='host')return;const memberId=m.memberId||roomMemberIdForPeer(peerId);if(memberId)state.room.members.delete(memberId);cleanupPeer(peerId);syncRoomRoster();sendRoomRoster();}
-function handleRoomKick(m){for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Removed from room','The Admin removed you from this room.','warn');showModal('Removed from room',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].memberRemoved)}</div>`);}
+function handleRoomKick(m){for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Removed from room','The Admin removed you from this room.','warn');showModal('Removed from room',`<div class="notice warn">${escapeHtml(m.reason||I18N[state.lang].memberRemoved)}</div>`);}
 function handleRoomUpdate(m){if(!state.room.active)return;if(m.roomName)state.room.name=String(m.roomName);renderPeers();renderChat();}
 function removeRoomMember(memberId){if(state.room.role!=='host'||!state.room.active)return;const m=state.room.members.get(memberId);if(!m||m.memberId===state.memberId)return;if(!confirm(`Remove ${m.name||'this member'} from the room?`))return;const p=m.peerId?getPeer(m.peerId):[...state.peers.values()].find(x=>x.memberId===memberId);if(p){sendJson({t:'room-kick',memberId,reason:'The Admin removed you from the room.'},p.id).catch(()=>{});cleanupPeer(p.id);}state.room.members.delete(memberId);syncRoomRoster();sendRoomRoster();toast(`${m.name||'Member'} removed.`);}
 function renameRoom(){if(state.room.role!=='host'||!state.room.active)return;const name=prompt('Room name',state.room.name||'P2P Room');if(name===null)return;const clean=String(name).trim().slice(0,60);if(!clean)return;state.room.name=clean;const last=getLastRoomSession();if(last)rememberRoomSession(last.mode,state.room.id,last.role||'member');renderPeers();for(const p of connectedPeers().filter(x=>x.room&&x.authenticated))sendJson({t:'room-update',roomName:clean},p.id).catch(()=>{});toast('Room renamed.');}
@@ -2032,7 +2057,7 @@ function toHex(bytes){return [...bytes].map(b=>b.toString(16).padStart(2,'0')).j
 function addHistory(name,size,direction){state.history.unshift({id:uid(),name,size,direction,at:Date.now()});state.history=state.history.slice(0,60);localStorage.setItem('p2p-history',JSON.stringify(state.history));renderHistory();}
 function renderHistory(){els.historyList.innerHTML='';if(!state.history.length){els.historyList.innerHTML='<div class="history-empty">Your history is stored locally in this browser.</div>';return;}for(const h of state.history){const d=document.createElement('div');d.className='history-item';d.innerHTML=`<div class="grow"><div class="history-name" title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</div><div class="history-meta">${h.direction==='sent'?'Sent':'Received'} · ${fmtBytes(h.size)} · ${new Date(h.at).toLocaleString()}</div></div><span class="pill ${h.direction==='sent'?'':'good'}">${h.direction==='sent'?'↑':'↓'}</span>`;els.historyList.appendChild(d);}}
 
-function addChatMessage(message){
+function addChatMessage(message,opts={}){
   if(!message||!message.id)return;
   if(state.chat.seen.has(message.id))return;
   state.chat.seen.add(message.id);
@@ -2052,7 +2077,8 @@ function addChatMessage(message){
     const removed=state.chat.messages.splice(0,state.chat.messages.length-500);
     for(const item of removed)state.chat.seen.delete(item.id);
   }
-  renderChat();
+  if(opts.persist!==false)persistChatHistory();
+  if(opts.render!==false)renderChat();
 }
 
 function chatRecipients(){const peers=connectedPeers().filter(p=>p.authenticated&&p.room);if(!state.room.active)return targetPeerIds();if(state.room.role!=='host'){const host=peers.find(p=>p.roomRole==='Admin'||p.role==='internet'||p.role==='join')||peers[0];return host?[host.id]:[];}return peers.map(p=>p.id);}
@@ -2124,7 +2150,7 @@ async function receiveChatMessage(m,peerId){
   if(m.toMemberId && String(m.toMemberId)!==String(state.memberId))return;
   addChatMessage({...m,self:false,private:!!m.toMemberId});
 }
-function clearChat(){state.chat.messages=[];state.chat.seen.clear();renderChat();}
+function clearChat(){state.chat.messages=[];state.chat.seen.clear();persistChatHistory();renderChat();}
 function showModal(title,body,onOk=null,onCancel=null){
   els.modalTitle.textContent=title;els.modalBody.innerHTML=body;els.modalFoot.innerHTML='';
   if(onCancel){const c=document.createElement('button');c.className='btn';c.textContent='Cancel';c.onclick=()=>{stopQrScan();els.modal.classList.remove('show');onCancel();};els.modalFoot.appendChild(c);}
@@ -2136,7 +2162,12 @@ function toast(msg){let t=document.querySelector('.toast');if(!t){t=document.cre
 
 
 function randomRoomCode(){let n='';while(n.length<6)n+=Math.floor(Math.random()*10);return n;}
-function rememberRoomSession(mode,code,role='member'){try{localStorage.setItem('p2p-last-room',JSON.stringify({mode,code:String(code||''),role,memberId:state.memberId,name:state.device,roomName:state.room?.name||'',at:Date.now()}))}catch{}}
+function rememberRoomSession(mode,code,role='member'){try{localStorage.setItem('p2p-last-room',JSON.stringify({mode,code:String(code||''),role,memberId:state.memberId,name:state.device,roomName:state.room?.name||'',sessionId:state.room?.sessionId||'',at:Date.now()}))}catch{}}
+function chatStorageKey(sessionId){return sessionId?`p2p-chat:${sessionId}`:'';}
+function publicChatHistory(){return state.chat.messages.filter(m=>!m.toMemberId&&!m.private).slice(-200).map(m=>({...m,self:false}));}
+function persistChatHistory(){const key=chatStorageKey(state.room?.sessionId);if(!key)return;try{const compact=state.chat.messages.slice(-400).map(m=>({...m,self:!!m.self}));localStorage.setItem(key,JSON.stringify(compact));}catch{}}
+function resetRoomChat(sessionId,load=true){state.chat.messages=[];state.chat.seen.clear();state.chat.target='all';let restored=0;if(load&&sessionId){try{const raw=JSON.parse(localStorage.getItem(chatStorageKey(sessionId))||'[]');for(const m of Array.isArray(raw)?raw:[]){addChatMessage({...m,self:String(m.fromMemberId||'')===String(state.memberId)},{persist:false,render:false});restored++;}}catch{}}persistChatHistory();renderChat();if(restored>0)toast(`Restored ${restored} chat message${restored===1?'':'s'}.`);}
+function mergeRoomChat(messages){for(const m of Array.isArray(messages)?messages:[])addChatMessage({...m,self:String(m.fromMemberId||'')===String(state.memberId)},{persist:false,render:false});persistChatHistory();renderChat();}
 function forgetRoomSession(){try{localStorage.removeItem('p2p-last-room')}catch{}}
 function getLastRoomSession(){try{const x=JSON.parse(localStorage.getItem('p2p-last-room')||'null');return x&&/^\d{6}$/.test(String(x.code||''))?x:null}catch{return null}}
 async function loadExternalScript(url){return new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src=url;sc.async=true;sc.crossOrigin='anonymous';sc.onload=()=>resolve();sc.onerror=()=>reject(new Error('Unable to load '+url));document.head.appendChild(sc);});}
@@ -2225,7 +2256,9 @@ async function createInternetRoom(preferredCode=''){
       state.internet.active=true;
       state.internet.role='host';
       state.internet.roomCode=code;
-      state.room={active:true,role:'host',id:code,name:(preferred&&last?.roomName)?String(last.roomName).slice(0,60):'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};
+      const roomSessionId=(preferred&&last?.sessionId)?String(last.sessionId):uid();
+      state.room={active:true,role:'host',id:code,name:(preferred&&last?.roomName)?String(last.roomName).slice(0,60):'P2P Room',sessionId:roomSessionId,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};
+      if(reclaiming)resetRoomChat(roomSessionId,true);else resetRoomChat(roomSessionId,false);
       rememberRoomSession('internet',code,'admin');
       syncRoomRoster();
       setPath('Internet / WebRTC');
@@ -2261,7 +2294,10 @@ async function joinInternetRoomCode(code){
     return createInternetRoom(code);
   }
   await ensurePeerJs();cleanupConnection();cleanupInternet();els.internetServicePill.textContent='Connecting…';els.internetServicePill.className='pill warn';
-  state.internet.active=true;state.internet.role='join';state.internet.roomCode=code;state.room={active:true,role:'join',id:code,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};rememberRoomSession('internet',code,'member');
+  const lastSession=(last?.role==='member'&&String(last.code)===code)?String(last.sessionId||''):'';
+  state.internet.active=true;state.internet.role='join';state.internet.roomCode=code;state.room={active:true,role:'join',id:code,name:'P2P Room',sessionId:lastSession,pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};
+  if(lastSession)resetRoomChat(lastSession,true);else resetRoomChat('',false);
+  rememberRoomSession('internet',code,'member');
   const peer=new Peer(undefined,peerJsConfig());state.internet.peer=peer;
   peer.on('error',err=>{if(err?.type==='peer-unavailable'){setConn('Room not found',`No active Internet room is using ${code}.`,'bad');toast('Room not found.');}else{setConn('Internet error',err?.message||err?.type||'PeerJS error.','bad');}});
   peer.on('disconnected',()=>{setConn('Signaling disconnected','Existing WebRTC links may remain alive; new connections are unavailable until signaling reconnects.','warn');els.internetServicePill.textContent='Signaling disconnected';els.internetServicePill.className='pill warn';els.signalingPill.textContent='Signaling offline';});
@@ -2274,18 +2310,18 @@ async function joinInternetRoom(){showModal('Join Internet room',`<div class="mo
 function createRoom(){if(!els.lanOnly.checked){const last=getLastRoomSession();const preferred=(last?.role==='admin'&&last.memberId===state.memberId)?last.code:'';return createInternetRoom(preferred).catch(err=>showModal(preferred?'Room recovery failed':'Internet room failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div><div class="modal-message" style="margin-top:10px">${preferred?'Your previous room code is being kept. Use Create room again to retry recovery; the app will not silently replace it with a new code.':''}</div>`));}return createLanRoom();}
 function createLanRoom(){
 
-  cleanupConnection();state.room={active:true,role:'host',id:randomRoomCode(),name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};rememberRoomSession('offline',state.room.id,'admin');state.selectedPeerIds.clear();syncRoomRoster();setConn('Room ready',`Room ${state.room.id} is ready. Invite a device.`,'good');renderPeers();toast('Room created. Invite a device.');createRoomInvite();}
+  cleanupConnection();state.room={active:true,role:'host',id:randomRoomCode(),name:'P2P Room',sessionId:uid(),pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:state.memberId,members:new Map()};resetRoomChat(state.room.sessionId,false);rememberRoomSession('offline',state.room.id,'admin');state.selectedPeerIds.clear();syncRoomRoster();setConn('Room ready',`Room ${state.room.id} is ready. Invite a device.`,'good');renderPeers();toast('Room created. Invite a device.');createRoomInvite();}
 
 async function createRoomInvite(){
   if(!state.room.active||state.room.role!=='host'){toast('Create a room first.');return;}
   const connected=connectedPeers().filter(p=>p.room).length;const pending=[...state.peers.values()].filter(p=>p.room&&!p.connected).length;if(connected+pending>=state.roomMaxPeers){toast(`The room limit is ${state.roomMaxPeers} devices.`);return;}
   if(state.room.pendingPeerId){showQr('Current room invitation',state.room.currentInviteText,state.room.currentInviteCode);return;}
   const peerId=uid();const pc=createPeerConnection(peerId,'host',{room:true,name:'Joining device'});state.room.pendingPeerId=peerId;
-  const offer=await pc.createOffer();await pc.setLocalDescription(offer);await waitIceComplete(pc);const obj={kind:'offer',v:APP_VERSION,room:true,roomId:state.room.id,peerId,from:state.device,created:Date.now(),description:pc.localDescription};const text=await encodeSignalAsync(obj);const code=await makeVerificationCode(text);state.room.currentInviteText=text;state.room.currentInviteCode=code;renderPeers();await showQr('Invite a device',text,code);}
+  const offer=await pc.createOffer();await pc.setLocalDescription(offer);await waitIceComplete(pc);const obj={kind:'offer',v:APP_VERSION,room:true,roomId:state.room.id,roomSessionId:state.room.sessionId||'',peerId,from:state.device,created:Date.now(),description:pc.localDescription};const text=await encodeSignalAsync(obj);const code=await makeVerificationCode(text);state.room.currentInviteText=text;state.room.currentInviteCode=code;renderPeers();await showQr('Invite a device',text,code);}
 async function joinRoomFromOffer(text){
   let obj;try{obj=await decodeSignalAsync(text)}catch(err){showModal('Invalid room invitation',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);return;}
   if(obj.kind!=='offer'||!obj.room||!obj.roomId||!obj.peerId||!obj.description?.sdp){showModal('Invalid room invitation','<div class="notice bad">This QR is not a valid P2P Share room invitation.</div>');return;}
-  cleanupConnection();state.room={active:true,role:'join',id:String(obj.roomId),name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};rememberRoomSession('offline',obj.roomId,'member');
+  cleanupConnection();state.room={active:true,role:'join',id:String(obj.roomId),name:'P2P Room',sessionId:String(obj.roomSessionId||''),pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};if(state.room.sessionId)resetRoomChat(state.room.sessionId,true);else resetRoomChat('',false);rememberRoomSession('offline',obj.roomId,'member');
   const pc=createPeerConnection(`room:${obj.peerId}`,'join',{room:true,name:'Room host'});await pc.setRemoteDescription(obj.description);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);await waitIceComplete(pc);const answerObj={kind:'answer',v:APP_VERSION,room:true,roomId:obj.roomId,peerId:obj.peerId,from:state.device,created:Date.now(),description:pc.localDescription};const textAns=await encodeSignalAsync(answerObj);const code=await makeVerificationCode(textAns);state.room.currentInviteText=textAns;state.room.currentInviteCode=code;renderPeers();setConn('Answer ready',`Show the return QR to the room host. Verification ${code}.`,'good');await showQr('Return QR to room host',textAns,code);}
 async function applyRoomAnswer(text){
   let obj;try{obj=await decodeSignalAsync(text)}catch(err){showModal('Invalid room answer',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);return;}
@@ -2294,12 +2330,12 @@ async function applyRoomAnswer(text){
 }
 async function scanRoomInvite(){await scanQrInto('offerIn',true);}
 async function scanRoomAnswer(){if(!state.room.pendingPeerId){toast('No pending invitation.');return;}await scanQrInto('roomAnswerIn',true);}
-async function endOrLeaveRoom(){if(!state.room.active)return;if(state.room.role==='host'){if(!confirm(I18N[state.lang].endRoomConfirm))return;for(const p of connectedPeers().filter(x=>x.room&&x.authenticated))try{await sendJson({t:'room-end',reason:I18N[state.lang].roomEnded},p.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended','The room has been ended for everyone.','warn');toast('Room ended.');}else{const host=connectedPeers().find(p=>p.room&&(p.roomRole==='Admin'||p.role==='internet'||p.role==='join'))||connectedPeers()[0];if(host)try{await sendJson({t:'room-leave',memberId:state.memberId,name:state.device},host.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Left room','You left the room.','warn');toast('Left room.');}}
+async function endOrLeaveRoom(){if(!state.room.active)return;if(state.room.role==='host'){if(!confirm(I18N[state.lang].endRoomConfirm))return;for(const p of connectedPeers().filter(x=>x.room&&x.authenticated))try{await sendJson({t:'room-end',reason:I18N[state.lang].roomEnded},p.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Room ended','The room has been ended for everyone.','warn');toast('Room ended.');}else{const host=connectedPeers().find(p=>p.room&&(p.roomRole==='Admin'||p.role==='internet'||p.role==='join'))||connectedPeers()[0];if(host)try{await sendJson({t:'room-leave',memberId:state.memberId,name:state.device},host.id)}catch{}for(const id of [...state.peers.keys()])cleanupPeer(id);cleanupInternet();state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};forgetRoomSession();state.selectedPeerIds.clear();renderPeers();renderChat();setConn('Left room','You left the room.','warn');toast('Left room.');}}
 
 async function createOffer(quick=false){
   if(!('RTCPeerConnection' in window)){showModal('WebRTC unavailable','<div class="notice bad">This browser does not expose RTCPeerConnection.</div>');return;}
   state.quickMode=!!quick;switchRole('host');
-  const pc=setupPeerConnection('host');state.room={active:false,role:null,id:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:''};renderPeers();setConn('Creating offer','Preparing a direct LAN connection…','warn');els.createOfferBtn.disabled=true;els.easyCreateBtn.disabled=true;
+  const pc=setupPeerConnection('host');state.room={active:false,role:null,id:'',name:'P2P Room',sessionId:'',pendingPeerId:null,currentInviteText:'',currentInviteCode:'',adminId:'',members:new Map()};renderPeers();setConn('Creating offer','Preparing a direct LAN connection…','warn');els.createOfferBtn.disabled=true;els.easyCreateBtn.disabled=true;
   try{const offer=await pc.createOffer();await pc.setLocalDescription(offer);await waitIceComplete(pc);const obj={kind:'offer',v:APP_VERSION,from:state.device,created:Date.now(),description:pc.localDescription};state.offerObj=obj;state.offerText=await encodeSignalAsync(obj);els.offerOut.value=state.offerText;els.copyOfferBtn.disabled=false;els.showOfferQrBtn.disabled=false;els.saveOfferBtn.disabled=false;els.applyAnswerBtn.disabled=false;const code=await makeVerificationCode(state.offerText);showPairCode(code,'The phone should show this same code after scanning.');setQuickStatus('Offer ready. Show the QR to the phone; it will create the answer automatically when scanned.','good');setConn('Ready to pair',`Verification code: ${code}. Scan the QR to continue.`,'good');toast('Pairing ready.');if(quick)await showQr('Scan to join',state.offerText,code);}
   catch(err){setQuickStatus('Could not create the pairing offer.','bad');showModal('Offer failed',`<div class="notice bad">${escapeHtml(err.message||String(err))}</div>`);}
   finally{els.createOfferBtn.disabled=false;els.easyCreateBtn.disabled=false;}
